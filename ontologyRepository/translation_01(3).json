@@ -1,0 +1,217 @@
+{
+  "root": "Translation",
+  "graphs": {
+    "Translation": [
+      [
+        "application",
+        "is_a_subclass_of",
+        "performance"
+      ],
+      [
+        "partners",
+        "is_a_subclass_of",
+        "Translation"
+      ],
+      [
+        "newClient",
+        "is_a_subclass_of",
+        "existingColaboration"
+      ],
+      [
+        "translator",
+        "is_a_subclass_of",
+        "partners"
+      ],
+      [
+        "existingColaboration",
+        "is_a_subclass_of",
+        "partners"
+      ],
+      [
+        "performance",
+        "is_a_subclass_of",
+        "Translation"
+      ],
+      [
+        "benefits",
+        "is_a_subclass_of",
+        "performance"
+      ],
+      [
+        "establishedClient",
+        "is_a_subclass_of",
+        "existingColaboration"
+      ],
+      [
+        "client",
+        "is_a_subclass_of",
+        "partners"
+      ],
+      [
+        "Translator",
+        "link_to_class",
+        "translator"
+      ],
+      [
+        "modelling",
+        "is_a_subclass_of",
+        "performance"
+      ],
+      [
+        "Client",
+        "link_to_class",
+        "client"
+      ]
+    ],
+    "Translator": [
+      [
+        "external",
+        "is_a_subclass_of",
+        "Translator"
+      ],
+      [
+        "RTO",
+        "is_a_subclass_of",
+        "Translator"
+      ],
+      [
+        "internal",
+        "is_a_subclass_of",
+        "Translator"
+      ],
+      [
+        "SWO",
+        "is_a_subclass_of",
+        "Translator"
+      ]
+    ],
+    "Client": [
+      [
+        "businessType",
+        "is_a_subclass_of",
+        "Client"
+      ],
+      [
+        "Business",
+        "link_to_class",
+        "businessType"
+      ],
+      [
+        "domain",
+        "is_a_subclass_of",
+        "Client"
+      ],
+      [
+        "Segment",
+        "link_to_class",
+        "chainSegment"
+      ],
+      [
+        "chainSegment",
+        "is_a_subclass_of",
+        "Client"
+      ],
+      [
+        "industrialDomain",
+        "link_to_class",
+        "domain"
+      ]
+    ],
+    "Business": [
+      [
+        "hybrid",
+        "is_a_subclass_of",
+        "Business"
+      ],
+      [
+        "SME",
+        "is_a_subclass_of",
+        "Business"
+      ],
+      [
+        "LC",
+        "is_a_subclass_of",
+        "Business"
+      ]
+    ],
+    "Segment": [
+      [
+        "endUser",
+        "is_a_subclass_of",
+        "Segment"
+      ],
+      [
+        "converter",
+        "is_a_subclass_of",
+        "Segment"
+      ],
+      [
+        "producer",
+        "is_a_subclass_of",
+        "Segment"
+      ]
+    ],
+    "industrialDomain": [
+      [
+        "plastic",
+        "is_a_subclass_of",
+        "industrialDomain"
+      ],
+      [
+        "aerospace",
+        "is_a_subclass_of",
+        "industrialDomain"
+      ],
+      [
+        "automotive",
+        "is_a_subclass_of",
+        "industrialDomain"
+      ],
+      [
+        "chemicalIndustry",
+        "is_a_subclass_of",
+        "industrialDomain"
+      ]
+    ]
+  },
+  "elucidations": {
+    "Translation": "",
+    "Translation.partners": null,
+    "Translation.performance": null,
+    "Translation.translator": null,
+    "Translation.client": null,
+    "Translator": null,
+    "Translation.Translator": "",
+    "Translation.Translator.RTO": null,
+    "Translation.Translator.SWO": null,
+    "Translation.Translator.internal": null,
+    "Translation.Translator.external": null,
+    "Client": null,
+    "Translation.Client": "",
+    "Translation.Client.businessType": null,
+    "Translation.Client.chainSegment": null,
+    "Business": null,
+    "Translation.Client.Business": "",
+    "Translation.Client.Business.SME": null,
+    "Translation.Client.Business.LC": null,
+    "Translation.Client.Business.hybrid": null,
+    "Segment": null,
+    "Translation.Client.Segment": "",
+    "Translation.Client.Segment.endUser": null,
+    "Translation.Client.Segment.producer": null,
+    "Translation.Client.Segment.converter": null,
+    "Translation.existingColaboration": null,
+    "Translation.newClient": null,
+    "Translation.establishedClient": null,
+    "Translation.Client.domain": null,
+    "industrialDomain": null,
+    "Translation.Client.industrialDomain": "",
+    "Translation.Client.industrialDomain.automotive": null,
+    "Translation.Client.industrialDomain.aerospace": null,
+    "Translation.Client.industrialDomain.plastic": null,
+    "Translation.Client.industrialDomain.chemicalIndustry": null,
+    "Translation.benefits": null,
+    "Translation.modelling": null,
+    "Translation.application": null
+  }
+}

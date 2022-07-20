@@ -362,9 +362,8 @@ class OntobuilderUI(QMainWindow):
       self.root_class = name
 
     self.CLASSES = {self.root_class: Graph('Memory', Literal(self.root_class))}
-    self.__createTree(self.root_class)
     self.current_class = self.root_class
-    self.subclass_names[self.root_class] = []
+    self.subclass_names[self.root_class] = [self.root_class]
     self.class_names.append(self.root_class)
     self.class_path = [self.root_class]
     self.link_lists[self.root_class] = []
@@ -373,7 +372,10 @@ class OntobuilderUI(QMainWindow):
     self.primitives[self.root_class] = {self.root_class: []}
     self.changed = True
 
-  # def on_treeClass_itemPressed(self, item, column):
+    self.__createTree(self.root_class)
+
+  def on_treeClass_itemPressed(self, item, column):
+    self.on_treeClass_itemSelectionChanged()
 
   def on_treeClass_itemSelectionChanged(self):
     item_list = self.ui.treeClass.selectedItems()

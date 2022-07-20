@@ -25,7 +25,7 @@ from rdflib import RDFS
 from rdflib import XSD
 
 # from graphHAP import Graph
-from ontologybuilderHAP_gui import Ui_MainWindow
+from PeriConto_gui import Ui_MainWindow
 from resources.pop_up_message_box import makeMessageBox
 from resources.resources_icons import roundButton
 from resources.single_list_selector_impl import SingleListSelector
@@ -74,8 +74,9 @@ DIRECTION = {
 LINK_COLOUR = QtGui.QColor(255, 100, 5, 255)
 PRIMITIVE_COLOUR = QtGui.QColor(255, 3, 23, 255)
 
-TTLFile = os.path.join("../coatingOntology_HAP", "%s.json" % "HAP")
-TTLDirectory = "../coatingOntology_HAP"
+
+ONTOLOGY_DIRECTORY = "../ontologyRepository"
+# TTLFile = os.path.join(ONTOLOGY_DIRECTORY, "%s.json" % "HAP")
 
 
 def plot(graph, class_names=[]):
@@ -226,7 +227,7 @@ class OntobuilderUI(QMainWindow):
     self.class_path = []
     self.link_lists = {}
     self.class_definition_sequence = []
-    self.TTLfile = TTLFile
+    self.TTLfile = None
     self.elucidations = {}
     self.selected_item = None
     self.root_class = None
@@ -328,15 +329,15 @@ class OntobuilderUI(QMainWindow):
 
   def __makeTree(self, touples, origin=[], stack=[], items={}):
     for s, o, p in touples:
-      if s not in stack:
+      if (s,o,p) not in stack:
         if s != origin:
           if o in items:
-            # print("add %s <-- %s" % (o, s))
+            # print("add %s <-- %s" % (o, s),p)
             item = QTreeWidgetItem(items[o])
             # print("debugging -- color",p )
             item.setBackground(0, COLOURS[p])
             item.predicate = p
-            stack.append(str(s))
+            stack.append((s,o,p))
             item.setText(0, s)
             items[s] = item
             self.__makeTree(touples, origin=s, stack=stack, items=items)
@@ -347,7 +348,7 @@ class OntobuilderUI(QMainWindow):
     name = dialog.getText()
     if name:
       fname = name.split(".")[0] + ".json"
-      self.TTLFile = os.path.join(TTLDirectory, fname)
+      self.JsonFile = os.path.join(ONTOLOGY_DIRECTORY, fname)
     else:
       self.close()
 
@@ -372,9 +373,22 @@ class OntobuilderUI(QMainWindow):
     self.primitives[self.root_class] = {self.root_class: []}
     self.changed = True
 
-  def on_treeClass_itemPressed(self, item, column):
+  # def on_treeClass_itemPressed(self, item, column):
+
+  def on_treeClass_itemSelectionChanged(self):
+    item_list = self.ui.treeClass.selectedItems()
+    # print("debugging", item_list.__class__, len(item_list))
+    if len(item_list)==1:
+      item = item_list[0]
+    else:
+      return
+    column = 0
     text_ID = item.text(column)
-    predicate = item.predicate
+    try:
+      predicate = item.predicate
+    except:
+      item.predicate = None
+      predicate = None
     print("debugging -- ", text_ID)
     self.selected_item = item
     # self.current_subclass = text_ID
@@ -419,6 +433,9 @@ class OntobuilderUI(QMainWindow):
 
       if not_exist:
         self.elucidations[not_exist] = ""
+
+  # def on_treeClass_itemSelectionChanged(self):
+  #   print("debugging -- selection changed")
 
   def on_treeClass_itemDoubleClicked(self, item, column):
     print("debugging -- double click", item.text(0))
@@ -710,7 +727,7 @@ class OntobuilderUI(QMainWindow):
     #
     # print("debugging")
     #
-    # f = self.TTLFile.split(".")[0] + ".nqd"
+    # f = self.JsonFile.split(".")[0] + ".nqd"
     # inf = open(f,'w')
     # inf.write(conjunctiveGraph.serialize(format="nquads"))
     # inf.close()
@@ -731,7 +748,7 @@ class OntobuilderUI(QMainWindow):
     data["graphs"] = graphs
     data["elucidations"] = self.elucidations
 
-    saveWithBackup(data, self.TTLFile)
+    saveWithBackup(data, self.JsonFile)
 
     # graphs = Graph("Memory")
     # for cl in self.class_definition_sequence:
@@ -739,7 +756,7 @@ class OntobuilderUI(QMainWindow):
     #   for t in self.CLASSES[cl].triples((None, None, None)):
     #     graphs.add(t)
     #
-    # self.TTLFile = self.TTLFile.split(".ttl")[0] + ".nquads"
+    # self.JsonFile = self.JsonFile.split(".ttl")[0] + ".nquads"
     #
     # graphs.serialize(TTLFile, format="nquads")
     # saveWithBackup(graphs, TTLFile)
@@ -751,21 +768,20 @@ class OntobuilderUI(QMainWindow):
   #   print("not implemented")
 
   def on_pushLoad_pressed(self):
-    options = QFileDialog.Options()
+    # options = QFileDialog.Options()
     dialog = QFileDialog.getOpenFileName(None,
                                          "Load Ontology",
-                                         TTLDirectory,
-                                         "",
-                                         # "Turtle files (*.ttl)",
-                                         "triple files (*.json",
-                                         # options=options
+                                         ONTOLOGY_DIRECTORY,
+                                         "*.json",
                                          )
-    self.TTLFile = dialog[0]
+    self.JsonFile = dialog[0]
     if dialog[0] == "":
+      print("not file specified --> closing")
       self.close()
+      return
 
     # print("debugging")
-    data = getData(self.TTLFile)
+    data = getData(self.JsonFile)
     self.root_class = data["root"]
     self.elucidations = data["elucidations"]
 
@@ -825,7 +841,8 @@ class OntobuilderUI(QMainWindow):
 
     dot = plot(graph_overall, self.class_names)
     # print("debugging -- dot")
-    dot.render("graph", directory=TTLDirectory)
+    graph_name = self.root_class
+    dot.render(graph_name, directory=ONTOLOGY_DIRECTORY)
     dot.view()
 
 

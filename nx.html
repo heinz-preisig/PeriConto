@@ -1,0 +1,123 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.css" type="text/css" />
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis-network.min.js"> </script>
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+
+<style type="text/css">
+
+        #mynetwork {
+            width: 100%;
+            height: 800px;
+            background-color: #ffffff;
+            border: 1px solid lightgray;
+            position: relative;
+            float: left;
+        }
+
+        
+
+        
+        #config {
+            float: left;
+            width: 400px;
+            height: 600px;
+        }
+        
+
+        
+</style>
+
+</head>
+
+<body>
+<div id = "mynetwork"></div>
+
+
+<div id = "config"></div>
+
+<script type="text/javascript">
+
+    // initialize global variables.
+    var edges;
+    var nodes;
+    var network; 
+    var container;
+    var options, data;
+
+    
+    // This method is responsible for drawing the graph, returns the drawn network
+    function drawGraph() {
+        var container = document.getElementById('mynetwork');
+        
+        
+
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([{"id": "http://example.com/mtelectrolyte", "label": "http://example.com/mtelectrolyte", "shape": "dot", "size": 10}, {"id": "http://example.com/mtliquid", "label": "http://example.com/mtliquid", "shape": "dot", "size": 10}, {"id": "http://example.com/mtfluid", "label": "http://example.com/mtfluid", "shape": "dot", "size": 10}, {"id": "http://example.com/prsanodizing", "label": "http://example.com/prsanodizing", "shape": "dot", "size": 10}, {"id": "http://example.com/prsprocess", "label": "http://example.com/prsprocess", "shape": "dot", "size": 10}, {"id": "http://example.com/prswashing", "label": "http://example.com/prswashing", "shape": "dot", "size": 10}, {"id": "http://example.com/prspickling", "label": "http://example.com/prspickling", "shape": "dot", "size": 10}, {"id": "http://example.com/prssol-gel_coating", "label": "http://example.com/prssol-gel_coating", "shape": "dot", "size": 10}, {"id": "http://example.com/prsetching", "label": "http://example.com/prsetching", "shape": "dot", "size": 10}, {"id": "http://example.com/cspreservatives", "label": "http://example.com/cspreservatives", "shape": "dot", "size": 10}, {"id": "http://example.com/csadditives", "label": "http://example.com/csadditives", "shape": "dot", "size": 10}, {"id": "http://example.com/csrheology", "label": "http://example.com/csrheology", "shape": "dot", "size": 10}, {"id": "http://example.com/cslight_stablizers", "label": "http://example.com/cslight_stablizers", "shape": "dot", "size": 10}, {"id": "http://example.com/cscoating_layer", "label": "http://example.com/cscoating_layer", "shape": "dot", "size": 10}, {"id": "http://example.com/csdryers", "label": "http://example.com/csdryers", "shape": "dot", "size": 10}, {"id": "http://example.com/cssurface_actives", "label": "http://example.com/cssurface_actives", "shape": "dot", "size": 10}, {"id": "http://example.com/csdefoamers", "label": "http://example.com/csdefoamers", "shape": "dot", "size": 10}, {"id": "http://example.com/cscatalyst", "label": "http://example.com/cscatalyst", "shape": "dot", "size": 10}, {"id": "http://example.com/cswetting", "label": "http://example.com/cswetting", "shape": "dot", "size": 10}, {"id": "http://example.com/csinterface", "label": "http://example.com/csinterface", "shape": "dot", "size": 10}, {"id": "http://example.com/cscoated_system", "label": "http://example.com/cscoated_system", "shape": "dot", "size": 10}, {"id": "http://example.com/cssubstrate", "label": "http://example.com/cssubstrate", "shape": "dot", "size": 10}, {"id": "http://example.com/cspre-treated-surface", "label": "http://example.com/cspre-treated-surface", "shape": "dot", "size": 10}, {"id": "http://example.com/mtorganic", "label": "http://example.com/mtorganic", "shape": "dot", "size": 10}, {"id": "http://example.com/mtmaterial", "label": "http://example.com/mtmaterial", "shape": "dot", "size": 10}, {"id": "http://example.com/mtinorganic", "label": "http://example.com/mtinorganic", "shape": "dot", "size": 10}, {"id": "http://example.com/mtsolid", "label": "http://example.com/mtsolid", "shape": "dot", "size": 10}, {"id": "http://example.com/csextender", "label": "http://example.com/csextender", "shape": "dot", "size": 10}, {"id": "http://example.com/csbinder", "label": "http://example.com/csbinder", "shape": "dot", "size": 10}, {"id": "http://example.com/csdye", "label": "http://example.com/csdye", "shape": "dot", "size": 10}, {"id": "http://example.com/cspigment", "label": "http://example.com/cspigment", "shape": "dot", "size": 10}, {"id": "http://example.com/mtCr2O3", "label": "http://example.com/mtCr2O3", "shape": "dot", "size": 10}, {"id": "http://example.com/mtFe2O3", "label": "http://example.com/mtFe2O3", "shape": "dot", "size": 10}, {"id": "http://example.com/mtTiO2", "label": "http://example.com/mtTiO2", "shape": "dot", "size": 10}, {"id": "http://example.com/csprotectiv", "label": "http://example.com/csprotectiv", "shape": "dot", "size": 10}, {"id": "http://example.com/cscolour", "label": "http://example.com/cscolour", "shape": "dot", "size": 10}, {"id": "http://example.com/mtgas", "label": "http://example.com/mtgas", "shape": "dot", "size": 10}]);
+        edges = new vis.DataSet([{"from": "http://example.com/mtelectrolyte", "label": 'test-label', "to": "http://example.com/mtliquid", "triples": [["http://example.com/mtelectrolyte", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtliquid"]]}, {"from": "http://example.com/mtliquid", "label": 1, "to": "http://example.com/mtfluid", "triples": [["http://example.com/mtliquid", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtfluid"]], "weight": 1}, {"from": "http://example.com/prsanodizing", "label": 1, "to": "http://example.com/prsprocess", "triples": [["http://example.com/prsanodizing", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/prsprocess"]], "weight": 1}, {"from": "http://example.com/prsprocess", "label": 1, "to": "http://example.com/prswashing", "triples": [["http://example.com/prswashing", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/prsprocess"]], "weight": 1}, {"from": "http://example.com/prsprocess", "label": 1, "to": "http://example.com/prspickling", "triples": [["http://example.com/prspickling", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/prsprocess"]], "weight": 1}, {"from": "http://example.com/prsprocess", "label": 1, "to": "http://example.com/prssol-gel_coating", "triples": [["http://example.com/prssol-gel_coating", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/prsprocess"]], "weight": 1}, {"from": "http://example.com/prsprocess", "label": 1, "to": "http://example.com/prsetching", "triples": [["http://example.com/prsetching", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/prsprocess"]], "weight": 1}, {"from": "http://example.com/cspreservatives", "label": 1, "to": "http://example.com/csadditives", "triples": [["http://example.com/cspreservatives", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/csrheology", "triples": [["http://example.com/csrheology", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/cslight_stablizers", "triples": [["http://example.com/cslight_stablizers", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/cscoating_layer", "triples": [["http://example.com/csadditives", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoating_layer"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/csdryers", "triples": [["http://example.com/csdryers", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/cssurface_actives", "triples": [["http://example.com/cssurface_actives", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/csdefoamers", "triples": [["http://example.com/csdefoamers", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/cscatalyst", "triples": [["http://example.com/cscatalyst", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csadditives", "label": 1, "to": "http://example.com/cswetting", "triples": [["http://example.com/cswetting", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/csadditives"]], "weight": 1}, {"from": "http://example.com/csinterface", "label": 1, "to": "http://example.com/cscoated_system", "triples": [["http://example.com/csinterface", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoated_system"]], "weight": 1}, {"from": "http://example.com/cscoated_system", "label": 1, "to": "http://example.com/cssubstrate", "triples": [["http://example.com/cssubstrate", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoated_system"]], "weight": 1}, {"from": "http://example.com/cscoated_system", "label": 1, "to": "http://example.com/cscoating_layer", "triples": [["http://example.com/cscoating_layer", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoated_system"]], "weight": 1}, {"from": "http://example.com/cscoated_system", "label": 1, "to": "http://example.com/cspre-treated-surface", "triples": [["http://example.com/cspre-treated-surface", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoated_system"]], "weight": 1}, {"from": "http://example.com/mtorganic", "label": 1, "to": "http://example.com/mtmaterial", "triples": [["http://example.com/mtorganic", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtmaterial"]], "weight": 1}, {"from": "http://example.com/mtmaterial", "label": 1, "to": "http://example.com/mtinorganic", "triples": [["http://example.com/mtinorganic", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtmaterial"]], "weight": 1}, {"from": "http://example.com/mtmaterial", "label": 1, "to": "http://example.com/mtsolid", "triples": [["http://example.com/mtsolid", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtmaterial"]], "weight": 1}, {"from": "http://example.com/mtmaterial", "label": 1, "to": "http://example.com/mtfluid", "triples": [["http://example.com/mtfluid", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtmaterial"]], "weight": 1}, {"from": "http://example.com/csextender", "label": 1, "to": "http://example.com/cscoating_layer", "triples": [["http://example.com/csextender", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoating_layer"]], "weight": 1}, {"from": "http://example.com/cscoating_layer", "label": 1, "to": "http://example.com/csbinder", "triples": [["http://example.com/csbinder", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoating_layer"]], "weight": 1}, {"from": "http://example.com/cscoating_layer", "label": 1, "to": "http://example.com/csdye", "triples": [["http://example.com/csdye", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoating_layer"]], "weight": 1}, {"from": "http://example.com/cscoating_layer", "label": 1, "to": "http://example.com/cspigment", "triples": [["http://example.com/cspigment", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cscoating_layer"]], "weight": 1}, {"from": "http://example.com/mtCr2O3", "label": 1, "to": "http://example.com/mtinorganic", "triples": [["http://example.com/mtCr2O3", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtinorganic"]], "weight": 1}, {"from": "http://example.com/mtCr2O3", "label": 1, "to": "http://example.com/mtsolid", "triples": [["http://example.com/mtCr2O3", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtsolid"]], "weight": 1}, {"from": "http://example.com/mtinorganic", "label": 1, "to": "http://example.com/mtFe2O3", "triples": [["http://example.com/mtFe2O3", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtinorganic"]], "weight": 1}, {"from": "http://example.com/mtinorganic", "label": 1, "to": "http://example.com/mtTiO2", "triples": [["http://example.com/mtTiO2", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtinorganic"]], "weight": 1}, {"from": "http://example.com/mtsolid", "label": 1, "to": "http://example.com/mtFe2O3", "triples": [["http://example.com/mtFe2O3", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtsolid"]], "weight": 1}, {"from": "http://example.com/mtsolid", "label": 1, "to": "http://example.com/mtTiO2", "triples": [["http://example.com/mtTiO2", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtsolid"]], "weight": 1}, {"from": "http://example.com/csprotectiv", "label": 1, "to": "http://example.com/cspigment", "triples": [["http://example.com/csprotectiv", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cspigment"]], "weight": 1}, {"from": "http://example.com/cspigment", "label": 1, "to": "http://example.com/cscolour", "triples": [["http://example.com/cscolour", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/cspigment"]], "weight": 1}, {"from": "http://example.com/mtgas", "label": 1, "to": "http://example.com/mtfluid", "triples": [["http://example.com/mtgas", "http://www.w3.org/2000/01/rdf-schema#subClassOf", "http://example.com/mtfluid"]], "weight": 1}]);
+
+        // adding nodes and edges to the graph
+        data = {nodes: nodes, edges: edges};
+
+        var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": false,
+            "type": "continuous"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+        
+        
+
+        
+        // if this network requires displaying the configure window,
+        // put it in its div
+        options.configure["container"] = document.getElementById("config");
+        
+
+        network = new vis.Network(container, data, options);
+	 
+        
+
+
+        
+
+        return network;
+
+    }
+
+    drawGraph();
+
+</script>
+</body>
+</html>

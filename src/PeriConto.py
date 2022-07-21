@@ -546,11 +546,12 @@ class OntobuilderUI(QMainWindow):
     self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], object))
 
     # generate GUI tree
-    parent_item = self.ui.treeClass.currentItem()
-    item = QTreeWidgetItem(parent_item)
-    item.predicate = predicate
-    item.setText(0, subclass_ID)
-    self.ui.treeClass.expandAll()
+    self.__createTree(self.current_class)
+    # parent_item = self.ui.treeClass.currentItem()
+    # item = QTreeWidgetItem(parent_item)
+    # item.predicate = predicate
+    # item.setText(0, subclass_ID)
+    # self.ui.treeClass.expandAll()
     self.changed = True
 
   def on_pushAddPrimitive_pressed(self):
@@ -752,6 +753,8 @@ class OntobuilderUI(QMainWindow):
 
     saveWithBackup(data, self.JsonFile)
 
+    dot = self.__makeDotGraph()
+
     # graphs = Graph("Memory")
     # for cl in self.class_definition_sequence:
     #   # graphs[cl] = []
@@ -836,16 +839,19 @@ class OntobuilderUI(QMainWindow):
 
   def on_pushVisualise_pressed(self):
 
+    dot = self.__makeDotGraph()
+    dot.view()
+
+  def __makeDotGraph(self):
     graph_overall = Graph()
     for cl in self.CLASSES:
       for t in self.CLASSES[cl].triples((None, None, None)):
         graph_overall.add(t)
-
     dot = plot(graph_overall, self.class_names)
     # print("debugging -- dot")
     graph_name = self.root_class
     dot.render(graph_name, directory=ONTOLOGY_DIRECTORY)
-    dot.view()
+    return dot
 
 
 if __name__ == "__main__":

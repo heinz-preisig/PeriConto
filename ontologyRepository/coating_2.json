@@ -214,19 +214,9 @@
         "URL"
       ],
       [
-        "elucidation",
-        "comment",
-        "comment"
-      ],
-      [
         "URL",
         "string",
         "string"
-      ],
-      [
-        "chemicalComponent",
-        "value",
-        "elucidation"
       ],
       [
         "quantityMeasure",

@@ -15,8 +15,10 @@ So the approach is to use an internal representation of the predicates and trans
 import json
 import os
 
+import rdflib.paths
 from PyQt5 import QtGui
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTreeWidgetItem
 from graphviz import Digraph
 from rdflib import Graph
 from rdflib import Literal
@@ -25,7 +27,7 @@ from rdflib import RDFS
 from rdflib import XSD
 
 # from graphHAP import Graph
-from PeriConto_gui import Ui_MainWindow
+from PeriContoCoatedProduct_gui import Ui_MainWindow
 from resources.pop_up_message_box import makeMessageBox
 from resources.resources_icons import roundButton
 from resources.single_list_selector_impl import SingleListSelector
@@ -42,6 +44,7 @@ RDFSTerms = {
 
 MYTerms = {v: k for k, v in RDFSTerms.items()}
 
+VALUE = "value"
 PRIMITIVES = ["integer", "string", "comment"]
 ADD_ELUCIDATIONS = ["class", "subclass", "value"]
 
@@ -115,7 +118,7 @@ def getFilesAndVersions(abs_name, ext):
   base_name = os.path.basename(abs_name)
   ver = 0  # initial last version
   _s = []
-  directory = os.path.dirname(abs_name)  # listdir(os.getcwd())
+  directory = os.path.dirname(abs_name)
   files = os.listdir(directory)
 
   for f in files:
@@ -171,10 +174,28 @@ def makeRDFCompatible(identifier):
   """
   return Literal(identifier)
 
+def getpath(tuples, origin, destination, thepath, visited="start"):
+  """
+  we search backwards from the destination to the origin
+  """
+  if visited == "start":
+    thepath = [destination]
+    visited = []
 
-class OntobuilderUI(QMainWindow):
+  if destination not in visited:
+    visited.append(destination)
+    for s,o,p in tuples:
+      if s == destination:
+        thepath.append(o)
+        return thepath
+      else:
+        getpath(tuples, destination, o, thepath, visited)
+
+
+class CoatedProduct(QMainWindow):
   def __init__(self):
-    super(OntobuilderUI, self).__init__()
+    super(CoatedProduct, self).__init__()
+
     self.ui = Ui_MainWindow()
     self.ui.setupUi(self)
 
@@ -185,23 +206,21 @@ class OntobuilderUI(QMainWindow):
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
 
     self.gui_objects = {
-            "load"               : self.ui.pushLoad,
-            "create"             : self.ui.pushCreate,
-            "visualise"          : self.ui.pushVisualise,
-            "save"               : self.ui.pushSave,
-            "exit"               : self.ui.pushExit,
-            "add_subclass"       : self.ui.pushAddSubclass,
-            "add_primitive"      : self.ui.pushAddPrimitive,
-            "link_new_class"     : self.ui.pushAddNewClass,
-            "link_existing_class": self.ui.pushAddExistingClass,
-            "remove"             : self.ui.pushRemoveNode,
-            "elucidation"        : self.ui.groupElucidation,
-            "elucidation_button" : self.ui.pushAddElucidation,
+            "load"                      : self.ui.pushLoad,
+            "create"                    : self.ui.pushCreate,
+            "visualise"                 : self.ui.pushVisualise,
+            "save"                      : self.ui.pushSave,
+            "exit"                      : self.ui.pushExit,
+            "ClassSubclassElucidation"  : self.ui.groupClassSubclassElucidation,
+            "ValueElucidation"          : self.ui.groupValueElucidation,
+            "AddValueElucidation_button": self.ui.pushAddValueElucidation,
+            "PrimitiveString"           : self.ui.groupString,
+            "PrimitiveQuantity"         : self.ui.groupQuantityMeasure,
             }
     w = 150
     h = 25
-    for i in ["add_subclass", "add_primitive", "link_new_class", "link_existing_class"]:
-      self.gui_objects[i].setFixedSize(w, h)
+    # for i in ["add_subclass", "add_primitive", "link_new_class", "link_existing_class"]:
+    #   self.gui_objects[i].setFixedSize(w, h)
 
     self.ontology_graph = None
     self.ontology_root = None
@@ -214,6 +233,7 @@ class OntobuilderUI(QMainWindow):
     self.primitives = {}
     self.class_names = []
     self.class_path = []
+    self.path = []
     self.link_lists = {}
     self.class_definition_sequence = []
     self.TTLfile = None
@@ -221,6 +241,7 @@ class OntobuilderUI(QMainWindow):
     self.selected_item = None
     self.root_class = None
     self.load_elucidation = True
+    self.done = False
 
   def __ui_state(self, state):
     # what to show
@@ -237,43 +258,34 @@ class OntobuilderUI(QMainWindow):
     elif state == "selected_subclass":
       show = ["save",
               "exit",
-              "add_subclass",
-              "add_primitive",
-              "link_new_class",
-              "link_existing_class",
-              "elucidation",
+              "ClassSubclassElucidation",
               ]
     elif state == "selected_class":
       show = ["save",
               "exit",
-              "add_subclass",
-              "add_primitive",
-              "elucidation",
+              "ClassSubclassElucidation",
               ]
-    elif state == "selected_primitive":
+    elif state == "selected_integer":
       show = ["save",
               "exit",
+              "ValueElucidation",
+              "PrimitiveQuantity",
+              ""
               ]
-    elif state == "value_selected":
+    elif state == "selected_string":
       show = ["save",
               "exit",
-              "elucidation",
+              "ValueElucidation",
+              "PrimitiveString",
               ]
-    elif state == "no_existing_classes":
+    elif state == "selected_value":
       show = ["save",
               "exit",
-              "add_subclass",
-              "add_primitive",
-              "link_new_class",
-              "elucidation",
-              ]
-    elif state == "occupied":
-      show = ["save",
-              "exit",
-              "elucidation",
+              "ValueElucidation",
               ]
     else:
       show = []
+      print("ooops -- no such state", state)
 
     for b in self.gui_objects:
       if b not in show:
@@ -363,9 +375,15 @@ class OntobuilderUI(QMainWindow):
     self.__createTree(self.root_class)
 
   def on_treeClass_itemPressed(self, item, column):
+    self.done = False
     self.on_treeClass_itemSelectionChanged()
 
   def on_treeClass_itemSelectionChanged(self):
+    if self.done:
+      self.done = False
+      return
+
+    self.done = True
     item_list = self.ui.treeClass.selectedItems()
     # print("debugging", item_list.__class__, len(item_list))
     if len(item_list) == 1:
@@ -379,7 +397,7 @@ class OntobuilderUI(QMainWindow):
     except:
       item.predicate = None
       predicate = None
-    print("debugging -- ", text_ID)
+    # print("debugging -- ", text_ID)
     self.selected_item = item
     # self.current_subclass = text_ID
 
@@ -391,35 +409,37 @@ class OntobuilderUI(QMainWindow):
         self.__shiftClass(text_ID)
     elif self.__islinked(text_ID):
       print("debugging -- is linked", text_ID)
-      self.__ui_state("occupied")
+      self.__ui_state("selected_subclass")
+      # self.__pathToSubclass(text_ID)
     elif self.__isSubClass(text_ID):
       print("debugging -- it is a subclass", text_ID)
       self.__ui_state("selected_subclass")
-      if not self.__permittedClasses():
-        print(">> no_existing_classes")
-        self.__ui_state("no_existing_classes")
-      else:
-        print(">>>>selected_subclass")
-        self.__ui_state("selected_subclass")
+      # self.__pathToSubclass(text_ID)
       self.current_subclass = text_ID
-    elif self.__isPrimitive(predicate):
-      print("debugging -- is a primitive")
-      self.__ui_state("selected_primitive")
-    elif self.__isValue:
-      self.__ui_state("value_selected")
+    elif self.__isValue(predicate):
+      self.__ui_state("selected_value")
+    elif text_ID == "integer":
+      print("debugging -- is a integer")
+      self.__ui_state("selected_integer")
+    elif text_ID == "string":
+      print("debugging -- is a string")
+      self.__ui_state("selected_string")
+    elif text_ID == "comment":
+      self.__ui_state("selected_comment")
     else:
       print("should not come here")
 
+    self.__pathToSubclass(text_ID)
+
     if self.__hasElucidation(text_ID, predicate):
-      self.ui.pushAddElucidation.hide()
       self.load_elucidation = True
       p = self.__makePathName(text_ID)
       not_exist = None
       try:
-        self.ui.textElucidation.setPlainText(self.elucidations[p])
+        self.ui.textClassSubclassElucidation.setPlainText(self.elucidations[p])
       except:
         not_exist = p
-        self.ui.textElucidation.clear()
+        self.ui.textClassSubclassElucidation.clear()
 
       if not_exist:
         self.elucidations[not_exist] = ""
@@ -427,47 +447,47 @@ class OntobuilderUI(QMainWindow):
   # def on_treeClass_itemSelectionChanged(self):
   #   print("debugging -- selection changed")
 
-  def on_treeClass_itemDoubleClicked(self, item, column):
-    print("debugging -- double click", item.text(0))
-    ID = str(item.text(column))
-    if self.__isSubClass(ID):
-      # rename subclass
-      dialog = UI_String("new name", placeholdertext=str(item.text(0)))
-      dialog.exec_()
-      new_name = dialog.getText()
-      if new_name:
-        graph = self.CLASSES[self.current_class]
-        for s, p, o in graph.triples((None, None, Literal(ID))):
-          print("debugging -- change triple", s, p, o)
-          self.CLASSES[self.current_class].remove((s, p, o))
-          object = makeRDFCompatible(new_name)
-          self.CLASSES[self.current_class].add((s, RDFSTerms["is_a_subclass_of"], object))
+  # def on_treeClass_itemDoubleClicked(self, item, column):
+  #   print("debugging -- double click", item.text(0))
+  #   ID = str(item.text(column))
+  #   if self.__isSubClass(ID):
+  #     # rename subclass
+  #     dialog = UI_String("new name", placeholdertext=str(item.text(0)))
+  #     dialog.exec_()
+  #     new_name = dialog.getText()
+  #     if new_name:
+  #       graph = self.CLASSES[self.current_class]
+  #       for s, p, o in graph.triples((None, None, Literal(ID))):
+  #         print("debugging -- change triple", s, p, o)
+  #         self.CLASSES[self.current_class].remove((s, p, o))
+  #         object = makeRDFCompatible(new_name)
+  #         self.CLASSES[self.current_class].add((s, RDFSTerms["is_a_subclass_of"], object))
+  #
+  #       for s, p, o in graph.triples((Literal(ID), None, None)):
+  #         print("debugging -- change triple", s, p, o)  # add to graph
+  #         self.CLASSES[self.current_class].remove((s, p, o))
+  #         subject = makeRDFCompatible(new_name)
+  #         self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], o))
+  #
+  #       self.__createTree(self.current_class)
 
-        for s, p, o in graph.triples((Literal(ID), None, None)):
-          print("debugging -- change triple", s, p, o)  # add to graph
-          self.CLASSES[self.current_class].remove((s, p, o))
-          subject = makeRDFCompatible(new_name)
-          self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], o))
-
-        self.__createTree(self.current_class)
-
-  def on_textElucidation_textChanged(self):
+  def on_textValueElucidation_textChanged(self):
     # print("debugging change text")
     if self.load_elucidation:
       self.load_elucidation = False
-      self.ui.pushAddElucidation.hide()
+      self.ui.pushAddValueElucidation.hide()
       return
 
-    self.ui.pushAddElucidation.show()
+    self.ui.pushAddValueElucidation.show()
 
   def on_pushAddElucidation_pressed(self):
     self.load_elucidation = True
-    self.ui.pushAddElucidation.hide()
+    self.ui.pushAddValueElucidation.hide()
     text_ID = self.selected_item.text(0)
     predicate = self.selected_item.predicate
     if self.__hasElucidation(text_ID, predicate):
       p = self.__makePathName(text_ID)
-      d = self.ui.textElucidation.toPlainText()
+      d = self.ui.pushAddValueElucidation.toPlainText()
       self.elucidations[p] = d
       pass
 
@@ -491,7 +511,7 @@ class OntobuilderUI(QMainWindow):
     return text_ID in PRIMITIVES
 
   def __isValue(self, predicate):
-    return predicate == "value"
+    return predicate == VALUE
 
   def __islinked(self, ID):
     for cl in self.link_lists:
@@ -654,12 +674,40 @@ class OntobuilderUI(QMainWindow):
             permitted_classes.append(cl)
     return permitted_classes
 
+
+
+
+
+  def __pathToSubclass(self, text_ID):
+
+    if text_ID not in self.path:
+      self.path.append(text_ID)
+    else:
+      i = self.class_path.index(text_ID)
+      self.class_path = self.class_path[:i + 1]
+
+    self.ui.listClasses.clear()
+    self.ui.listClasses.addItems(self.path)
+
   def __addToClassPath(self, addclass):
     self.class_path.append(addclass)
     self.ui.listClasses.clear()
     self.ui.listClasses.addItems(self.class_path)
 
+  def __addToPath(self, addnode):
+    self.class_path.append(addnode)
+    self.path.append(addnode)
+    self.ui.listClasses.clear()
+    self.ui.listClasses.addItems(self.path)
+  #
   def __cutClassPath(self, cutclass):
+    i = self.class_path.index(cutclass)
+    self.class_path = self.class_path[:i + 1]
+    self.ui.listClasses.clear()
+    self.ui.listClasses.addItems(self.class_path)
+
+
+  def __cutPath(self, cutclass):
     i = self.class_path.index(cutclass)
     self.class_path = self.class_path[:i + 1]
     self.ui.listClasses.clear()
@@ -675,9 +723,9 @@ class OntobuilderUI(QMainWindow):
     self.current_class = class_ID
     self.__createTree(class_ID)
     if class_ID not in self.class_path:
-      self.__addToClassPath(class_ID)
+      self.__addToPath(class_ID)
     else:
-      self.__cutClassPath(class_ID)
+      self.__cutPath(class_ID)
 
   def on_pushExit_pressed(self):
     self.closeMe()
@@ -820,8 +868,13 @@ class OntobuilderUI(QMainWindow):
     self.current_class = self.root_class
     self.class_path = [self.root_class]
     self.__createTree(self.root_class)
-    self.ui.listClasses.addItems(self.class_path)
     self.__ui_state("show_tree")
+
+    # ====================================
+    tuples = self.__prepareTree(self.root_class)
+    gugus = getpath(tuples, self.root_class, "material", [])
+    print(gugus)
+    pass
 
   def on_pushVisualise_pressed(self):
 
@@ -849,6 +902,6 @@ if __name__ == "__main__":
   icon = os.path.join(os.path.abspath("resources/icons"), icon_f)
   app.setWindowIcon(QtGui.QIcon(icon))
 
-  MainWindow = OntobuilderUI()
+  MainWindow = CoatedProduct()
   MainWindow.show()
   sys.exit(app.exec_())

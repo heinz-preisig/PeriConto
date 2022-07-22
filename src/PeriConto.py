@@ -190,8 +190,8 @@ class OntobuilderUI(QMainWindow):
     self.ui.setupUi(self)
 
     roundButton(self.ui.pushLoad, "load", tooltip="load ontology")
-    roundButton(self.ui.pushVisualise, "dot_graph", tooltip="visualise ontology")
     roundButton(self.ui.pushCreate, "plus", tooltip="create")
+    roundButton(self.ui.pushVisualise, "dot_graph", tooltip="visualise ontology")
     roundButton(self.ui.pushSave, "save", tooltip="save ontology")
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
 

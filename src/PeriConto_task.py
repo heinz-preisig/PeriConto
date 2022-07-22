@@ -30,7 +30,7 @@ from PyQt5 import QtWidgets
 # sys.path.extend([root, os.path.join(root, 'packages'), os.path.join(root, 'tasks')])
 
 
-from PeriConto_new import OntobuilderUI
+from PeriConto_split import OntobuilderUI
 
 a = QtWidgets.QApplication(sys.argv)
 

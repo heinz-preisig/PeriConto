@@ -246,15 +246,15 @@
      </rect>
     </property>
     <property name="title">
-     <string>string</string>
+     <string>identifier</string>
     </property>
-    <widget class="QTextBrowser" name="textString">
+    <widget class="QLineEdit" name="editString">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>30</y>
-       <width>541</width>
-       <height>111</height>
+       <y>40</y>
+       <width>531</width>
+       <height>25</height>
       </rect>
      </property>
     </widget>
@@ -269,9 +269,9 @@
      </rect>
     </property>
     <property name="title">
-     <string>quantity measure</string>
+     <string>number</string>
     </property>
-    <widget class="QDoubleSpinBox" name="doubleSpinBoxQuantityMeasure">
+    <widget class="QDoubleSpinBox" name="spinNumber">
      <property name="geometry">
       <rect>
        <x>10</x>

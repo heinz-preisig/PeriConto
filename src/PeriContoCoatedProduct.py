@@ -12,20 +12,28 @@ So the approach is to use an internal representation of the predicates and trans
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
-import json
 import os
 
-import rdflib.paths
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QTreeWidgetItem
-from graphviz import Digraph
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QTreeWidgetItem
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import RDF
-from rdflib import RDFS
-from rdflib import XSD
 
+from PeriConto import COLOURS
+from PeriConto import LINK_COLOUR
+from PeriConto import MYTerms
+from PeriConto import ONTOLOGY_DIRECTORY
+from PeriConto import PRIMITIVES
+from PeriConto import PRIMITIVE_COLOUR
+from PeriConto import RDFSTerms
+from PeriConto import VALUE
+from PeriConto import getData
+from PeriConto import makeRDFCompatible
+from PeriConto import plot
+from PeriConto import saveWithBackup
 # from graphHAP import Graph
 from PeriContoCoatedProduct_gui import Ui_MainWindow
 from resources.pop_up_message_box import makeMessageBox
@@ -33,163 +41,46 @@ from resources.resources_icons import roundButton
 from resources.single_list_selector_impl import SingleListSelector
 from resources.ui_string_dialog_impl import UI_String
 
-RDFSTerms = {
-        "is_a_subclass_of": RDFS.subClassOf,
-        "link_to_class"   : RDFS.isDefinedBy,
-        "value"           : RDF.value,
-        "comment"         : RDFS.comment,
-        "integer"         : XSD.integer,
-        "string"          : XSD.string,
-        }
 
-MYTerms = {v: k for k, v in RDFSTerms.items()}
-
-VALUE = "value"
-PRIMITIVES = ["integer", "string", "comment"]
-ADD_ELUCIDATIONS = ["class", "subclass", "value"]
-
-COLOURS = {
-        "is_a_subclass_of": QtGui.QColor(255, 255, 255, 255),
-        "link_to_class"   : QtGui.QColor(255, 100, 5, 255),
-        "value"           : QtGui.QColor(155, 155, 255),
-        "comment"         : QtGui.QColor(155, 155, 255),
-        "integer"         : QtGui.QColor(155, 155, 255),
-        "string"          : QtGui.QColor(255, 200, 200, 255),
-        }
-
-DIRECTION = {
-        "is_a_subclass_of": 1,
-        "link_to_class"   : 1,
-        "value"           : -1,
-        "comment"         : -1,
-        "integer"         : -1,
-        "string"          : -1,
-        }
-
-LINK_COLOUR = QtGui.QColor(255, 100, 5, 255)
-PRIMITIVE_COLOUR = QtGui.QColor(255, 3, 23, 255)
-
-ONTOLOGY_DIRECTORY = "../ontologyRepository"
-
-
-# TTLFile = os.path.join(ONTOLOGY_DIRECTORY, "%s.json" % "HAP")
-
-
-def plot(graph, class_names=[]):
-  """
-  Create Digraph plot
-  """
-  dot = Digraph()
-  # Add nodes 1 and 2
-  for s, p, o in graph.triples((None, None, None)):
-    ss = str(s)
-    sp = str(p)
-    so = str(o)
-    if ss in class_names:
-      dot.node(ss, color='red', shape="rectangle")
-    elif so in PRIMITIVES:
-      dot.node(so, color='green', shape="rectangle")
-    else:
-      dot.node(ss)
-
-    if so in class_names:
-      dot.node(so, color='red', shape="rectangle")
-    else:
-      dot.node(so)
-
-    my_p = MYTerms[p]
-    if DIRECTION[my_p] == 1:
-      dot.edge(ss, so, label=my_p, color="blue")
-    else:
-      dot.edge(so, ss, label=my_p, color="green")
-
-  # Visualize the graph
-  return dot
-
-
-def putData(data, file_spec, indent="  "):
-  print("writing to file: ", file_spec)
-  dump = json.dumps(data, indent=indent)
-  with open(file_spec, "w+") as f:
-    f.write(dump)
-
-
-def getFilesAndVersions(abs_name, ext):
-  base_name = os.path.basename(abs_name)
-  ver = 0  # initial last version
-  _s = []
-  directory = os.path.dirname(abs_name)
-  files = os.listdir(directory)
-
-  for f in files:
-    n, e = os.path.splitext(f)
-    #        print 'name', n
-    if e == ext:  # this is another type
-      if n[0:len(base_name) + 1] == base_name + "(":  # only those that start with name
-        #  extract version
-        l = n.index("(")
-        r = n.index(")")
-        assert l * r >= 0  # both must be there
-        v = int(n[l + 1:r])
-        ver = max([ver, v])
-        _s.append(n)
-  return _s, ver
-
-
-def saveBackupFile(path):
-  ver_temp = "(%s)"
-  (abs_name, ext) = os.path.splitext(path)  # path : directory/<name>.<ext>
-  if os.path.exists(path):
-    _f, ver = getFilesAndVersions(abs_name, ext)
-    old_path = path
-    new_path = abs_name + ver_temp % str(ver + 1) + ext
-    next_path = abs_name + ver_temp % str(ver + 2) + ext
-    os.rename(old_path, new_path)
-    return old_path, new_path, next_path
-  else:
-    print("Error -- no such file : %s" % path, file=sys.stderr)
-    return
-
-
-def saveWithBackup(data, path):
-  if os.path.exists(path):
-    old_path, new_path, next_path = saveBackupFile(path)
-  putData(data, path)
-
-
-def getData(file_spec):
-  # print("get data from ", file_spec)
-  if os.path.exists(file_spec):
-    f = open(file_spec, "r")
-    data = json.loads(f.read())
-    return data
-  else:
-    return None
-
-
-def makeRDFCompatible(identifier):
-  """
-  To be adapted to imported notation.
-  For now it generates rdflib Literals
-  """
-  return Literal(identifier)
-
-def getpath(tuples, origin, destination, thepath, visited="start"):
+def getPath(truples, origin, destination, thepath, visited):  # "start"):
   """
   we search backwards from the destination to the origin
+  truples is a weird thing: subject, object, predicate
+  it really is a tuple of subject, object with the predicate added for further use.
   """
-  if visited == "start":
-    thepath = [destination]
-    visited = []
+  # if visited == "start":
+  #   thepath = []
+  #   visited = []
 
-  if destination not in visited:
-    visited.append(destination)
-    for s,o,p in tuples:
-      if s == destination:
+  if origin not in visited:
+    visited.append(origin)
+    match = matchTriples(truples, origin, None, None)
+    for s, o, p in match:
+      thepath.append(s)
+      if o == destination:
         thepath.append(o)
         return thepath
       else:
-        getpath(tuples, destination, o, thepath, visited)
+        getPath(truples, o, destination, thepath, visited)
+
+  return thepath
+
+
+def matchTriples(truples, subject=None, predicate=None, object=None):
+  # res = []
+  # for t in truples:
+  #   a = (not subject or t[0] == subject)
+  #   b = (not predicate or t[2] == predicate)
+  #   c = (not object or t[1] == object)
+  #   print(">> ", a,b,c,subject, predicate, object, t)
+  #   if a and b and c:
+  #     res.append(t)
+
+  r = [t for t in truples if (
+          (not subject or t[0] == subject)
+          and (not predicate or t[2] == predicate)
+          and (not object or t[1] == object))]
+  return r
 
 
 class CoatedProduct(QMainWindow):
@@ -217,6 +108,10 @@ class CoatedProduct(QMainWindow):
             "PrimitiveString"           : self.ui.groupString,
             "PrimitiveQuantity"         : self.ui.groupQuantityMeasure,
             }
+    self.gui_objects_clear = {
+            "text_eluciation": self.ui.textValueElucidation,
+            "identifier"     : self.ui.editString,
+            }
     w = 150
     h = 25
     # for i in ["add_subclass", "add_primitive", "link_new_class", "link_existing_class"]:
@@ -229,6 +124,7 @@ class CoatedProduct(QMainWindow):
     self.__ui_state("start")
     self.current_class = None
     self.current_subclass = None
+    self.current_item_text_ID = None
     self.subclass_names = {}
     self.primitives = {}
     self.class_names = []
@@ -240,8 +136,12 @@ class CoatedProduct(QMainWindow):
     self.elucidations = {}
     self.selected_item = None
     self.root_class = None
-    self.load_elucidation = True
+    self.load_elucidation = False
     self.done = False
+    self.transition_points = {}  # keeps the information on where the transition to another class was made
+    self.complete_path = []
+    self.local_path = None
+    self.database = {}
 
   def __ui_state(self, state):
     # what to show
@@ -293,6 +193,10 @@ class CoatedProduct(QMainWindow):
       else:
         self.gui_objects[b].show()
 
+    if state != "start":
+      for w in self.gui_objects_clear:
+        self.gui_objects_clear[w].clear()
+
   def __createTree(self, origin):
     widget = self.ui.treeClass
     widget.clear()
@@ -305,8 +209,8 @@ class CoatedProduct(QMainWindow):
     rootItem.predicate = None
     widget.addTopLevelItem(rootItem)
     self.current_class = origin
-    tuples = self.__prepareTree(origin)
-    self.__makeTree(tuples, origin=origin, stack=[], items={origin: rootItem})
+    truples = self.__prepareTree(origin)
+    self.__makeTree(truples, origin=origin, stack=[], items={origin: rootItem})
     # self.__makeTree(origin=Literal(origin), subject_stack=[], parent=rootItem)
     widget.show()
     widget.expandAll()
@@ -317,19 +221,19 @@ class CoatedProduct(QMainWindow):
     graph = self.CLASSES[self.current_class]
     # print(graph.serialize(format='turtle'))
     # print("debugging", origin)
-    tuples_plus = []
+    truples = []
     for subject, predicate, object_ in graph.triples((None, None, None)):
       s = str(subject)
       p = MYTerms[predicate]
       o = str(object_)
       if p not in ["value"] + PRIMITIVES:
-        tuples_plus.append((s, o, p))
+        truples.append((s, o, p))
       else:
-        tuples_plus.append((o, s, p))
-    return tuples_plus
+        truples.append((o, s, p))
+    return truples
 
-  def __makeTree(self, touples, origin=[], stack=[], items={}):
-    for s, o, p in touples:
+  def __makeTree(self, truples, origin=[], stack=[], items={}):
+    for s, o, p in truples:
       if (s, o, p) not in stack:
         if s != origin:
           if o in items:
@@ -341,7 +245,7 @@ class CoatedProduct(QMainWindow):
             stack.append((s, o, p))
             item.setText(0, s)
             items[s] = item
-            self.__makeTree(touples, origin=s, stack=stack, items=items)
+            self.__makeTree(truples, origin=s, stack=stack, items=items)
 
   def on_pushCreate_pressed(self):
     dialog = UI_String("name for your ontology file", placeholdertext="file name extension is default")
@@ -375,15 +279,15 @@ class CoatedProduct(QMainWindow):
     self.__createTree(self.root_class)
 
   def on_treeClass_itemPressed(self, item, column):
-    self.done = False
-    self.on_treeClass_itemSelectionChanged()
-
-  def on_treeClass_itemSelectionChanged(self):
-    if self.done:
-      self.done = False
-      return
-
-    self.done = True
+    #   self.done = False
+    #   self.on_treeClass_itemSelectionChanged()
+    #
+    # def on_treeClass_itemSelectionChanged(self):
+    #   if self.done:
+    #     self.done = False
+    #     return
+    #
+    #   self.done = True
     item_list = self.ui.treeClass.selectedItems()
     # print("debugging", item_list.__class__, len(item_list))
     if len(item_list) == 1:
@@ -392,6 +296,7 @@ class CoatedProduct(QMainWindow):
       return
     column = 0
     text_ID = item.text(column)
+    self.current_item_text_ID = text_ID
     try:
       predicate = item.predicate
     except:
@@ -399,13 +304,20 @@ class CoatedProduct(QMainWindow):
       predicate = None
     # print("debugging -- ", text_ID)
     self.selected_item = item
-    # self.current_subclass = text_ID
+
+    graph = self.CLASSES[self.current_class]
+    origin = text_ID
+    destination = self.current_class
+    truples = self.__prepareTree(self.current_class)
+    self.local_path = getPath(truples, origin, destination, [], [])
+    print("debugging -- local path:", self.local_path)
 
     # if text_ID in self.class_names:
     if self.__isClass(text_ID):
       print("debugging -- is class", text_ID)
       self.__ui_state("selected_class")
       if self.current_class != text_ID:
+        self.transition_points[self.current_class] = self.local_path
         self.__shiftClass(text_ID)
     elif self.__islinked(text_ID):
       print("debugging -- is linked", text_ID)
@@ -418,6 +330,8 @@ class CoatedProduct(QMainWindow):
       self.current_subclass = text_ID
     elif self.__isValue(predicate):
       self.__ui_state("selected_value")
+      self.complete_path = self.__makeCompletePath()
+      print("debugging -- complete path", self.complete_path)
     elif text_ID == "integer":
       print("debugging -- is a integer")
       self.__ui_state("selected_integer")
@@ -428,8 +342,6 @@ class CoatedProduct(QMainWindow):
       self.__ui_state("selected_comment")
     else:
       print("should not come here")
-
-    self.__pathToSubclass(text_ID)
 
     if self.__hasElucidation(text_ID, predicate):
       self.load_elucidation = True
@@ -480,16 +392,18 @@ class CoatedProduct(QMainWindow):
 
     self.ui.pushAddValueElucidation.show()
 
-  def on_pushAddElucidation_pressed(self):
+  def on_pushAddValueElucidation_pressed(self):
     self.load_elucidation = True
     self.ui.pushAddValueElucidation.hide()
-    text_ID = self.selected_item.text(0)
-    predicate = self.selected_item.predicate
-    if self.__hasElucidation(text_ID, predicate):
-      p = self.__makePathName(text_ID)
-      d = self.ui.pushAddValueElucidation.toPlainText()
-      self.elucidations[p] = d
-      pass
+    d = self.ui.textValueElucidation.toPlainText()
+    self.complete_path = self.__makeCompletePath()
+    print("debugging -- ", self.complete_path, d)
+    path = self.complete_path.pop(0)
+    modified_path = ["comment"]
+    [modified_path.append(i) for i in self.complete_path]
+    self.database[str(modified_path)] = d
+
+    pass
 
   def __makePathName(self, text_ID):
     p = self.root_class
@@ -499,6 +413,13 @@ class CoatedProduct(QMainWindow):
       item_name = text_ID
       p = p + ".%s" % item_name
     return p
+
+  def __makeCompletePath(self):
+    complete_path = []
+    for e in self.class_path[:-1]:
+      complete_path += self.transition_points[e]
+    complete_path += self.local_path
+    return complete_path
 
   def __isClass(self, ID):
     return ID in self.class_names
@@ -665,6 +586,20 @@ class CoatedProduct(QMainWindow):
       self.ui.treeClass.expandAll()
       self.changed = True
 
+  def on_editString_returnPressed(self):
+    s = self.ui.editString.text()
+    ss = str(s)
+    print("not yet installed textString", ss)
+    self.complete_path = self.__makeCompletePath()
+    print("debugging -- ", self.complete_path)
+    self.database[str(self.complete_path)] = ss
+
+  def on_spinNumber_valueChanged(self, d):
+    print("net yet installed spinNumber", d)
+    self.complete_path = self.__makeCompletePath()
+    print("debugging -- ", self.complete_path)
+    self.database[str(self.complete_path)] = d
+
   def __permittedClasses(self):
     permitted_classes = []
     for cl in self.CLASSES:
@@ -673,10 +608,6 @@ class CoatedProduct(QMainWindow):
           if cl not in self.class_path:
             permitted_classes.append(cl)
     return permitted_classes
-
-
-
-
 
   def __pathToSubclass(self, text_ID):
 
@@ -699,13 +630,13 @@ class CoatedProduct(QMainWindow):
     self.path.append(addnode)
     self.ui.listClasses.clear()
     self.ui.listClasses.addItems(self.path)
+
   #
   def __cutClassPath(self, cutclass):
     i = self.class_path.index(cutclass)
     self.class_path = self.class_path[:i + 1]
     self.ui.listClasses.clear()
     self.ui.listClasses.addItems(self.class_path)
-
 
   def __cutPath(self, cutclass):
     i = self.class_path.index(cutclass)
@@ -723,9 +654,12 @@ class CoatedProduct(QMainWindow):
     self.current_class = class_ID
     self.__createTree(class_ID)
     if class_ID not in self.class_path:
-      self.__addToPath(class_ID)
+      self.__addToClassPath(class_ID)
     else:
-      self.__cutPath(class_ID)
+      self.__cutClassPath(class_ID)
+    #   self.__addToPath(class_ID)
+    # else:
+    #   self.__cutPath(class_ID)
 
   def on_pushExit_pressed(self):
     self.closeMe()
@@ -784,6 +718,7 @@ class CoatedProduct(QMainWindow):
     data["root"] = self.root_class
     data["graphs"] = graphs
     data["elucidations"] = self.elucidations
+    data["database"] = self.database
 
     saveWithBackup(data, self.JsonFile)
 
@@ -803,11 +738,7 @@ class CoatedProduct(QMainWindow):
 
     self.changed = False
 
-  # def saveAs(self):
-  #   print("not implemented")
-
   def on_pushLoad_pressed(self):
-    # options = QFileDialog.Options()
     dialog = QFileDialog.getOpenFileName(None,
                                          "Load Ontology",
                                          ONTOLOGY_DIRECTORY,
@@ -868,13 +799,14 @@ class CoatedProduct(QMainWindow):
     self.current_class = self.root_class
     self.class_path = [self.root_class]
     self.__createTree(self.root_class)
+    self.ui.listClasses.addItems(self.class_path)
     self.__ui_state("show_tree")
 
     # ====================================
-    tuples = self.__prepareTree(self.root_class)
-    gugus = getpath(tuples, self.root_class, "material", [])
-    print(gugus)
-    pass
+    # graph = self.CLASSES[self.current_class]
+    # gugus = getpath(graph, "dye", self.root_class, [])
+    # print(gugus)
+    # pass
 
   def on_pushVisualise_pressed(self):
 

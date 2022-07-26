@@ -42,8 +42,9 @@ RDFSTerms = {
 
 MYTerms = {v: k for k, v in RDFSTerms.items()}
 
+VALUE = "value"
 PRIMITIVES = ["integer", "string", "comment"]
-ADD_ELUCIDATIONS = ["class", "subclass", "value"]
+ADD_ELUCIDATIONS = ["class", "subclass", VALUE]
 
 COLOURS = {
         "is_a_subclass_of": QtGui.QColor(255, 255, 255, 255),
@@ -491,7 +492,7 @@ class OntobuilderUI(QMainWindow):
     return text_ID in PRIMITIVES
 
   def __isValue(self, predicate):
-    return predicate == "value"
+    return predicate == VALUE
 
   def __islinked(self, ID):
     for cl in self.link_lists:

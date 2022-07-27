@@ -392,18 +392,18 @@ class CoatedProduct(QMainWindow):
 
     self.ui.pushAddValueElucidation.show()
 
-  def on_pushAddValueElucidation_pressed(self):
-    self.load_elucidation = True
-    self.ui.pushAddValueElucidation.hide()
-    d = self.ui.textValueElucidation.toPlainText()
-    self.complete_path = self.__makeCompletePath()
-    print("debugging -- ", self.complete_path, d)
-    path = self.complete_path.pop(0)
-    modified_path = ["comment"]
-    [modified_path.append(i) for i in self.complete_path]
-    self.database[str(modified_path)] = d
-
-    pass
+  # def on_pushAddValueElucidation_pressed(self):
+  #   self.load_elucidation = True
+  #   self.ui.pushAddValueElucidation.hide()
+  #   d = self.ui.textValueElucidation.toPlainText()
+  #   self.complete_path = self.__makeCompletePath()
+  #   print("debugging -- ", self.complete_path, d)
+  #   path = self.complete_path.pop(0)
+  #   modified_path = ["comment"]
+  #   [modified_path.append(i) for i in self.complete_path]
+  #   self.database[str(modified_path)] = d
+  #
+  #   pass
 
   def __makePathName(self, text_ID):
     p = self.root_class
@@ -446,65 +446,65 @@ class CoatedProduct(QMainWindow):
   def __hasElucidation(self, text_ID, predicate):
     return self.__isClass(text_ID) or self.__isSubClass(text_ID) or self.__isValue(predicate)
 
-  def on_pushAddSubclass_pressed(self):
-    print("debugging -- add subclass")
+  # def on_pushAddSubclass_pressed(self):
+  #   print("debugging -- add subclass")
+  #
+  #   # get an identifier for the subclass
+  #   forbidden = sorted(self.subclass_names[self.current_class]) + sorted(self.class_names)
+  #   dialog = UI_String("name for subclass", limiting_list=forbidden)
+  #   dialog.exec_()
+  #   subclass_ID = dialog.getText()
+  #
+  #   if not subclass_ID:
+  #     return
+  #
+  #   # keep track of names
+  #   self.subclass_names[self.current_class].append(subclass_ID)
+  #   self.primitives[self.current_class][self.current_subclass] = []
+  #
+  #   # elucidation
+  #   p = self.__makePathName(subclass_ID)
+  #   self.elucidations[p] = None
+  #   self.ui.textElucidation.clear()
+  #
+  #   # add to graph
+  #   subject = makeRDFCompatible(subclass_ID)
+  #   object = makeRDFCompatible(self.current_subclass)
+  #   predicate = "is_a_subclass_of"
+  #   self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], object))
+  #
+  #   # generate GUI tree
+  #   self.__createTree(self.current_class)
+  #   # parent_item = self.ui.treeClass.currentItem()
+  #   # item = QTreeWidgetItem(parent_item)
+  #   # item.predicate = predicate
+  #   # item.setText(0, subclass_ID)
+  #   # self.ui.treeClass.expandAll()
+  #   self.changed = True
 
-    # get an identifier for the subclass
-    forbidden = sorted(self.subclass_names[self.current_class]) + sorted(self.class_names)
-    dialog = UI_String("name for subclass", limiting_list=forbidden)
-    dialog.exec_()
-    subclass_ID = dialog.getText()
-
-    if not subclass_ID:
-      return
-
-    # keep track of names
-    self.subclass_names[self.current_class].append(subclass_ID)
-    self.primitives[self.current_class][self.current_subclass] = []
-
-    # elucidation
-    p = self.__makePathName(subclass_ID)
-    self.elucidations[p] = None
-    self.ui.textElucidation.clear()
-
-    # add to graph
-    subject = makeRDFCompatible(subclass_ID)
-    object = makeRDFCompatible(self.current_subclass)
-    predicate = "is_a_subclass_of"
-    self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], object))
-
-    # generate GUI tree
-    self.__createTree(self.current_class)
-    # parent_item = self.ui.treeClass.currentItem()
-    # item = QTreeWidgetItem(parent_item)
-    # item.predicate = predicate
-    # item.setText(0, subclass_ID)
-    # self.ui.treeClass.expandAll()
-    self.changed = True
-
-  def on_pushAddPrimitive_pressed(self):
-    # print("debugging -- add primitive")
-    forbidden = self.subclass_names[self.current_class]  # TODO: no second linked primitive allowed
-    dialog = UI_String("name for primitive", limiting_list=forbidden)
-    dialog.exec_()
-    primitive_ID = dialog.getText()
-    if not primitive_ID:
-      return
-
-    permitted_classes = PRIMITIVES
-    dialog = SingleListSelector(permitted_classes)
-    dialog.exec_()
-    primitive_class = dialog.getSelection()
-    # print("debugging")
-    if not primitive_class:
-      return
-
-    # add to graph
-    item = self.__addItemToTree(primitive_ID, "value", self.current_subclass)
-    self.__addItemToTree(primitive_class, primitive_class, primitive_ID, parent_item=item)
-    if self.current_subclass not in self.primitives[self.current_class]:
-      self.primitives[self.current_class][self.current_subclass] = []
-    self.primitives[self.current_class][self.current_subclass].append(primitive_ID)
+  # def on_pushAddPrimitive_pressed(self):
+  #   # print("debugging -- add primitive")
+  #   forbidden = self.subclass_names[self.current_class]  # TODO: no second linked primitive allowed
+  #   dialog = UI_String("name for primitive", limiting_list=forbidden)
+  #   dialog.exec_()
+  #   primitive_ID = dialog.getText()
+  #   if not primitive_ID:
+  #     return
+  #
+  #   permitted_classes = PRIMITIVES
+  #   dialog = SingleListSelector(permitted_classes)
+  #   dialog.exec_()
+  #   primitive_class = dialog.getSelection()
+  #   # print("debugging")
+  #   if not primitive_class:
+  #     return
+  #
+  #   # add to graph
+  #   item = self.__addItemToTree(primitive_ID, "value", self.current_subclass)
+  #   self.__addItemToTree(primitive_class, primitive_class, primitive_ID, parent_item=item)
+  #   if self.current_subclass not in self.primitives[self.current_class]:
+  #     self.primitives[self.current_class][self.current_subclass] = []
+  #   self.primitives[self.current_class][self.current_subclass].append(primitive_ID)
 
   def __addItemToTree(self, internal_object, predicate, internal_subject, parent_item=None):
     object = makeRDFCompatible(internal_object)
@@ -520,71 +520,71 @@ class CoatedProduct(QMainWindow):
     self.changed = True
     return item
 
-  def on_pushAddNewClass_pressed(self):
-    # print("debugging -- add class")
+  # def on_pushAddNewClass_pressed(self):
+  #   # print("debugging -- add class")
+  #
+  #   forbidden = sorted(self.class_names)
+  #   dialog = UI_String("name for subclass", limiting_list=forbidden)
+  #   dialog.exec_()
+  #   class_ID = dialog.getText()
+  #   if not class_ID:
+  #     return
+  #
+  #   self.CLASSES[class_ID] = Graph('Memory', Literal(class_ID))
+  #   self.class_definition_sequence.append(class_ID)
+  #   self.subclass_names[class_ID] = []
+  #   self.primitives[class_ID] = {class_ID: []}
+  #
+  #   # elucidation
+  #   self.ui.textElucidation.clear()
+  #   self.elucidations[class_ID] = None
+  #
+  #   # make link
+  #   subject = makeRDFCompatible(class_ID)
+  #   object = makeRDFCompatible(self.current_subclass)
+  #   self.CLASSES[self.current_class].add((subject, RDFSTerms["link_to_class"], object))
+  #
+  #   if class_ID not in self.link_lists:
+  #     self.link_lists[class_ID] = []
+  #   self.link_lists[class_ID].append((class_ID, self.current_class, self.current_subclass))
+  #
+  #   self.__createTree(class_ID)
+  #   self.class_names.append(class_ID)
+  #   self.__addToClassPath(addclass=class_ID)
+  #   self.current_class = class_ID
+  #   self.class_definition_sequence.append(class_ID)
+  #   self.primitives[class_ID] = {"root": []}
+  #   self.changed = True
 
-    forbidden = sorted(self.class_names)
-    dialog = UI_String("name for subclass", limiting_list=forbidden)
-    dialog.exec_()
-    class_ID = dialog.getText()
-    if not class_ID:
-      return
-
-    self.CLASSES[class_ID] = Graph('Memory', Literal(class_ID))
-    self.class_definition_sequence.append(class_ID)
-    self.subclass_names[class_ID] = []
-    self.primitives[class_ID] = {class_ID: []}
-
-    # elucidation
-    self.ui.textElucidation.clear()
-    self.elucidations[class_ID] = None
-
-    # make link
-    subject = makeRDFCompatible(class_ID)
-    object = makeRDFCompatible(self.current_subclass)
-    self.CLASSES[self.current_class].add((subject, RDFSTerms["link_to_class"], object))
-
-    if class_ID not in self.link_lists:
-      self.link_lists[class_ID] = []
-    self.link_lists[class_ID].append((class_ID, self.current_class, self.current_subclass))
-
-    self.__createTree(class_ID)
-    self.class_names.append(class_ID)
-    self.__addToClassPath(addclass=class_ID)
-    self.current_class = class_ID
-    self.class_definition_sequence.append(class_ID)
-    self.primitives[class_ID] = {"root": []}
-    self.changed = True
-
-  def on_pushAddExistingClass_pressed(self):
-    # print("debugging -- pushExistingClass")
-    permitted_classes = self.__permittedClasses()
-
-    # print("debugging -- ", permitted_classes)
-    if permitted_classes:
-      dialog = SingleListSelector(permitted_classes)
-      dialog.exec_()
-      selection = dialog.getSelection()
-      # print("debugging")
-      if not selection:
-        return
-
-      class_ID = selection
-      subject = makeRDFCompatible(class_ID)
-      object = makeRDFCompatible(self.current_subclass)
-      self.CLASSES[self.current_class].add((subject, RDFSTerms["link_to_class"], object))
-
-      if class_ID not in self.link_lists:
-        self.link_lists[class_ID] = []
-      self.link_lists[class_ID].append((class_ID, self.current_class, self.current_subclass))
-
-      parent_item = self.ui.treeClass.currentItem()
-      item = QTreeWidgetItem(parent_item)
-      item.setText(0, class_ID)
-      columns = item.columnCount()
-      item.setBackground(0, LINK_COLOUR)
-      self.ui.treeClass.expandAll()
-      self.changed = True
+  # def on_pushAddExistingClass_pressed(self):
+  #   # print("debugging -- pushExistingClass")
+  #   permitted_classes = self.__permittedClasses()
+  #
+  #   # print("debugging -- ", permitted_classes)
+  #   if permitted_classes:
+  #     dialog = SingleListSelector(permitted_classes)
+  #     dialog.exec_()
+  #     selection = dialog.getSelection()
+  #     # print("debugging")
+  #     if not selection:
+  #       return
+  #
+  #     class_ID = selection
+  #     subject = makeRDFCompatible(class_ID)
+  #     object = makeRDFCompatible(self.current_subclass)
+  #     self.CLASSES[self.current_class].add((subject, RDFSTerms["link_to_class"], object))
+  #
+  #     if class_ID not in self.link_lists:
+  #       self.link_lists[class_ID] = []
+  #     self.link_lists[class_ID].append((class_ID, self.current_class, self.current_subclass))
+  #
+  #     parent_item = self.ui.treeClass.currentItem()
+  #     item = QTreeWidgetItem(parent_item)
+  #     item.setText(0, class_ID)
+  #     columns = item.columnCount()
+  #     item.setBackground(0, LINK_COLOUR)
+  #     self.ui.treeClass.expandAll()
+  #     self.changed = True
 
   def on_editString_returnPressed(self):
     s = self.ui.editString.text()
@@ -609,27 +609,27 @@ class CoatedProduct(QMainWindow):
             permitted_classes.append(cl)
     return permitted_classes
 
-  def __pathToSubclass(self, text_ID):
-
-    if text_ID not in self.path:
-      self.path.append(text_ID)
-    else:
-      i = self.class_path.index(text_ID)
-      self.class_path = self.class_path[:i + 1]
-
-    self.ui.listClasses.clear()
-    self.ui.listClasses.addItems(self.path)
+  # def __pathToSubclass(self, text_ID):
+  #
+  #   if text_ID not in self.path:
+  #     self.path.append(text_ID)
+  #   else:
+  #     i = self.class_path.index(text_ID)
+  #     self.class_path = self.class_path[:i + 1]
+  #
+  #   self.ui.listClasses.clear()
+  #   self.ui.listClasses.addItems(self.path)
 
   def __addToClassPath(self, addclass):
     self.class_path.append(addclass)
     self.ui.listClasses.clear()
     self.ui.listClasses.addItems(self.class_path)
 
-  def __addToPath(self, addnode):
-    self.class_path.append(addnode)
-    self.path.append(addnode)
-    self.ui.listClasses.clear()
-    self.ui.listClasses.addItems(self.path)
+  # def __addToPath(self, addnode):
+  #   self.class_path.append(addnode)
+  #   self.path.append(addnode)
+  #   self.ui.listClasses.clear()
+  #   self.ui.listClasses.addItems(self.path)
 
   #
   def __cutClassPath(self, cutclass):
@@ -638,11 +638,11 @@ class CoatedProduct(QMainWindow):
     self.ui.listClasses.clear()
     self.ui.listClasses.addItems(self.class_path)
 
-  def __cutPath(self, cutclass):
-    i = self.class_path.index(cutclass)
-    self.class_path = self.class_path[:i + 1]
-    self.ui.listClasses.clear()
-    self.ui.listClasses.addItems(self.class_path)
+  # def __cutPath(self, cutclass):
+  #   i = self.class_path.index(cutclass)
+  #   self.class_path = self.class_path[:i + 1]
+  #   self.ui.listClasses.clear()
+  #   self.ui.listClasses.addItems(self.class_path)
 
   def on_listClasses_itemClicked(self, item):
     class_ID = item.text()

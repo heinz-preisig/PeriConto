@@ -77,26 +77,97 @@ class BackEnd:
 
     if Event == "":
       pass
+    elif Event == "load":
+      print("not-yet implemented -- load")
+      pass
+
     elif Event == "create":
-      self.FrontEnd.dialog("gotten_ontology_file_name",
-                           "name for your ontology file",
-                           "file name -- extension is defaulted",
-                           [],
-                           "exit" )
+      # self.FrontEnd.dialog("gotten_ontology_file_name",
+      #                      "name for your ontology file",
+      #                      "file name -- extension is defaulted",
+      #                      [],
+      #                      "exit" )
+
+      # self.FrontEnd.dialog("gotten_ontology_file_name",
+      #                      "root identifier",
+      #                      "provide an identifier for the root",
+      #                      [],
+      #                      "exit")
+      self.FrontEnd.fileNameDialog("gotten_ontology_file_name","ontology", ONTOLOGY_DIRECTORY, "*.json","exit")
 
     elif Event == "gotten_ontology_file_name":
-      self.dialogJsonDataFile(event_data)
-      self.FrontEnd.dialog("gotten_root",
-                           "root identifier",
-                           "provide an identifier for the root",
-                           [],
-                           "exit")
-    elif Event == "gotten_root":
-      self.__makeRoot(event_data)
-    elif Event == "data_file":
-      self.dialogJsonDataFile(event_data)
+      self.JsonFile = event_data #self.__dialogJsonDataFile(event_data)
+      self.__loadOntology()
+      self.__makeTree(self.root_class)
+      self.FrontEnd.controls("selectors", "classList","populate", self.class_path)
+
+    elif Event == "selected_class":
+      self.current_class = event_data
+      self.__makeTree(self.current_class)
+
+    # elif Event == "gotten_root":
+    #   self.__makeRoot(event_data)
+    #   self.FrontEnd.controls("selectors","classTree","show")
+
+    # elif Event == "data_file":
+    #   self.dialogJsonDataFile(event_data)
+
     elif Event == "shift_class":
       self.shiftClass(event_data)
+
+  def __loadOntology(self):
+
+    data = getData(self.JsonFile)
+    self.root_class = data["root"]
+    self.elucidations = data["elucidations"]
+
+    graphs = data["graphs"]
+    self.CLASSES = {}
+    for g in graphs:
+      self.class_definition_sequence.append(g)
+      self.class_names.append(g)
+      self.subclass_names[g] = []
+      self.primitives[g] = {g: []}
+      self.link_lists[g] = []
+      self.CLASSES[g] = Graph()
+      for s, p_internal, o in graphs[g]:
+        subject = makeRDFCompatible(s)
+        object = makeRDFCompatible(o)
+        p = RDFSTerms[p_internal]
+        self.CLASSES[g].add((subject, p, object))
+        # print("debugging -- graph added", g,s,p,o)
+        if p == RDFSTerms["is_a_subclass_of"]:
+          self.subclass_names[g].append(s)
+        elif p == RDFSTerms["link_to_class"]:
+          if g not in self.link_lists:
+            self.link_lists[g] = []
+          self.link_lists[g].append((s, g, o))
+        elif p == RDFSTerms["value"]:
+          if g not in self.primitives:
+            self.primitives[g] = {}
+          if o not in self.primitives[g]:
+            self.primitives[g][o] = [s]
+          else:
+            self.primitives[g][o].append(s)
+        elif p_internal in PRIMITIVES:
+          if g not in self.primitives:
+            self.primitives[g] = {}
+          if o not in self.primitives[g]:
+            self.primitives[g][o] = [s]
+          else:
+            self.primitives[g][o].append(s)
+        else:
+          if o not in self.primitives[g]:
+            self.primitives[g][o] = [s]
+          else:
+            self.primitives[g][o].append(s)
+
+    self.current_class = self.root_class
+    self.class_path = [self.root_class]
+    # self.FrontEnd.makeClassTree(self.root_class)
+    self.FrontEnd.controls("selectors","classList","populate", self.class_path)
+    # self.ui.listClasses.addItems(self.class_path)
+    # self.__ui_state("show_tree")
 
 
   def shiftClass(self, class_ID):
@@ -107,31 +178,32 @@ class BackEnd:
     else:
       i = self.class_path.index(class_ID)
       self.class_path = self.class_path[:i + 1]
-      self.clear()
-      self.ui.listClasses.addItems(self.class_path)
+      # self.FrontEnd.
+      # self.clear()
+      # self.ui.listClasses.addItems(self.class_path)
 
-  def dialogJsonDataFile(self, name):
+  def __dialogJsonDataFile(self, name):
     file_name = name.split(".")[0] + ".json"
-    self.JsonFile = os.path.join(ONTOLOGY_DIRECTORY, file_name)
+    return os.path.join(ONTOLOGY_DIRECTORY, file_name)
 
-  def __makeRoot(self, name):
+  def __makeTree(self, name):
 
-    self.root_class = name
-    self.CLASSES = {self.root_class: Graph('Memory', Literal(self.root_class))}
-    self.current_class = self.root_class
-    self.subclass_names[self.root_class] = [self.root_class]
-    self.class_names.append(self.root_class)
-    self.class_path = [self.root_class]
-    self.link_lists[self.root_class] = []
-    self.listClasses = [self.class_path]
-    # self.ui.listClasses.addItems(self.class_path)
-    self.class_definition_sequence.append(self.root_class)
-    self.primitives[self.root_class] = {self.root_class: []}
-    self.changed = True
+    # self.root_class = name
+    # self.CLASSES = {self.root_class: Graph('Memory', Literal(self.root_class))}
+    # self.current_class = self.root_class
+    # self.subclass_names[self.root_class] = [self.root_class]
+    # self.class_names.append(self.root_class)
+    # self.class_path = [self.root_class]
+    # self.link_lists[self.root_class] = []
+    # self.listClasses = [self.class_path]
+    # # self.ui.listClasses.addItems(self.class_path)
+    # self.class_definition_sequence.append(self.root_class)
+    # self.primitives[self.root_class] = {self.root_class: []}
+    # self.changed = True
 
     graph = self.CLASSES[self.current_class]
     self.truples = prepareTree(graph)
-    self.FrontEnd.populate("selectors", "classTree", self.truples,self.root_class)
+    self.FrontEnd.controls("selectors", "classTree", "populate", self.truples,self.root_class)
     # self.FrontEnd.processCallBack("populate","selectors", "classTree", self.truples,self.root_class)
     # self.FrontEnd.gui_objects_controls["selectors"]["classes"]["populate"](self.truples,self.root_class)
     # self.FrontEnd.makeClassTree(self.truples, self.root_class)
@@ -194,20 +266,20 @@ class BackEnd:
       show = []
       print("ooops -- no such state", state)
 
-    gui_obj = self.FrontEnd.gui_objects
+    objs = self.FrontEnd.gui_objects
+    obj_classes = list(objs.keys())
+    for oc in obj_classes:
+      if oc == "buttons":
+        buttons = objs[oc]
+        for b in buttons:
+          if b in show["buttons"]:
+            self.FrontEnd.controls("buttons", b, "show")
+          else:
+            self.FrontEnd.controls("buttons", b, "hide")
+      else:
+        o_list = list( objs[oc].keys())
+        for o in o_list:
+          print(oc,o)
+          self.FrontEnd.controls(oc, o, "hide")
 
-    for c in gui_obj:
-      k = list(gui_obj[c].keys())
-      for b in k:
-        gui_obj[c][b].hide()
-    for c in show:
-      for b in show[c]:
-        gui_obj[c][b].show()
-
-    # for c in clear:
-    #   for b in clear[c]:
-    #     if b not in clear[c]:
-    #       self.FrontEnd.gui_objects[c][b].hide()
-    #     else:
-    #       self.FrontEnd.gui_objects[c][b].show()
 

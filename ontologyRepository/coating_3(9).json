@@ -3,112 +3,7 @@
   "graphs": {
     "coatedProduct": [
       [
-        "coatingLayer",
-        "is_a_subclass_of",
-        "coatedProduct"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "lightStabiliser"
-      ],
-      [
-        "preTreatedSurface",
-        "is_a_subclass_of",
-        "substrate"
-      ],
-      [
-        "wettingAgent",
-        "is_a_subclass_of",
-        "additive"
-      ],
-      [
-        "defoamerAgent",
-        "is_a_subclass_of",
-        "additive"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "binder"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "surfaceActiveAgent"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "rheologyAgent"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "preservative"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "wettingAgent"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "defoamerAgent"
-      ],
-      [
-        "preservative",
-        "is_a_subclass_of",
-        "additive"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "dye"
-      ],
-      [
-        "coatingLayerIdenfier",
-        "string",
-        "string"
-      ],
-      [
-        "sequencePosition",
-        "integer",
-        "integer"
-      ],
-      [
-        "surfaceActiveAgent",
-        "is_a_subclass_of",
-        "additive"
-      ],
-      [
-        "coatingLayer",
-        "value",
-        "coatingLayerIdenfier"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "dryingAgent"
-      ],
-      [
-        "binder",
-        "is_a_subclass_of",
-        "coatingLayer"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "catalyst"
-      ],
-      [
-        "dryingAgent",
-        "is_a_subclass_of",
-        "additive"
-      ],
-      [
-        "lightStabiliser",
+        "rheologyAgent",
         "is_a_subclass_of",
         "additive"
       ],
@@ -118,19 +13,69 @@
         "additive"
       ],
       [
-        "dye",
+        "coatingLayer",
+        "value",
+        "name"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "preservative"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "dye"
+      ],
+      [
+        "additive",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "binder",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "lightStabiliser"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "dryingAgent"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "surfaceActiveAgent"
+      ],
+      [
+        "wettingAgent",
         "is_a_subclass_of",
         "additive"
       ],
       [
         "material",
         "link_to_class",
-        "extender"
+        "catalyst"
       ],
       [
-        "additive",
+        "dye",
         "is_a_subclass_of",
-        "coatingLayer"
+        "additive"
+      ],
+      [
+        "preservative",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "sequencePosition",
+        "integer",
+        "integer"
       ],
       [
         "coatingLayer",
@@ -143,7 +88,17 @@
         "preTreatedSurface"
       ],
       [
-        "rheologyAgent",
+        "material",
+        "link_to_class",
+        "rheologyAgent"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "wettingAgent"
+      ],
+      [
+        "defoamerAgent",
         "is_a_subclass_of",
         "additive"
       ],
@@ -153,24 +108,64 @@
         "coatingLayer"
       ],
       [
+        "coatingLayer",
+        "is_a_subclass_of",
+        "coatedProduct"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "binder"
+      ],
+      [
         "substrate",
         "is_a_subclass_of",
         "coatedProduct"
+      ],
+      [
+        "preTreatedSurface",
+        "is_a_subclass_of",
+        "substrate"
+      ],
+      [
+        "dryingAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "defoamerAgent"
+      ],
+      [
+        "lightStabiliser",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "surfaceActiveAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "name",
+        "string",
+        "string"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "extender"
       ]
     ],
     "productionProcess": [
       [
-        "surfaceTreatmentProcess",
-        "is_a_subclass_of",
-        "productionProcess"
-      ],
-      [
-        "andozing",
+        "washing",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
       ],
       [
-        "etching",
+        "andozing",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
       ],
@@ -180,7 +175,7 @@
         "surfaceTreatmentProcess"
       ],
       [
-        "washing",
+        "etching",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
       ],
@@ -188,21 +183,16 @@
         "solGelCoating",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
+      ],
+      [
+        "surfaceTreatmentProcess",
+        "is_a_subclass_of",
+        "productionProcess"
       ]
     ],
     "material": [
       [
-        "productionProcess",
-        "link_to_class",
-        "processProduct"
-      ],
-      [
         "offTheShelf",
-        "is_a_subclass_of",
-        "material"
-      ],
-      [
-        "processProduct",
         "is_a_subclass_of",
         "material"
       ],
@@ -210,6 +200,16 @@
         "chemicalComponent",
         "link_to_class",
         "offTheShelf"
+      ],
+      [
+        "processProduct",
+        "is_a_subclass_of",
+        "material"
+      ],
+      [
+        "productionProcess",
+        "link_to_class",
+        "processProduct"
       ]
     ],
     "chemicalComponent": [
@@ -224,14 +224,14 @@
         "URL"
       ],
       [
-        "URL",
-        "string",
-        "string"
-      ],
-      [
         "chemicalComponent",
         "value",
         "quantityMeasure"
+      ],
+      [
+        "URL",
+        "string",
+        "string"
       ]
     ]
   },
@@ -264,5 +264,11 @@
     "coatedProduct.material.productionProcess.surfaceTreatmentProcess": null,
     "coatedProduct.material.productionProcess.solGelCoating": "",
     "coatedProduct.material.productionProcess.andozing": ""
+  },
+  "database": {
+    "['comment', 'name', 'coatingLayer', 'coatedProduct']": "coating layer",
+    "['string', 'name', 'coatingLayer', 'coatedProduct']": "my layer",
+    "['comment', 'coatingLayer', 'coatedProduct']": "layer position",
+    "['integer', 'sequencePosition', 'coatingLayer', 'coatedProduct']": 4.0
   }
 }

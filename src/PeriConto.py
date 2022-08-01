@@ -268,9 +268,10 @@ class OntobuilderUI(QMainWindow):
               "link_new_class",
               "elucidation",
               ]
-    elif state == "occupied":
+    elif state == "linked":
       show = ["save",
               "exit",
+              "add_primitive",
               "elucidation",
               ]
     else:
@@ -392,7 +393,8 @@ class OntobuilderUI(QMainWindow):
         self.__shiftClass(text_ID)
     elif self.__islinked(text_ID):
       print("debugging -- is linked", text_ID)
-      self.__ui_state("occupied")
+      self.__ui_state("linked")
+      self.current_subclass=text_ID
     elif self.__isSubClass(text_ID):
       print("debugging -- it is a subclass", text_ID)
       self.__ui_state("selected_subclass")
@@ -431,26 +433,31 @@ class OntobuilderUI(QMainWindow):
   def on_treeClass_itemDoubleClicked(self, item, column):
     print("debugging -- double click", item.text(0))
     ID = str(item.text(column))
-    if self.__isSubClass(ID):
+    predicate = item.predicate
+    if self.__isSubClass(ID) or self.__isValue(predicate):
+      if self.__isSubClass(ID):
+        predicate = "is_a_subclass_of"
       # rename subclass
       dialog = UI_String("new name", placeholdertext=str(item.text(0)))
       dialog.exec_()
       new_name = dialog.getText()
       if new_name:
-        graph = self.CLASSES[self.current_class]
-        for s, p, o in graph.triples((None, None, Literal(ID))):
-          print("debugging -- change triple", s, p, o)
-          self.CLASSES[self.current_class].remove((s, p, o))
-          object = makeRDFCompatible(new_name)
-          self.CLASSES[self.current_class].add((s, RDFSTerms["is_a_subclass_of"], object))
+        self.__renameItemInGraph(ID, new_name, predicate)
+      # print("debugging -- renaming")
 
-        for s, p, o in graph.triples((Literal(ID), None, None)):
-          print("debugging -- change triple", s, p, o)  # add to graph
-          self.CLASSES[self.current_class].remove((s, p, o))
-          subject = makeRDFCompatible(new_name)
-          self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], o))
-
-        self.__createTree(self.current_class)
+  def __renameItemInGraph(self, ID, new_name, predicate):
+    graph = self.CLASSES[self.current_class]
+    for s, p, o in graph.triples((None, None, Literal(ID))):
+      print("debugging -- change triple", s, p, o)
+      self.CLASSES[self.current_class].remove((s, p, o))
+      object = makeRDFCompatible(new_name)
+      self.CLASSES[self.current_class].add((s, RDFSTerms[predicate], object))
+    for s, p, o in graph.triples((Literal(ID), None, None)):
+      print("debugging -- change triple", s, p, o)  # add to graph
+      self.CLASSES[self.current_class].remove((s, p, o))
+      subject = makeRDFCompatible(new_name)
+      self.CLASSES[self.current_class].add((subject, RDFSTerms[predicate], o))
+    self.__createTree(self.current_class)
 
   def on_textElucidation_textChanged(self):
     # print("debugging change text")
@@ -544,7 +551,7 @@ class OntobuilderUI(QMainWindow):
 
   def on_pushAddPrimitive_pressed(self):
     # print("debugging -- add primitive")
-    forbidden = self.subclass_names[self.current_class]  # TODO: no second linked primitive allowed
+    forbidden = self.subclass_names[self.current_class]
     dialog = UI_String("name for primitive", limiting_list=forbidden)
     dialog.exec_()
     primitive_ID = dialog.getText()
@@ -575,7 +582,7 @@ class OntobuilderUI(QMainWindow):
       parent_item = self.ui.treeClass.currentItem()
     item = QTreeWidgetItem(parent_item)
     item.setText(0, internal_object)
-    item.setBackground(0, PRIMITIVE_COLOUR)
+    item.setBackground(0, COLOURS[predicate])# PRIMITIVE_COLOUR)
     self.ui.treeClass.expandAll()
     self.changed = True
     return item

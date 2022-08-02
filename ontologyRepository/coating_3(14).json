@@ -202,26 +202,6 @@
     ],
     "material": [
       [
-        "chemicalComponent",
-        "link_to_class",
-        "offTheShelf"
-      ],
-      [
-        "productionProcess",
-        "link_to_class",
-        "processProduct"
-      ],
-      [
-        "Identifier_processProduct",
-        "string",
-        "string"
-      ],
-      [
-        "processProduct",
-        "value",
-        "Identifier_processProduct"
-      ],
-      [
         "processProduct",
         "is_a_subclass_of",
         "material"
@@ -230,6 +210,16 @@
         "offTheShelf",
         "is_a_subclass_of",
         "material"
+      ],
+      [
+        "productionProcess",
+        "link_to_class",
+        "processProduct"
+      ],
+      [
+        "chemicalComponent",
+        "link_to_class",
+        "offTheShelf"
       ]
     ],
     "chemicalComponent": [

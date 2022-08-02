@@ -1,149 +1,149 @@
 digraph {
-	lightStabiliser
-	additive
-	lightStabiliser -> additive [label=is_a_subclass_of color=blue]
-	material [color=red shape=rectangle]
-	extender
-	material -> extender [label=link_to_class color=blue]
-	preTreatedSurface
-	substrate
-	preTreatedSurface -> substrate [label=is_a_subclass_of color=blue]
-	string [color=green shape=rectangle]
-	string
-	string -> Identifier_processProduct [label=string color=green]
-	string [color=green shape=rectangle]
-	string
-	string -> Identifier_coatingLayer [label=value color=green]
-	dryingAgent
-	additive
-	dryingAgent -> additive [label=is_a_subclass_of color=blue]
-	coatingLayer
-	Enumerator_coatingLayer
-	Enumerator_coatingLayer -> coatingLayer [label=value color=green]
-	dye
-	additive
-	dye -> additive [label=is_a_subclass_of color=blue]
 	chemicalComponent [color=red shape=rectangle]
-	quantityMeasure
-	quantityMeasure -> chemicalComponent [label=value color=green]
-	andozing
-	surfaceTreatmentProcess
-	andozing -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
-	string [color=green shape=rectangle]
-	string
-	string -> URL [label=string color=green]
-	material [color=red shape=rectangle]
-	preTreatedSurface
-	material -> preTreatedSurface [label=link_to_class color=blue]
-	binder
-	coatingLayer
-	binder -> coatingLayer [label=is_a_subclass_of color=blue]
-	washing
-	surfaceTreatmentProcess
-	washing -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
+	URL
+	URL -> chemicalComponent [label=value color=green]
 	material [color=red shape=rectangle]
 	dye
 	material -> dye [label=link_to_class color=blue]
 	defoamerAgent
 	additive
 	defoamerAgent -> additive [label=is_a_subclass_of color=blue]
+	catalyst
+	additive
+	catalyst -> additive [label=is_a_subclass_of color=blue]
+	string [color=green shape=rectangle]
+	string
+	string -> URL [label=string color=green]
+	material [color=red shape=rectangle]
+	preTreatedSurface
+	material -> preTreatedSurface [label=link_to_class color=blue]
+	material [color=red shape=rectangle]
+	catalyst
+	material -> catalyst [label=link_to_class color=blue]
+	dryingAgent
+	additive
+	dryingAgent -> additive [label=is_a_subclass_of color=blue]
+	preTreatedSurface
+	substrate
+	preTreatedSurface -> substrate [label=is_a_subclass_of color=blue]
+	chemicalComponent [color=red shape=rectangle]
+	quantityMeasure
+	quantityMeasure -> chemicalComponent [label=value color=green]
+	string [color=green shape=rectangle]
+	string
+	string -> Identifier_coatringLayer [label=string color=green]
+	dye
+	additive
+	dye -> additive [label=is_a_subclass_of color=blue]
+	coatingLayer
+	Identifier_coatringLayer
+	Identifier_coatringLayer -> coatingLayer [label=value color=green]
+	material [color=red shape=rectangle]
+	wettingAgent
+	material -> wettingAgent [label=link_to_class color=blue]
+	coatingLayer
+	Enumerator_coatingLayer
+	Enumerator_coatingLayer -> coatingLayer [label=value color=green]
+	rheologyAgent
+	additive
+	rheologyAgent -> additive [label=is_a_subclass_of color=blue]
+	integer [color=green shape=rectangle]
+	integer
+	integer -> quantityMeasure [label=integer color=green]
+	extender
+	coatingLayer
+	extender -> coatingLayer [label=is_a_subclass_of color=blue]
+	wettingAgent
+	additive
+	wettingAgent -> additive [label=is_a_subclass_of color=blue]
+	surfaceActiveAgent
+	additive
+	surfaceActiveAgent -> additive [label=is_a_subclass_of color=blue]
+	coatedProduct [color=red shape=rectangle]
+	Identifier_coatedProduct
+	Identifier_coatedProduct -> coatedProduct [label=value color=green]
+	productionProcess [color=red shape=rectangle]
+	processProduct
+	productionProcess -> processProduct [label=link_to_class color=blue]
+	andozing
+	surfaceTreatmentProcess
+	andozing -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
+	string [color=green shape=rectangle]
+	string
+	string -> Identifier_coatedProduct [label=string color=green]
+	processProduct
+	Identifier_processProduct
+	Identifier_processProduct -> processProduct [label=value color=green]
+	additive
+	coatingLayer
+	additive -> coatingLayer [label=is_a_subclass_of color=blue]
+	material [color=red shape=rectangle]
+	extender
+	material -> extender [label=link_to_class color=blue]
+	material [color=red shape=rectangle]
+	defoamerAgent
+	material -> defoamerAgent [label=link_to_class color=blue]
+	material [color=red shape=rectangle]
+	rheologyAgent
+	material -> rheologyAgent [label=link_to_class color=blue]
+	processProduct
+	material [color=red shape=rectangle]
+	processProduct -> material [label=is_a_subclass_of color=blue]
+	material [color=red shape=rectangle]
+	surfaceActiveAgent
+	material -> surfaceActiveAgent [label=link_to_class color=blue]
+	surfaceTreatmentProcess
+	productionProcess [color=red shape=rectangle]
+	surfaceTreatmentProcess -> productionProcess [label=is_a_subclass_of color=blue]
+	string [color=green shape=rectangle]
+	string
+	string -> Identifier_processProduct [label=string color=green]
+	substrate
+	coatedProduct [color=red shape=rectangle]
+	substrate -> coatedProduct [label=is_a_subclass_of color=blue]
+	binder
+	coatingLayer
+	binder -> coatingLayer [label=is_a_subclass_of color=blue]
+	material [color=red shape=rectangle]
+	lightStabiliser
+	material -> lightStabiliser [label=link_to_class color=blue]
+	chemicalComponent [color=red shape=rectangle]
+	offTheShelf
+	chemicalComponent -> offTheShelf [label=link_to_class color=blue]
+	washing
+	surfaceTreatmentProcess
+	washing -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
 	etching
 	surfaceTreatmentProcess
 	etching -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
 	material [color=red shape=rectangle]
-	defoamerAgent
-	material -> defoamerAgent [label=link_to_class color=blue]
+	dryingAgent
+	material -> dryingAgent [label=link_to_class color=blue]
+	integer [color=green shape=rectangle]
+	integer
+	integer -> Enumerator_coatingLayer [label=value color=green]
+	preservative
+	additive
+	preservative -> additive [label=is_a_subclass_of color=blue]
 	pickling
 	surfaceTreatmentProcess
 	pickling -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
-	material [color=red shape=rectangle]
-	rheologyAgent
-	material -> rheologyAgent [label=link_to_class color=blue]
-	string [color=green shape=rectangle]
-	string
-	string -> Identifier_coatedProduct [label=string color=green]
-	material [color=red shape=rectangle]
-	wettingAgent
-	material -> wettingAgent [label=link_to_class color=blue]
-	solGelCoating
-	surfaceTreatmentProcess
-	solGelCoating -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
-	coatedProduct [color=red shape=rectangle]
-	Identifier_coatedProduct
-	Identifier_coatedProduct -> coatedProduct [label=value color=green]
-	surfaceTreatmentProcess
-	productionProcess [color=red shape=rectangle]
-	surfaceTreatmentProcess -> productionProcess [label=is_a_subclass_of color=blue]
-	chemicalComponent [color=red shape=rectangle]
-	offTheShelf
-	chemicalComponent -> offTheShelf [label=link_to_class color=blue]
-	extender
-	coatingLayer
-	extender -> coatingLayer [label=is_a_subclass_of color=blue]
-	substrate
-	coatedProduct [color=red shape=rectangle]
-	substrate -> coatedProduct [label=is_a_subclass_of color=blue]
-	integer [color=green shape=rectangle]
-	integer
-	integer -> quantityMeasure [label=integer color=green]
-	processProduct
-	Identifier_processProduct
-	Identifier_processProduct -> processProduct [label=value color=green]
-	coatingLayer
-	Identifier_coatingLayer
-	Identifier_coatingLayer -> coatingLayer [label=value color=green]
-	material [color=red shape=rectangle]
-	catalyst
-	material -> catalyst [label=link_to_class color=blue]
-	material [color=red shape=rectangle]
-	dryingAgent
-	material -> dryingAgent [label=link_to_class color=blue]
-	offTheShelf
-	material [color=red shape=rectangle]
-	offTheShelf -> material [label=is_a_subclass_of color=blue]
-	processProduct
-	material [color=red shape=rectangle]
-	processProduct -> material [label=is_a_subclass_of color=blue]
-	chemicalComponent [color=red shape=rectangle]
-	URL
-	URL -> chemicalComponent [label=value color=green]
-	surfaceActiveAgent
-	additive
-	surfaceActiveAgent -> additive [label=is_a_subclass_of color=blue]
-	material [color=red shape=rectangle]
 	lightStabiliser
-	material -> lightStabiliser [label=link_to_class color=blue]
-	wettingAgent
 	additive
-	wettingAgent -> additive [label=is_a_subclass_of color=blue]
-	additive
-	coatingLayer
-	additive -> coatingLayer [label=is_a_subclass_of color=blue]
-	catalyst
-	additive
-	catalyst -> additive [label=is_a_subclass_of color=blue]
+	lightStabiliser -> additive [label=is_a_subclass_of color=blue]
+	material [color=red shape=rectangle]
+	binder
+	material -> binder [label=link_to_class color=blue]
 	coatingLayer
 	coatedProduct [color=red shape=rectangle]
 	coatingLayer -> coatedProduct [label=is_a_subclass_of color=blue]
 	material [color=red shape=rectangle]
-	binder
-	material -> binder [label=link_to_class color=blue]
-	rheologyAgent
-	additive
-	rheologyAgent -> additive [label=is_a_subclass_of color=blue]
-	material [color=red shape=rectangle]
 	preservative
 	material -> preservative [label=link_to_class color=blue]
-	productionProcess [color=red shape=rectangle]
-	processProduct
-	productionProcess -> processProduct [label=link_to_class color=blue]
-	preservative
-	additive
-	preservative -> additive [label=is_a_subclass_of color=blue]
+	solGelCoating
+	surfaceTreatmentProcess
+	solGelCoating -> surfaceTreatmentProcess [label=is_a_subclass_of color=blue]
+	offTheShelf
 	material [color=red shape=rectangle]
-	surfaceActiveAgent
-	material -> surfaceActiveAgent [label=link_to_class color=blue]
-	integer [color=green shape=rectangle]
-	integer
-	integer -> Enumerator_coatingLayer [label=value color=green]
+	offTheShelf -> material [label=is_a_subclass_of color=blue]
 }

@@ -164,19 +164,19 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
 
 
-  def dialog(self, Event, prompt, placeholder_text,limiting_list, on_fail ):
+  def dialog(self, state, Event, prompt, placeholder_text,limiting_list, on_fail ):
 
     dialog = UI_String(prompt, placeholder_text, limiting_list)
     dialog.exec_()
     name = dialog.getText()
     if name:
-      self.backEnd.processEvent(Event, name)
+      self.backEnd.processEvent(state, Event, name)
     elif on_fail != "close":
       print(">>> I do not know what to do")
     else:
       self.close()
 
-  def fileNameDialog(self, Event, prompt, directory, type, on_fail):
+  def fileNameDialog(self, state, Event, prompt, directory, type, on_fail):
     name = QFileDialog.getOpenFileName(None,
                                          prompt,
                                          directory,
@@ -184,14 +184,14 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                          )[0]
 
     if name:
-      self.backEnd.processEvent(Event, name)
+      self.backEnd.processEvent(state, Event, name)
     elif on_fail != "close":
       print(">>> I do not know what to do")
     else:
       self.close()
 
   def on_pushCreate_pressed(self):
-    self.backEnd.processEvent("create",{})
+    self.backEnd.processEvent("initialised","create",None)
 
   def on_pushLoad_pressed(self):
     self.backEnd.processEvent("load", {})

@@ -333,6 +333,16 @@ class OntobuilderUI(QMainWindow):
             items[s] = item
             self.__makeTree(touples, origin=s, stack=stack, items=items)
 
+  def __makeSetOfAllNames(self):
+    names = set(self.class_names)
+    for g in self.CLASSES:
+      for n in self.subclass_names[g]:
+        names.add(n)
+
+    return names
+
+
+
   def on_pushCreate_pressed(self):
     dialog = UI_String("name for your ontology file", placeholdertext="file name extension is default")
     dialog.exec_()
@@ -381,32 +391,32 @@ class OntobuilderUI(QMainWindow):
     except:
       item.predicate = None
       predicate = None
-    print("debugging -- ", text_ID)
+    # print("debugging -- ", text_ID)
     self.selected_item = item
     # self.current_subclass = text_ID
 
     # if text_ID in self.class_names:
     if self.__isClass(text_ID):
-      print("debugging -- is class", text_ID)
+      # print("debugging -- is class", text_ID)
       self.__ui_state("selected_class")
       if self.current_class != text_ID:
         self.__shiftClass(text_ID)
     elif self.__islinked(text_ID):
-      print("debugging -- is linked", text_ID)
+      # print("debugging -- is linked", text_ID)
       self.__ui_state("linked")
       self.current_subclass=text_ID
     elif self.__isSubClass(text_ID):
-      print("debugging -- it is a subclass", text_ID)
+      # print("debugging -- it is a subclass", text_ID)
       self.__ui_state("selected_subclass")
       if not self.__permittedClasses():
-        print(">> no_existing_classes")
+        # print(">> no_existing_classes")
         self.__ui_state("no_existing_classes")
       else:
-        print(">>>>selected_subclass")
+        # print(">>>>selected_subclass")
         self.__ui_state("selected_subclass")
       self.current_subclass = text_ID
     elif self.__isPrimitive(predicate):
-      print("debugging -- is a primitive")
+      # print("debugging -- is a primitive")
       self.__ui_state("selected_primitive")
     elif self.__isValue:
       self.__ui_state("value_selected")
@@ -430,15 +440,19 @@ class OntobuilderUI(QMainWindow):
   # def on_treeClass_itemSelectionChanged(self):
   #   print("debugging -- selection changed")
 
+    self.ui.treeClass.clearSelection()
+
+
   def on_treeClass_itemDoubleClicked(self, item, column):
-    print("debugging -- double click", item.text(0))
+    # print("debugging -- double click", item.text(0))
     ID = str(item.text(column))
     predicate = item.predicate
     if self.__isSubClass(ID) or self.__isValue(predicate):
       if self.__isSubClass(ID):
         predicate = "is_a_subclass_of"
       # rename subclass
-      dialog = UI_String("new name", placeholdertext=str(item.text(0)))
+      forbidden = self.__makeSetOfAllNames()
+      dialog = UI_String("new name", placeholdertext=str(item.text(0)),limiting_list=forbidden)
       dialog.exec_()
       new_name = dialog.getText()
       if new_name:
@@ -448,12 +462,12 @@ class OntobuilderUI(QMainWindow):
   def __renameItemInGraph(self, ID, new_name, predicate):
     graph = self.CLASSES[self.current_class]
     for s, p, o in graph.triples((None, None, Literal(ID))):
-      print("debugging -- change triple", s, p, o)
+      # print("debugging -- change triple", s, p, o)
       self.CLASSES[self.current_class].remove((s, p, o))
       object = makeRDFCompatible(new_name)
       self.CLASSES[self.current_class].add((s, RDFSTerms[predicate], object))
     for s, p, o in graph.triples((Literal(ID), None, None)):
-      print("debugging -- change triple", s, p, o)  # add to graph
+      # print("debugging -- change triple", s, p, o)  # add to graph
       self.CLASSES[self.current_class].remove((s, p, o))
       subject = makeRDFCompatible(new_name)
       self.CLASSES[self.current_class].add((subject, RDFSTerms[predicate], o))
@@ -492,10 +506,11 @@ class OntobuilderUI(QMainWindow):
     return ID in self.class_names
 
   def __isSubClass(self, ID):
-    return ID in self.subclass_names[self.current_class]
+    return (ID in self.subclass_names[self.current_class]) and \
+           (ID not in self.class_names)
 
   def __isPrimitive(self, text_ID):
-    print("debugging -- is primitive", text_ID)
+    # print("debugging -- is primitive", text_ID)
     return text_ID in PRIMITIVES
 
   def __isValue(self, predicate):
@@ -514,10 +529,11 @@ class OntobuilderUI(QMainWindow):
     return self.__isClass(text_ID) or self.__isSubClass(text_ID) or self.__isValue(predicate)
 
   def on_pushAddSubclass_pressed(self):
-    print("debugging -- add subclass")
+    # print("debugging -- add subclass")
 
     # get an identifier for the subclass
-    forbidden = sorted(self.subclass_names[self.current_class]) + sorted(self.class_names)
+    # forbidden = sorted(self.subclass_names[self.current_class]) + sorted(self.class_names)
+    forbidden = self.__makeSetOfAllNames()
     dialog = UI_String("name for subclass", limiting_list=forbidden)
     dialog.exec_()
     subclass_ID = dialog.getText()
@@ -551,7 +567,8 @@ class OntobuilderUI(QMainWindow):
 
   def on_pushAddPrimitive_pressed(self):
     # print("debugging -- add primitive")
-    forbidden = self.subclass_names[self.current_class]
+    # forbidden = self.subclass_names[self.current_class]
+    forbidden = self.__makeSetOfAllNames()
     dialog = UI_String("name for primitive", limiting_list=forbidden)
     dialog.exec_()
     primitive_ID = dialog.getText()
@@ -590,7 +607,8 @@ class OntobuilderUI(QMainWindow):
   def on_pushAddNewClass_pressed(self):
     # print("debugging -- add class")
 
-    forbidden = sorted(self.class_names)
+    forbidden = self.__makeSetOfAllNames()
+    # forbidden = sorted(self.class_names)
     dialog = UI_String("name for subclass", limiting_list=forbidden)
     dialog.exec_()
     class_ID = dialog.getText()

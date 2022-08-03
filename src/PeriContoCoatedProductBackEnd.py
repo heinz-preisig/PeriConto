@@ -39,7 +39,10 @@ def prepareTree(graph):
 
 
 class BackEnd:
+
   def __init__(self, FrontEnd):
+
+    global state
 
     self.FrontEnd = FrontEnd
     self.ontology_graph = None
@@ -84,18 +87,31 @@ class BackEnd:
                                        },
             "got_ontology_file_name": {"file_name": {"next_state": "make_data_tree_node",
                                                      "actions"   : [self.__1_loadOntology,
-                                                                    self.__2_getIdentifier,],
-                                                     "gui_state" : "initialise"},
+                                                                    self.__makeTree,
+                                                                    # self.__2_getIdentifier,
+                                                                    ],
+                                                     "gui_state" : "show_tree"},
                                        },
-            "make_data_tree_node"      : {"identifier": {"next_state": "show_enabled_tree",
-                                                           "actions"   : [self.__3_makeDataTreeRootNode,
-                                                                          self.__4_getAllIdentifiers],
-                                                           "gui_state" : "input_identifier"}},
+            "make_data_tree_node"      : {"identifier": {"next_state": "show_tree",
+                                                           "actions"   : [self.__makeTree,
+                                                                          ],
+                                                         "gui_state": "show_tree"
+                                                         },
+                                          },
+            #                                                "gui_state" : "input_identifier"}},
+            # "make_data_tree_node"      : {"identifier": {"next_state": "show_enabled_tree",
+            #                                                "actions"   : [self.__3_makeDataTreeRootNode,
+            #                                                               self.__4_getAllIdentifiers],
+            #                                                "gui_state" : "input_identifier"}},
 
-            "show_enabled_tree"      : {"identifier": {"next_state": "show_enabled_tree",
-                                                           "actions"   : [self.__getAllIdentifiers],
-                                                           "gui_state" : "input_identifier"}}
-
+            # "show_tree"      : {"identifier": {"next_state": "show_enabled_tree",
+            #                                                "actions"   : [self.__makeTree],
+            #                                                "gui_state" : "input_identifier"}},
+            # "cl"
+            "class_list_clicked": {"selected_class",{"next_state": "show_tree",
+                                                     "actions": [self.__shiftClass],
+                                                     "gui_state": "show_tree"}
+                                   }
             }
     pass
 
@@ -103,6 +119,8 @@ class BackEnd:
 
 
   def processEvent(self, state, Event, event_data):
+    global gui_state
+
     if state not in self.automaton:
       print("stopping here - no such state", state)
       return
@@ -125,6 +143,7 @@ class BackEnd:
       if action:
         action(next_state, event_data)   # Note: state info must be carried along due to callback
     self.ui_state(gui_state)
+    print("gui state: ", gui_state)
 
     return next_state
 
@@ -222,7 +241,7 @@ class BackEnd:
           self.identifiers[g].append(str(s))
     pass
 
-  def __5_showDataTree(self, state, event_data):
+  # def __5_showDataTree(self, state, event_data):
 
 
   def shiftClass(self, class_ID):
@@ -241,7 +260,7 @@ class BackEnd:
   #   file_name = name.split(".")[0] + ".json"
   #   return os.path.join(ONTOLOGY_DIRECTORY, file_name)
 
-  def __makeTree(self, name):
+  def __makeTree(self, state, data):
 
     # self.root_class = name
     # self.CLASSES = {self.root_class: Graph('Memory', Literal(self.root_class))}
@@ -259,12 +278,10 @@ class BackEnd:
     graph = self.CLASSES[self.current_class]
     self.truples = prepareTree(graph)
     self.FrontEnd.controls("selectors", "classTree", "populate", self.truples, self.root_class)
-    # self.FrontEnd.processCallBack("populate","selectors", "classTree", self.truples,self.root_class)
-    # self.FrontEnd.gui_objects_controls["selectors"]["classes"]["populate"](self.truples,self.root_class)
-    # self.FrontEnd.makeClassTree(self.truples, self.root_class)
+    self.__makeClassList()
 
   def __makeClassList(self):
-    self.FrontEnd.populate("selector", "classTree", self.listClasses)
+    self.FrontEnd.controls("selectors", "classList", "populate", self.class_path)
     pass
 
   def ui_state(self, state):
@@ -274,13 +291,17 @@ class BackEnd:
       show = {"buttons": ["load",
                           "create",
                           "exit",
-                          ]}
+                          ],
+              "selectors": ["classList",
+                            "classTree"]}
       clear = {"selectors": ["classList", "classTree"]}
     elif state == "initialise":
       show = {"buttons": ["load",
                           "create",
                           "exit",
-                          ]}
+                          ],
+              "selectors": ["classList",
+                            "classTree"]}
     elif state == "input_identifier":
       show = {"buttons": ["exit",
                           ],
@@ -290,7 +311,11 @@ class BackEnd:
       show = {"buttons": ["save",
                           "exit",
                           "visualise",
-                          ]}
+                          ],
+              "selectors": ["classList",
+                            "classTree"],
+              "groups": ["classList", "classTree"],
+              }
     elif state == "selected_subclass":
       show = {"buttons" : ["save",
                            "exit", ],
@@ -342,8 +367,14 @@ class BackEnd:
       else:
         o_list = list(objs[oc].keys())
         for o in o_list:
-          # print(oc, o)
-          self.FrontEnd.controls(oc, o, "hide")
+          if oc in show:
+            if o in show[oc]:
+              self.FrontEnd.controls(oc, o,"show")
+            else:
+            # print(oc, o)
+              self.FrontEnd.controls(oc, o, "hide")
+          else:
+            self.FrontEnd.controls(oc,o, "hide")
 
 
 

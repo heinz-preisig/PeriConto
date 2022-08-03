@@ -51,11 +51,15 @@ def makeTree(truples, origin=[], stack=[], items={}):
           
 
 class PeriContoPyQtFrontEnd(QMainWindow):
+
+
   def __init__(self):
     super(PeriContoPyQtFrontEnd, self).__init__()
 
     self.ui = Ui_MainWindow()
     self.ui.setupUi(self)
+
+
 
     self.gui_objects = {"buttons"  :
                           {"load"      : self.ui.pushLoad,
@@ -86,17 +90,17 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                 "classTree": self.ui.groupBoxTree},
                         }
 
-    self.gui_objects_events = {"buttons" : ["pressed"],
-                               "selectors": ["picked"],
-                               "textEdit": ["textChanged"],
-                               "groups": [],
-                               }
+    # self.gui_objects_events = {"buttons" : ["pressed"],
+    #                            "selectors": ["picked"],
+    #                            "textEdit": ["textChanged"],
+    #                            "groups": [],
+    #                            }
 
-    self.gui_objects_controls = {"object" : ["show", "hide", "size"],
-                               "selectors": ["populate", "clear"],
-                               "textEdit": ["populate", "clear"],
-                                 "lineEdit": ["populate", "clear"]
-            }
+    # self.gui_objects_controls = {"object" : ["show", "hide", "size"],
+    #                            "selectors": ["populate", "clear"],
+    #                            "textEdit": ["populate", "clear"],
+    #                              "lineEdit": ["populate", "clear"]
+    #         }
     self.gui_objects_controls = {"buttons"  :
                           {"load"      : {"hide": self.ui.pushLoad.hide,
                                           "show": self.ui.pushLoad.show,},
@@ -115,11 +119,11 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                            },
                         "selectors": {
                                 "classList"    : {"populate": self.__populateListClass,
-                                                  "hide": self.__hideClassList,
-                                                  "show": self.__showClassList},
+                                                  "hide": self.ui.listClasses.hide, #__hideClassList,
+                                                  "show": self.ui.listClasses.show,} ,#__showClassList}
                                 "classTree": {"populate": self.__makeClassTree,
-                                                  "hide": self.__hideClassTree,
-                                                  "show": self.__showClassTree},
+                                                  "hide": self.ui.treeClass.hide, #__hideClassTree,
+                                                  "show": self.ui.treeClass.show,} #__showClassTree},
                                 },
                         "textEdit" : {
                                 "textValue": {"populate": self.__populateTextValueEdit,
@@ -194,7 +198,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.backEnd.processEvent("initialised","create",None)
 
   def on_pushLoad_pressed(self):
-    self.backEnd.processEvent("load", {})
+    self.backEnd.processEvent("load", )
     
   def __makeClassTree(self, truples, root):
     widget = self.ui.treeClass
@@ -209,12 +213,9 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     widget.addTopLevelItem(rootItem)
     self.current_class = root
     makeTree(truples, origin=root, stack=[], items={root: rootItem})
-    # self.__makeTree(origin=Literal(origin), subject_stack=[], parent=rootItem)
     widget.show()
     widget.expandAll()
     self.current_subclass = root
-    self.gui_objects_controls["selectors"]["classTree"]["show"]()
-    # self.backEnd.ui_state("show_tree")
     pass
 
   def __buttonShow(self, show):
@@ -222,22 +223,22 @@ class PeriContoPyQtFrontEnd(QMainWindow):
       self.gui_objects["buttons"][b].hide()
     for b in show:
       self.gui_objects["buttons"][b].hide()
-
-  def __showClassList(self):
-    self.gui_objects["selectors"]["classList"].show()
-    self.gui_objects["groups"]["classList"].show()
-
-  def __hideClassList(self):
-    self.gui_objects["selectors"]["classList"].hide()
-    self.gui_objects["groups"]["classList"].hide()
-
-  def __showClassTree(self):
-    self.gui_objects["selectors"]["classTree"].show()
-    self.gui_objects["groups"]["classTree"].show()
-
-  def __hideClassTree(self):
-    self.gui_objects["selectors"]["classTree"].hide()
-    self.gui_objects["groups"]["classTree"].hide()
+  #
+  # def __showClassList(self):
+  #   self.gui_objects["selectors"]["classList"].show()
+  #   self.gui_objects["groups"]["classList"].show()
+  #
+  # def __hideClassList(self):
+  #   self.gui_objects["selectors"]["classList"].hide()
+  #   self.gui_objects["groups"]["classList"].hide()
+  #
+  # def __showClassTree(self):
+  #   self.gui_objects["selectors"]["classTree"].show()
+  #   self.gui_objects["groups"]["classTree"].show()
+  #
+  # def __hideClassTree(self):
+  #   self.gui_objects["selectors"]["classTree"].hide()
+  #   self.gui_objects["groups"]["classTree"].hide()
 
   def __populateListClass(self, data):
     self.gui_objects["selectors"]["classList"].clear()
@@ -263,8 +264,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def on_listClasses_itemClicked(self, item):
     class_ID = item.text()
-    # print("debugging -- ", class_ID)
-    self.backEnd.processEvent("selected_class", class_ID)
+    print("debugging -- ", class_ID)
+    self.backEnd.processEvent("class_list_clicked", "selected_class", class_ID)
 
 
   def on_treeClass_itemPressed(self, item, column):

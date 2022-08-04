@@ -106,7 +106,7 @@ class CoatedProduct(QMainWindow):
             "ValueElucidation"          : self.ui.groupValueElucidation,
             "AddValueElucidation_button": self.ui.pushAddValueElucidation,
             "PrimitiveString"           : self.ui.groupString,
-            "PrimitiveQuantity"         : self.ui.groupQuantityMeasure,
+            "integer"         : self.ui.groupQuantityMeasure,
             }
     self.gui_objects_clear = {
             "text_eluciation": self.ui.textValueElucidation,
@@ -169,7 +169,7 @@ class CoatedProduct(QMainWindow):
       show = ["save",
               "exit",
               "ValueElucidation",
-              "PrimitiveQuantity",
+              "integer",
               ""
               ]
     elif state == "selected_string":

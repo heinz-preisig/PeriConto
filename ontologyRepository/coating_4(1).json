@@ -1,0 +1,289 @@
+{
+  "root": "coatedProduct",
+  "graphs": {
+    "coatedProduct": [
+      [
+        "material",
+        "link_to_class",
+        "dye"
+      ],
+      [
+        "defoamerAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "catalyst",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "preTreatedSurface"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "catalyst"
+      ],
+      [
+        "dryingAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "preTreatedSurface",
+        "is_a_subclass_of",
+        "substrate"
+      ],
+      [
+        "Identifier_coatringLayer",
+        "string",
+        "string"
+      ],
+      [
+        "dye",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "coatingLayer",
+        "value",
+        "Identifier_coatringLayer"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "wettingAgent"
+      ],
+      [
+        "coatingLayer",
+        "value",
+        "Enumerator_coatingLayer"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "preservative"
+      ],
+      [
+        "rheologyAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "extender",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "wettingAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "surfaceActiveAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "coatedProduct",
+        "value",
+        "Identifier_coatedProduct"
+      ],
+      [
+        "Identifier_coatedProduct",
+        "string",
+        "string"
+      ],
+      [
+        "additive",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "extender"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "defoamerAgent"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "rheologyAgent"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "surfaceActiveAgent"
+      ],
+      [
+        "substrate",
+        "is_a_subclass_of",
+        "coatedProduct"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "lightStabiliser"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "dryingAgent"
+      ],
+      [
+        "Enumerator_coatingLayer",
+        "value",
+        "integer"
+      ],
+      [
+        "preservative",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "lightStabiliser",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "binder"
+      ],
+      [
+        "coatingLayer",
+        "is_a_subclass_of",
+        "coatedProduct"
+      ],
+      [
+        "binder",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ]
+    ],
+    "productionProcess": [
+      [
+        "pickling",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "washing",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "etching",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "andozing",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "surfaceTreatmentProcess",
+        "is_a_subclass_of",
+        "productionProcess"
+      ],
+      [
+        "solGelCoating",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ]
+    ],
+    "material": [
+      [
+        "chemicalComponent",
+        "link_to_class",
+        "offTheShelf"
+      ],
+      [
+        "productionProcess",
+        "link_to_class",
+        "processProduct"
+      ],
+      [
+        "Identifier_processProduct",
+        "string",
+        "string"
+      ],
+      [
+        "processProduct",
+        "value",
+        "Identifier_processProduct"
+      ],
+      [
+        "processProduct",
+        "is_a_subclass_of",
+        "material"
+      ],
+      [
+        "offTheShelf",
+        "is_a_subclass_of",
+        "material"
+      ]
+    ],
+    "chemicalComponent": [
+      [
+        "chemicalComponent",
+        "value",
+        "quantityMeasure"
+      ],
+      [
+        "chemicalComponent",
+        "value",
+        "URL"
+      ],
+      [
+        "URL",
+        "string",
+        "string"
+      ],
+      [
+        "quantityMeasure",
+        "integer",
+        "integer"
+      ]
+    ]
+  },
+  "elucidations": {
+    "coatedProduct.catalyst": "catalyses the binder's reaction",
+    "coatedProduct.rheologyAgent": "affects the rheological behaviour, mainly the viscosity",
+    "coatedProduct.lightStabiliser": "protects from high-energy (solar) radiation\n",
+    "coatedProduct.substrate": "substrate on which the coating is applied",
+    "coatedProduct.dryingAgent": "affects the drying process\n",
+    "coatedProduct.wettingAgent": "helps in wetting the application surface",
+    "coatedProduct.coatingLayer": "the coating layer's binder - often a polymer\n",
+    "coatedProduct": "root of the ontology",
+    "coatedProduct.preTreatedSurface": "the result of a pre-treatment",
+    "coatedProduct.surfaceActiveAgent": "affects the behaviour towards the layer's surface",
+    "coatedProduct.dye": "gives the layer a colour in the homogenious phase",
+    "coatedProduct.defoamerAgent": "prevents foaming",
+    "coatedProduct.sequencePosition": "indicates the position of the layer in the stratum",
+    "coatedProduct.additive": "chemical components that disolve in the binder, thus form a homogenious phase",
+    "coatedProduct.preservative": "preservative",
+    "coatedProduct.productionProcess": "the applied pre-treatment process",
+    "coatedProduct.extender": "catalyses binder polymerisation",
+    "coatedProduct.binder": "matrix material -- usually a polymer",
+    "material": null,
+    "coatedProduct.material": "",
+    "coatedProduct.material.processProduct": null,
+    "coatedProduct.material.offTheShelf": null,
+    "chemicalComponent": null,
+    "coatedProduct.material.chemicalComponent": "",
+    "coatedProduct.material.productionProcess": "",
+    "coatedProduct.material.productionProcess.surfaceTreatmentProcess": null,
+    "coatedProduct.material.productionProcess.solGelCoating": "",
+    "coatedProduct.material.productionProcess.andozing": "",
+    "coatedProduct.coatingLayerIdenfier": ""
+  }
+}

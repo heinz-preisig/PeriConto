@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1593</width>
-    <height>906</height>
+    <height>1086</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,10 +23,10 @@
    <widget class="QGroupBox" name="groupBoxTree">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>290</x>
       <y>140</y>
       <width>541</width>
-      <height>601</height>
+      <height>701</height>
      </rect>
     </property>
     <property name="title">
@@ -57,9 +57,9 @@
     <widget class="QGroupBox" name="groupClassSubclassElucidation">
      <property name="geometry">
       <rect>
-       <x>50</x>
-       <y>340</y>
-       <width>461</width>
+       <x>20</x>
+       <y>430</y>
+       <width>511</width>
        <height>251</height>
       </rect>
      </property>
@@ -71,11 +71,24 @@
        <rect>
         <x>10</x>
         <y>40</y>
-        <width>431</width>
+        <width>491</width>
         <height>201</height>
        </rect>
       </property>
      </widget>
+    </widget>
+    <widget class="QPushButton" name="pushInstantiate">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>360</y>
+       <width>89</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>instantiate</string>
+     </property>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBoxClassList">
@@ -84,7 +97,7 @@
       <x>20</x>
       <y>140</y>
       <width>261</width>
-      <height>601</height>
+      <height>701</height>
      </rect>
     </property>
     <property name="title">

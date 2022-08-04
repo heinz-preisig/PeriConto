@@ -1,5 +1,3 @@
-import os
-
 from rdflib import Graph
 
 # from PeriConto import COLOURS
@@ -9,10 +7,10 @@ from PeriConto import ONTOLOGY_DIRECTORY
 from PeriConto import PRIMITIVES
 # from PeriConto import PRIMITIVE_COLOUR
 from PeriConto import RDFSTerms
+from PeriConto import VALUE
 # from PeriConto import VALUE
 from PeriConto import getData
 from PeriConto import makeRDFCompatible
-from rdflib import Literal
 
 
 # from PeriConto import plot
@@ -25,145 +23,82 @@ from rdflib import Literal
 # from resources.ui_string_dialog_impl import UI_String
 
 
-def prepareTree(graph):
+def prepareTree(graph, graph_ID):
+  """
+  The truples are not triples, but non-directed graph nodes augmented with predicate an node identifier
+  """
   truples = []
   for subject, predicate, object_ in graph.triples((None, None, None)):
     s = str(subject)
     p = MYTerms[predicate]
     o = str(object_)
     if p not in ["value"] + PRIMITIVES:
-      truples.append((s, o, p))
+      truples.append((s, o, p, graph_ID))
     else:
-      truples.append((o, s, p))
+      truples.append((o, s, p, graph_ID))
   return truples
 
 
-class BackEnd:
-
-  def __init__(self, FrontEnd):
-
-    global state
-
-    self.FrontEnd = FrontEnd
-    self.ontology_graph = None
-    self.ontology_root = None
-    self.changed = False
-
-    self.ui_state("start")
-    self.event_data = None
-    self.current_node = None
-    self.data_tree_root_node = None
-
-    self.current_class = None
-    self.current_subclass = None
-    self.current_item_text_ID = None
-    self.identifiers = {}
-    self.subclass_names = {}
-    self.primitives = {}
-    self.class_names = []
-    self.class_path = []
-    self.path = []
-    self.link_lists = {}
-    self.class_definition_sequence = []
-    self.TTLfile = None
-    self.elucidations = {}
-    self.selected_item = None
+class SuperGraph():
+  def __init__(self):
     self.root_class = None
-    self.load_elucidation = False
-    self.done = False
-    self.transition_points = {}  # keeps the information on where the transition to another class was made
-    self.complete_path = []
-    self.local_path = None
-    self.database = {}
+    self.class_path = []
+    self.class_names = []
+    self.subclass_names = {}
+    self.link_lists = {}
+    self.CLASSES = {}
+    self.class_definition_sequence = []
+    self.primitives = {}
+    self.root_class = None
+    self.elucidations = {}
+    self.JsonFile = None
 
-    self.automaton = {
-            "start"                 : {"initialise": {"next_state": "initialised",
-                                                      "actions"   : [None],
-                                                      "gui_state" : "start"},
-                                       },
-            "initialised"           : {"create": {"next_state": "got_ontology_file_name",
-                                                  "actions"   : [self.__0_askForFileName],
-                                                  "gui_state" : "initialise"},
-                                       },
-            "got_ontology_file_name": {"file_name": {"next_state": "make_data_tree_node",
-                                                     "actions"   : [self.__1_loadOntology,
-                                                                    self.__makeTree,
-                                                                    # self.__2_getIdentifier,
-                                                                    ],
-                                                     "gui_state" : "show_tree"},
-                                       },
-            "make_data_tree_node"      : {"identifier": {"next_state": "show_tree",
-                                                           "actions"   : [self.__makeTree,
-                                                                          ],
-                                                         "gui_state": "show_tree"
-                                                         },
-                                          },
-            #                                                "gui_state" : "input_identifier"}},
-            # "make_data_tree_node"      : {"identifier": {"next_state": "show_enabled_tree",
-            #                                                "actions"   : [self.__3_makeDataTreeRootNode,
-            #                                                               self.__4_getAllIdentifiers],
-            #                                                "gui_state" : "input_identifier"}},
+  def makePathName(self, text_ID):
+    p = self.root_class
+    for i in self.class_path[1:]:
+      p = p + ".%s" % i
+    if text_ID not in p:
+      item_name = text_ID
+      p = p + ".%s" % item_name
+    return p
 
-            # "show_tree"      : {"identifier": {"next_state": "show_enabled_tree",
-            #                                                "actions"   : [self.__makeTree],
-            #                                                "gui_state" : "input_identifier"}},
-            # "cl"
-            "class_list_clicked": {"selected_class",{"next_state": "show_tree",
-                                                     "actions": [self.__shiftClass],
-                                                     "gui_state": "show_tree"}
-                                   }
-            }
+  def isClass(self, ID):
+    return ID in self.class_names
+
+  def isSubClass(self, ID, graph_class):
+    # graph_class is the currently active class
+    return (ID in self.subclass_names[graph_class]) and \
+           (ID not in self.class_names)
+
+  def isPrimitive(self, text_ID):
+    # print("debugging -- is primitive", text_ID)
+    return text_ID in PRIMITIVES
+
+  def isValue(self, predicate):
+    return predicate == VALUE
+
+  def isLinked(self, ID, graph_class):
+    # graph_class is the currently active class
+    for cl in self.link_lists:
+      for linked_class, linked_to_class, linked_to_subclass in self.link_lists[cl]:
+        if linked_to_class == graph_class:
+          if linked_to_subclass == ID:
+            return True
+
+
+class ContainerGraph(SuperGraph):
+
+  def __init__(self):
+    SuperGraph.__init__(self)
     pass
 
-    self.processEvent("start", "initialise", None)
-
-
-  def processEvent(self, state, Event, event_data):
-    global gui_state
-
-    if state not in self.automaton:
-      print("stopping here - no such state", state)
-      return
-    if Event not in self.automaton[state]:
-      print("stopping here - no such event", Event, "  at state", state)
-      return
-
-    next_state = self.automaton[state][Event]["next_state"]
-    actions = self.automaton[state][Event]["actions"]
-    gui_state = self.automaton[state][Event]["gui_state"]
-
-    print("automaton -- ",
-          "\n             state   :", state,
-          "\n             next    :", next_state,
-          "\n             actions :", actions,
-          "\n             gui     :", gui_state,
-          "\n")
-
-    for action in actions:
-      if action:
-        action(next_state, event_data)   # Note: state info must be carried along due to callback
-    self.ui_state(gui_state)
-    print("gui state: ", gui_state)
-
-    return next_state
-
-  def __0_askForFileName(self, state, event_data):
-
-    self.FrontEnd.fileNameDialog(state, "file_name",
-                                 "ontology",
-                                 ONTOLOGY_DIRECTORY,
-                                 "*.json",
-                                 "exit")
-
-
-  def __1_loadOntology(self, state, event_data):
-    self.JsonFile = event_data
+  def load(self, JsonFile):
+    self.JsonFile = JsonFile
     data = getData(self.JsonFile)
     self.root_class = data["root"]
     self.elucidations = data["elucidations"]
 
     graphs = data["graphs"]
-    self.CLASSES = {}
     for g in graphs:
       self.class_definition_sequence.append(g)
       self.class_names.append(g)
@@ -203,46 +138,192 @@ class BackEnd:
           else:
             self.primitives[g][o].append(s)
 
-    self.current_class = self.root_class
-    self.class_path = [self.root_class]
+    return self.root_class
 
 
+class DataGraph(SuperGraph):
+
+  def __init__(self):
+    SuperGraph.__init__(self)
+    pass
 
 
-    print("ontology loaded, state is", state)
-    self.current_node = self.root_class
+  def add(self):
+    pass
 
-    # self.FrontEnd.controls("selectors", "classList", "populate", self.class_path)
+    # # elucidation
+    # p = self.__makePathName(subclass_ID)
+    # self.elucidations[p] = None
+    # self.ui.textElucidation.clear()
+    #
+    # # add to graph
+    # subject = makeRDFCompatible(subclass_ID)
+    # object = makeRDFCompatible(self.current_subclass)
+    # predicate = "is_a_subclass_of"
+    # self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], object))
+    #
+    # # generate GUI tree
+    # self.__createTree(self.current_class)
+    # self.changed = True
 
-  def __2_getIdentifier(self, state, data):
-    self.FrontEnd.dialog(state, "identifier",
-                                 "give identifier",
-                                 "identifier",
-                                 [],
-                         "exit"
-                         )
+class BackEnd:
 
-  def __3_makeDataTreeRootNode(self, state, data):
-    self.data_tree_root_node = "%s@%s"%(self.root_class, data)
-    print("debugging -- data tree root node", self.data_tree_root_node)
-    self.current_node = self.data_tree_root_node
+  def __init__(self, FrontEnd):
 
+    global state
+
+    self.FrontEnd = FrontEnd
+    self.ontology_graph = None
+    self.ontology_root = None
+    self.changed = False
+
+    self.ContainerGraph = ContainerGraph()
+    self.data_container = DataGraph()
+
+    self.ui_state("start")
+    self.event_data = None
+    self.current_node = None
+    self.data_tree_root_node = None
+
+    self.current_class = None
+    self.current_subclass = None
+    self.current_item_text_ID = None
+    self.identifiers = {}
+    # self.subclass_names = {}
+    # self.primitives = {}
+    # self.class_names = []
+    self.class_path = []
+    self.path = []
+    # self.link_lists = {}
+    self.class_definition_sequence = []
+    self.TTLfile = None
+    # self.elucidations = {}
+    self.selected_item = None
+    # self.root_class = None
+    self.load_elucidation = False
+    self.done = False
+    self.transition_points = {}  # keeps the information on where the transition to another class was made
+    self.complete_path = []
+    self.local_path = None
+    self.database = {}
+
+    self.automaton = {
+            "start"                 : {"initialise": {"next_state": "initialised",
+                                                      "actions"   : [None],
+                                                      "gui_state" : "start"},
+                                       },
+            "initialised"           : {"create": {"next_state": "got_ontology_file_name",
+                                                  "actions"   : [self.__0_askForFileName],
+                                                  "gui_state" : "initialise"},
+                                       },
+            "got_ontology_file_name": {"file_name": {"next_state": "make_data_tree_node",
+                                                     "actions"   : [self.__1_loadOntology,
+                                                                    self.__makeTree,
+                                                                    # self.__2_getIdentifier,
+                                                                    ],
+                                                     "gui_state" : "show_tree"},
+                                       },
+            "make_data_tree_node"   : {"identifier": {"next_state": "show_tree",
+                                                      "actions"   : [self.__makeTree,
+                                                                     ],
+                                                      "gui_state" : "show_tree"
+                                                      },
+                                       },
+            "show_tree"             : {"item_selected": {"next_state": "show_tree",
+                                                         "actions"   : [self.__selectedItem],
+                                                         "gui_state" : "show_tree"},
+                                       },
+            "instantiate_item"      : {"selected": {"next_state": "instantiate_item",
+                                                    "actions"   : [None],
+                                                    "gui_state" : "instantiate_item"},
+                                       },
+            # "state"      : {"event": {"next_state": add next state,
+            #                                                "actions"   : [list of actions],
+            #                                                "gui_state" : specify gui shows (separate dictionary}},
+            #                          },
+            }
+    pass
+
+    self.processEvent("start", "initialise", None)
+
+  def processEvent(self, state, Event, event_data):
+    global gui_state
+
+    if state not in self.automaton:
+      print("stopping here - no such state", state)
+      return
+    if Event not in self.automaton[state]:
+      print("stopping here - no such event", Event, "  at state", state)
+      return
+
+    next_state = self.automaton[state][Event]["next_state"]
+    actions = self.automaton[state][Event]["actions"]
+    gui_state = self.automaton[state][Event]["gui_state"]
+
+    print("automaton -- ",
+          "\n             state   :", state,
+          "\n             next    :", next_state,
+          "\n             actions :", actions,
+          "\n             gui     :", gui_state,
+          "\n             data    :", event_data,
+          "\n")
+
+    for action in actions:
+      if action:
+        action(next_state, event_data)  # Note: state info must be carried along due to callback
+    self.ui_state(gui_state)
+
+    return next_state
+
+  def __0_askForFileName(self, state, event_data):
+
+    self.FrontEnd.fileNameDialog(state, "file_name",
+                                 "ontology",
+                                 ONTOLOGY_DIRECTORY,
+                                 "*.json",
+                                 "exit")
+
+  def __1_loadOntology(self, state, event_data):
+    self.root_class_container = self.ContainerGraph.load(event_data)
+    self.current_class = self.root_class_container
+    self.class_path = [self.root_class_container]
+    self.current_node = self.root_class_container
+
+
+  def __selectedItem(self, state, data):
+    """
+    data is a list with selected item ID, associated predicate and a graph ID
+    """
+    item_ID, predicate, graph_ID = data
+    is_class = self.ContainerGraph.isClass(item_ID)
+    is_sub_class = self.ContainerGraph.isSubClass(item_ID, self.current_class)
+    is_primitive = self.ContainerGraph.isPrimitive(item_ID)
+    is_value = self.ContainerGraph.isValue(predicate)
+    is_linked = self.ContainerGraph.isLinked(item_ID, self.current_class)
+
+    if is_class or is_sub_class:
+      self.processEvent("instantiate_item", "selected", None)
+
+    print("debugging selection", data)
+    print("debugging -- is class", is_class)
+    print("debugging -- is subclass", is_sub_class)
+    print("debugging -- is primitive", is_primitive)
+    print("debugging -- is value", is_value)
+    print("debugging -- is linked", is_linked)
 
   # def __makeTriple(self):
   #   triple = (self.current_node, "is_a", self.)
 
-
-  def __4_getAllIdentifiers(self, state, event_data):
-    for g in self.CLASSES:
-      self.identifiers[g] = []
-      for s,p,o in self.CLASSES[g].triples((None, RDFSTerms["value"], None)): #RDFSTerms["string"])):
-        print("found", s,p,o)
-        if "Identifier" in o:
-          self.identifiers[g].append(str(s))
-    pass
+  # def __4_getAllIdentifiers(self, state, event_data):
+  #   for g in self.CLASSES:
+  #     self.identifiers[g] = []
+  #     for s, p, o in self.CLASSES[g].triples((None, RDFSTerms["value"], None)):  # RDFSTerms["string"])):
+  #       print("found", s, p, o)
+  #       if "Identifier" in o:
+  #         self.identifiers[g].append(str(s))
+  #   pass
 
   # def __5_showDataTree(self, state, event_data):
-
 
   def shiftClass(self, class_ID):
     self.current_class = class_ID
@@ -255,10 +336,6 @@ class BackEnd:
       # self.FrontEnd.
       # self.clear()
       # self.ui.listClasses.addItems(self.class_path)
-
-  # def __dialogJsonDataFile(self, name):
-  #   file_name = name.split(".")[0] + ".json"
-  #   return os.path.join(ONTOLOGY_DIRECTORY, file_name)
 
   def __makeTree(self, state, data):
 
@@ -275,9 +352,9 @@ class BackEnd:
     # self.primitives[self.root_class] = {self.root_class: []}
     # self.changed = True
 
-    graph = self.CLASSES[self.current_class]
-    self.truples = prepareTree(graph)
-    self.FrontEnd.controls("selectors", "classTree", "populate", self.truples, self.root_class)
+    graph = self.ContainerGraph.CLASSES[self.current_class]
+    self.truples = prepareTree(graph, "container")
+    self.FrontEnd.controls("selectors", "classTree", "populate", self.truples, self.root_class_container)
     self.__makeClassList()
 
   def __makeClassList(self):
@@ -291,15 +368,13 @@ class BackEnd:
       show = {"buttons": ["load",
                           "create",
                           "exit",
-                          ],
-              "selectors": ["classList",
-                            "classTree"]}
+                          ], }
       clear = {"selectors": ["classList", "classTree"]}
     elif state == "initialise":
-      show = {"buttons": ["load",
-                          "create",
-                          "exit",
-                          ],
+      show = {"buttons"  : ["load",
+                            "create",
+                            "exit",
+                            ],
               "selectors": ["classList",
                             "classTree"]}
     elif state == "input_identifier":
@@ -308,14 +383,20 @@ class BackEnd:
               "groups" : [
                       "PrimitiveString"], }
     elif state == "show_tree":
-      show = {"buttons": ["save",
-                          "exit",
-                          "visualise",
-                          ],
+      show = {"buttons"  : ["save",
+                            "exit",
+                            "visualise",
+                            ],
               "selectors": ["classList",
                             "classTree"],
-              "groups": ["classList", "classTree"],
               }
+    elif state == "instantiate_item":
+      show = {"buttons"  : ["instantiate",
+                            ],
+              "selectors": ["classList",
+                            "classTree",
+                            "integer"],
+              "groups"   : "integer"}
     elif state == "selected_subclass":
       show = {"buttons" : ["save",
                            "exit", ],
@@ -332,7 +413,7 @@ class BackEnd:
                           "exit", ],
               "groups" : [
                       "ValueElucidation",
-                      "PrimitiveQuantity",
+                      "integer",
                       ]
               }
     elif state == "selected_string":
@@ -357,26 +438,16 @@ class BackEnd:
     objs = self.FrontEnd.gui_objects
     obj_classes = list(objs.keys())
     for oc in obj_classes:
-      if oc == "buttons":
-        buttons = objs[oc]
-        for b in buttons:
-          if b in show["buttons"]:
-            self.FrontEnd.controls("buttons", b, "show")
+      o_list = list(objs[oc].keys())
+      for o in o_list:
+        if oc in show:
+          if o in show[oc]:
+            self.FrontEnd.controls(oc, o, "show")
           else:
-            self.FrontEnd.controls("buttons", b, "hide")
-      else:
-        o_list = list(objs[oc].keys())
-        for o in o_list:
-          if oc in show:
-            if o in show[oc]:
-              self.FrontEnd.controls(oc, o,"show")
-            else:
             # print(oc, o)
-              self.FrontEnd.controls(oc, o, "hide")
-          else:
-            self.FrontEnd.controls(oc,o, "hide")
-
-
+            self.FrontEnd.controls(oc, o, "hide")
+        else:
+          self.FrontEnd.controls(oc, o, "hide")
 
   # def __processEvent(self, Event, event_data):
   #
@@ -423,3 +494,20 @@ class BackEnd:
   #
   #   elif Event == "shift_class":
   #     self.shiftClass(event_data)
+
+  # def __2_getIdentifier(self, state, data):
+  #   self.FrontEnd.dialog(state, "identifier",
+  #                        "give identifier",
+  #                        "identifier",
+  #                        [],
+  #                        "exit"
+  #                        )
+
+  # def __3_makeDataTreeRootNode(self, state, data):
+  #   self.data_tree_root_node = "%s@%s" % (self.root_class, data)
+  #   print("debugging -- data tree root node", self.data_tree_root_node)
+  #   self.current_node = self.data_tree_root_node
+
+  # def __dialogJsonDataFile(self, name):
+  #   file_name = name.split(".")[0] + ".json"
+  #   return os.path.join(ONTOLOGY_DIRECTORY, file_name)

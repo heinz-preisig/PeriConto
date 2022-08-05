@@ -11,12 +11,27 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QTreeWidgetItem
 
-from PeriConto import COLOURS
 from PeriContoCoatedProductBackEnd import BackEnd
 # from graphHAP import Graph
 from PeriContoCoatedProduct_gui import Ui_MainWindow
 from resources.resources_icons import roundButton
 from resources.ui_string_dialog_impl import UI_String
+
+COLOURS = {
+        "is_a_subclass_of": QtGui.QColor(0, 0, 0, 255),
+        "link_to_class"   : QtGui.QColor(255, 100, 5, 255),
+        "value"           : QtGui.QColor(155, 155, 255),
+        "comment"         : QtGui.QColor(155, 155, 255),
+        "integer"         : QtGui.QColor(155, 155, 255),
+        "string"          : QtGui.QColor(255, 200, 200, 255),
+        }
+
+QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
+            "link_to_class"   : QtGui.QBrush(COLOURS["link_to_class"]),
+            "value"           : QtGui.QBrush(COLOURS["value"]),
+            "comment"         : QtGui.QBrush(COLOURS["comment"]),
+            "integer"         : QtGui.QBrush(COLOURS["integer"]),
+            "string"          : QtGui.QBrush(COLOURS["string"]), }
 
 
 def makeTree(truples, origin=[], stack=[], items={}):
@@ -26,8 +41,7 @@ def makeTree(truples, origin=[], stack=[], items={}):
         if o in items:
           # print("add %s <-- %s" % (o, s),p)
           item = QTreeWidgetItem(items[o])
-          # print("debugging -- color",p )
-          item.setBackground(0, COLOURS[p])
+          item.setForeground(0,  QBRUSHES[p])
           item.predicate = p
           item.graph_ID = graph_ID
           stack.append((s, o))
@@ -253,8 +267,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.gui_objects["groups"]["classList"].hide()
 
   def controls(self, gui_class, gui_obj, action, *contents):
-    if gui_obj == "instantiate":
-      print("debugging -- controls", gui_class, gui_obj, action, *contents)
+    # if gui_obj == "instantiate":
+    #   print("debugging -- controls", gui_class, gui_obj, action, *contents)
     self.gui_objects_controls[gui_class][gui_obj][action](*contents)
 
   def on_listClasses_itemClicked(self, item):
@@ -267,8 +281,10 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     predicate = item.predicate
     graph_ID = item.graph_ID
     print("FrontEnd -- debugging selected item:", text_ID)
-    self.backEnd.processEvent("show_tree", "item_selected", [text_ID, predicate, graph_ID])
+    self.backEnd.processEvent("show_tree", "selected", [text_ID, predicate, graph_ID])
 
+  def on_pushInstantiate_pressed(self):
+    self.backEnd.processEvent("wait_for_ID", "add_new_ID",None)
 
 if __name__ == "__main__":
   import sys

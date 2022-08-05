@@ -1,3 +1,15 @@
+"""
+Backend to the construction of a data base for coatings formulations
+
+The data are stored in triple stored in triple stores
+
+rule: notation
+an instantiated "node" is <<name>>:<<ID>>
+
+"""
+
+DELIMITERS = {"instantiated": ":"}
+
 from rdflib import Graph
 
 # from PeriConto import COLOURS
@@ -85,6 +97,9 @@ class SuperGraph():
           if linked_to_subclass == ID:
             return True
 
+  def isInstantiated(self, ID):
+    return DELIMITERS["instantiated"] in ID
+
 
 class ContainerGraph(SuperGraph):
 
@@ -147,24 +162,9 @@ class DataGraph(SuperGraph):
     SuperGraph.__init__(self)
     pass
 
-
   def add(self):
     pass
 
-    # # elucidation
-    # p = self.__makePathName(subclass_ID)
-    # self.elucidations[p] = None
-    # self.ui.textElucidation.clear()
-    #
-    # # add to graph
-    # subject = makeRDFCompatible(subclass_ID)
-    # object = makeRDFCompatible(self.current_subclass)
-    # predicate = "is_a_subclass_of"
-    # self.CLASSES[self.current_class].add((subject, RDFSTerms["is_a_subclass_of"], object))
-    #
-    # # generate GUI tree
-    # self.__createTree(self.current_class)
-    # self.changed = True
 
 class BackEnd:
 
@@ -216,27 +216,41 @@ class BackEnd:
                                                   "actions"   : [self.__0_askForFileName],
                                                   "gui_state" : "initialise"},
                                        },
-            "got_ontology_file_name": {"file_name": {"next_state": "make_data_tree_node",
+            "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
                                                      "actions"   : [self.__1_loadOntology,
                                                                     self.__makeTree,
                                                                     # self.__2_getIdentifier,
                                                                     ],
                                                      "gui_state" : "show_tree"},
                                        },
-            "make_data_tree_node"   : {"identifier": {"next_state": "show_tree",
-                                                      "actions"   : [self.__makeTree,
-                                                                     ],
-                                                      "gui_state" : "show_tree"
-                                                      },
+            "show_tree"             : {"selected": {"next_state": "check_selection",
+                                                    "actions"   : [self.__selectedItem],
+                                                    "gui_state" : "show_tree"},
                                        },
-            "show_tree"             : {"item_selected": {"next_state": "show_tree",
-                                                         "actions"   : [self.__selectedItem],
-                                                         "gui_state" : "show_tree"},
-                                       },
-            "instantiate_item"      : {"selected": {"next_state": "instantiate_item",
+            "check_selection"       : {"selected": {"next_state": "wait_for_ID",
                                                     "actions"   : [None],
-                                                    "gui_state" : "instantiate_item"},
+                                                    "gui_state" : "checked_selection"},
                                        },
+            "wait_for_ID"           : {"has_no_ID"  : {"next_state": "wait_for_ID",
+                                                       "actions"   : [None],
+                                                       "gui_state" : "has_no_ID"},
+                                       "has_ID"     : {"next_state": "wait_for_ID",
+                                                       "actions"   : [None],
+                                                       "gui_state" : "has_ID"},
+                                       "got_no_ID"  : {"next_state": "show_tree",
+                                                       "actions"   : [None],
+                                                       "gui_state" : "show_tree"},
+                                       "add_new_ID" : {"next_state": "show_tree",
+                                                       "actions"    : [self.__updateDataWithNewID],
+                                                       "gui_state" : "show_tree"},
+                                       "selected_ID": {"next_state": "show_tree",
+                                                       "actions"    : [self.__updateTree],
+                                                       "gui_state" : "show_tree"},
+                                       },
+            # "state"      : {"event": {"next_state": add next state,
+            #                                                "actions"   : [list of actions],
+            #                                                "gui_state" : specify gui shows (separate dictionary}},
+            #                          },
             # "state"      : {"event": {"next_state": add next state,
             #                                                "actions"   : [list of actions],
             #                                                "gui_state" : specify gui shows (separate dictionary}},
@@ -255,6 +269,7 @@ class BackEnd:
     if Event not in self.automaton[state]:
       print("stopping here - no such event", Event, "  at state", state)
       return
+
 
     next_state = self.automaton[state][Event]["next_state"]
     actions = self.automaton[state][Event]["actions"]
@@ -289,27 +304,38 @@ class BackEnd:
     self.class_path = [self.root_class_container]
     self.current_node = self.root_class_container
 
-
   def __selectedItem(self, state, data):
     """
     data is a list with selected item ID, associated predicate and a graph ID
     """
+    self.current_node = data[0]
+    self.processEvent("check_selection", "selected", data)
+
+  def __checkSelection(self, data):
+
     item_ID, predicate, graph_ID = data
     is_class = self.ContainerGraph.isClass(item_ID)
     is_sub_class = self.ContainerGraph.isSubClass(item_ID, self.current_class)
     is_primitive = self.ContainerGraph.isPrimitive(item_ID)
     is_value = self.ContainerGraph.isValue(predicate)
     is_linked = self.ContainerGraph.isLinked(item_ID, self.current_class)
+    is_instantiated = self.data_container.isInstantiated(item_ID)
+
+    s = "selection has data: %s    " % data
+
+    if is_class: s += " & class"
+    if is_sub_class: s += " & subclass"
+    if is_primitive: s += " & primitive"
+    if is_value: s += " & value"
+    if is_linked: s += " & is_linked"
+    if is_instantiated: s += " & instantiated"
+    print("selection : %s\n" % s)
 
     if is_class or is_sub_class:
-      self.processEvent("instantiate_item", "selected", None)
-
-    print("debugging selection", data)
-    print("debugging -- is class", is_class)
-    print("debugging -- is subclass", is_sub_class)
-    print("debugging -- is primitive", is_primitive)
-    print("debugging -- is value", is_value)
-    print("debugging -- is linked", is_linked)
+      if is_instantiated:
+        self.processEvent("wait_for_ID", "has_ID", item_ID)
+      else:
+        self.processEvent("wait_for_ID", "has_no_ID", item_ID)
 
   # def __makeTriple(self):
   #   triple = (self.current_node, "is_a", self.)
@@ -324,6 +350,12 @@ class BackEnd:
   #   pass
 
   # def __5_showDataTree(self, state, event_data):
+
+  def __updateDataWithNewID(self,state, data):
+    print("debugging -- new ID", state, data)
+
+  def __updateTree(self, state, data):
+    print("debugging -- selected ID", state, data)
 
   def shiftClass(self, class_ID):
     self.current_class = class_ID
@@ -390,6 +422,15 @@ class BackEnd:
               "selectors": ["classList",
                             "classTree"],
               }
+    elif state == "checked_selection":
+      show = {"buttons"  : ["save",
+                            "exit",
+                            "visualise",
+                            "instantiate",
+                            ],
+              "selectors": ["classList",
+                            "classTree"],
+              }
     elif state == "instantiate_item":
       show = {"buttons"  : ["instantiate",
                             ],
@@ -433,7 +474,7 @@ class BackEnd:
               }
     else:
       show = []
-      print("ooops -- no such state", state)
+      print("ooops -- no such gui state", state)
 
     objs = self.FrontEnd.gui_objects
     obj_classes = list(objs.keys())

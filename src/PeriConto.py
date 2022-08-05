@@ -46,14 +46,31 @@ VALUE = "value"
 PRIMITIVES = ["integer", "string", "comment"]
 ADD_ELUCIDATIONS = ["class", "subclass", VALUE]
 
+# COLOURS = {
+#         "is_a_subclass_of": QtGui.QColor(255, 255, 255, 255),
+#         "link_to_class"   : QtGui.QColor(255, 100, 5, 255),
+#         "value"           : QtGui.QColor(155, 155, 255),
+#         "comment"         : QtGui.QColor(155, 155, 255),
+#         "integer"         : QtGui.QColor(155, 155, 255),
+#         "string"          : QtGui.QColor(255, 200, 200, 255),
+#         }
+
 COLOURS = {
-        "is_a_subclass_of": QtGui.QColor(255, 255, 255, 255),
+        "is_a_subclass_of": QtGui.QColor(0, 0, 0, 255),
         "link_to_class"   : QtGui.QColor(255, 100, 5, 255),
         "value"           : QtGui.QColor(155, 155, 255),
         "comment"         : QtGui.QColor(155, 155, 255),
         "integer"         : QtGui.QColor(155, 155, 255),
         "string"          : QtGui.QColor(255, 200, 200, 255),
         }
+
+QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
+            "link_to_class"   : QtGui.QBrush(COLOURS["link_to_class"]),
+            "value"           : QtGui.QBrush(COLOURS["value"]),
+            "comment"         : QtGui.QBrush(COLOURS["comment"]),
+            "integer"         : QtGui.QBrush(COLOURS["integer"]),
+            "string"          : QtGui.QBrush(COLOURS["string"]), }
+
 
 DIRECTION = {
         "is_a_subclass_of": 1,
@@ -326,8 +343,9 @@ class OntobuilderUI(QMainWindow):
             # print("add %s <-- %s" % (o, s),p)
             item = QTreeWidgetItem(items[o])
             # print("debugging -- color",p )
-            item.setBackground(0, COLOURS[p])
+            # item.setBackground(0, COLOURS[p])
             item.predicate = p
+            item.setForeground(0, QBRUSHES[p])
             stack.append((s, o, p))
             item.setText(0, s)
             items[s] = item

@@ -116,7 +116,7 @@ def plot(graph, class_names=[]):
     if DIRECTION[my_p] == 1:
       dot.edge(ss, so, label=my_p, color="blue")
     else:
-      dot.edge(so, ss, label=my_p, color="green")
+      dot.edge(ss, so, label=my_p, color="green")
 
   # Visualize the graph
   return dot

@@ -42,6 +42,8 @@ def makeTree(truples, origin=[], stack=[], items={}):
           # print("add %s <-- %s" % (o, s),p)
           item = QTreeWidgetItem(items[o])
           item.setForeground(0,  QBRUSHES[p])
+          item.subject = s
+          item.object = o
           item.predicate = p
           item.graph_ID = graph_ID
           stack.append((s, o))
@@ -207,6 +209,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     rootItem.root = root
     rootItem.setText(0, root)
     rootItem.setSelected(True)
+    rootItem.subject = None
+    rootItem.object = root
     rootItem.predicate = None
     rootItem.graph_ID = root
     widget.addTopLevelItem(rootItem)
@@ -278,13 +282,16 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def on_treeClass_itemPressed(self, item, column):
     text_ID = item.text(column)
+    self.triple = (item.subject, item.predicate, item.object)
+    subject = item.subject
+    object = item.object
     predicate = item.predicate
     graph_ID = item.graph_ID
-    print("FrontEnd -- debugging selected item:", text_ID)
-    self.backEnd.processEvent("show_tree", "selected", [text_ID, predicate, graph_ID])
+    print("FrontEnd -- debugging selected item:", text_ID, subject, predicate, object)
+    self.backEnd.processEvent("show_tree", "selected", [subject, predicate, object,  graph_ID])
 
   def on_pushInstantiate_pressed(self):
-    self.backEnd.processEvent("wait_for_ID", "add_new_ID",None)
+    self.backEnd.processEvent("wait_for_ID", "add_new_ID",self.triple)
 
 if __name__ == "__main__":
   import sys

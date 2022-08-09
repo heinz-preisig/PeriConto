@@ -10,7 +10,7 @@ an instantiated "node" is <<name>>:<<ID>>
 
 DELIMITERS = {"instantiated": ":"}
 
-from rdflib import Graph
+from rdflib import Graph,Literal
 
 # from PeriConto import COLOURS
 # from PeriConto import LINK_COLOUR
@@ -50,6 +50,9 @@ def prepareTree(graph, graph_ID):
       truples.append((o, s, p, graph_ID))
   return truples
 
+def convertRDFintoInternalGraph(rdf_graph, root):
+  graph = []
+
 
 class SuperGraph():
   def __init__(self):
@@ -64,6 +67,59 @@ class SuperGraph():
     self.root_class = None
     self.elucidations = {}
     self.JsonFile = None
+
+  def create(self, root_class):
+    self.root_class = root_class
+    self.CLASSES = {self.root_class: Graph('Memory', Literal(self.root_class))}
+    self.current_class = self.root_class
+    self.subclass_names[self.root_class] = [self.root_class]
+    self.class_names.append(self.root_class)
+    self.class_path = [self.root_class]
+    self.link_lists[self.root_class] = []
+    self.class_definition_sequence.append(self.root_class)
+    self.primitives[self.root_class] = {self.root_class: []}
+
+  def load(self, JsonFile):
+    self.JsonFile = JsonFile
+    data = getData(self.JsonFile)
+    self.root_class = data["root"]
+    self.elucidations = data["elucidations"]
+
+    graphs_internal = data["graphs"]
+    for g in graphs_internal:
+      self.class_definition_sequence.append(g)
+      self.class_names.append(g)
+      self.subclass_names[g] = []
+      self.primitives[g] = {g: []}
+      self.link_lists[g] = []
+      self.CLASSES[g] = Graph()
+      for s, p, o in graphs_internal[g]:
+        self.addGraphGivenInInternalNotation(g, s, p, o)
+
+    self.subclass_names = {}
+    self.link_lists = {}
+    self.value_lists = {}
+    self.integer_lists = {}
+    self.string_lists = {}
+    self.comment_lists = {}
+
+    for rdf_graph_ID in self.CLASSES:
+      rdf_graph = self.CLASSES[rdf_graph_ID]
+      self.subclass_names[rdf_graph] = makeListBasedOnPredicates(rdf_graph, "is_a_subclass_of")
+      self.link_lists[rdf_graph] = makeListBasedOnPredicates(rdf_graph, "link_to_class")
+      self.value_lists[rdf_graph] = makeListBasedOnPredicates(rdf_graph, "value")
+      self.integer_lists[rdf_graph] = makeListBasedOnPredicates(rdf_graph, "integer")
+      self.integer_lists[rdf_graph] = makeListBasedOnPredicates(rdf_graph, "integer")
+      self.string_lists[rdf_graph] = makeListBasedOnPredicates(rdf_graph, "string")
+      self.comment_lists[rdf_graph] = makeListBasedOnPredicates(rdf_graph, "comment")
+
+    return self.root_class
+
+  def addGraphGivenInInternalNotation(self, graph_ID, subject_internal, predicate_internal, object_internal):
+    rdf_subject = makeRDFCompatible(subject_internal)
+    rdf_object = makeRDFCompatible(object_internal)
+    rdf_predicate = RDFSTerms[predicate_internal]
+    self.CLASSES[graph_ID].add((rdf_subject, rdf_predicate, rdf_object))
 
   def makePathName(self, text_ID):
     p = self.root_class
@@ -101,59 +157,24 @@ class SuperGraph():
     return DELIMITERS["instantiated"] in ID
 
 
+def makeListBasedOnPredicates(rdf_graph, rdf_predicate):
+  subclasslist = []
+  for s, p, o in rdf_graph.triples((None, RDFSTerms[rdf_predicate], None)):
+    subclasslist.append(s)
+  return subclasslist
+
+
 class ContainerGraph(SuperGraph):
 
   def __init__(self):
     SuperGraph.__init__(self)
     pass
 
-  def load(self, JsonFile):
-    self.JsonFile = JsonFile
-    data = getData(self.JsonFile)
-    self.root_class = data["root"]
-    self.elucidations = data["elucidations"]
 
-    graphs = data["graphs"]
-    for g in graphs:
-      self.class_definition_sequence.append(g)
-      self.class_names.append(g)
-      self.subclass_names[g] = []
-      self.primitives[g] = {g: []}
-      self.link_lists[g] = []
-      self.CLASSES[g] = Graph()
-      for s, p_internal, o in graphs[g]:
-        subject = makeRDFCompatible(s)
-        object = makeRDFCompatible(o)
-        p = RDFSTerms[p_internal]
-        self.CLASSES[g].add((subject, p, object))
-        # print("debugging -- graph added", g,s,p,o)
-        if p == RDFSTerms["is_a_subclass_of"]:
-          self.subclass_names[g].append(s)
-        elif p == RDFSTerms["link_to_class"]:
-          if g not in self.link_lists:
-            self.link_lists[g] = []
-          self.link_lists[g].append((s, g, o))
-        elif p == RDFSTerms["value"]:
-          if g not in self.primitives:
-            self.primitives[g] = {}
-          if o not in self.primitives[g]:
-            self.primitives[g][o] = [s]
-          else:
-            self.primitives[g][o].append(s)
-        elif p_internal in PRIMITIVES:
-          if g not in self.primitives:
-            self.primitives[g] = {}
-          if o not in self.primitives[g]:
-            self.primitives[g][o] = [s]
-          else:
-            self.primitives[g][o].append(s)
-        else:
-          if o not in self.primitives[g]:
-            self.primitives[g][o] = [s]
-          else:
-            self.primitives[g][o].append(s)
 
-    return self.root_class
+
+
+
 
 
 class DataGraph(SuperGraph):
@@ -178,7 +199,7 @@ class BackEnd:
     self.changed = False
 
     self.ContainerGraph = ContainerGraph()
-    self.data_container = DataGraph()
+    self.data_container = {}
 
     self.ui_state("start")
     self.event_data = None
@@ -218,13 +239,15 @@ class BackEnd:
                                        },
             "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
                                                      "actions"   : [self.__1_loadOntology,
-                                                                    self.__makeTree,
+                                                                    self.__createDataTree,
+                                                                    self.__makeDataTree,
                                                                     # self.__2_getIdentifier,
                                                                     ],
                                                      "gui_state" : "show_tree"},
                                        },
             "show_tree"             : {"selected": {"next_state": "check_selection",
-                                                    "actions"   : [self.__selectedItem],
+                                                    "actions"   : [self.__selectedItem,
+                                                                   self.__checkSelection],
                                                     "gui_state" : "show_tree"},
                                        },
             "check_selection"       : {"selected": {"next_state": "wait_for_ID",
@@ -258,9 +281,10 @@ class BackEnd:
             }
     pass
 
-    self.processEvent("start", "initialise", None)
+    # self.processEvent("start", "initialise", None)
 
   def processEvent(self, state, Event, event_data):
+    # Note: cannot be called from within backend -- generates new name space
     global gui_state
 
     if state not in self.automaton:
@@ -300,26 +324,25 @@ class BackEnd:
 
   def __1_loadOntology(self, state, event_data):
     self.root_class_container = self.ContainerGraph.load(event_data)
-    self.current_class = self.root_class_container
-    self.class_path = [self.root_class_container]
-    self.current_node = self.root_class_container
+
 
   def __selectedItem(self, state, data):
     """
     data is a list with selected item ID, associated predicate and a graph ID
     """
     self.current_node = data[0]
-    self.processEvent("check_selection", "selected", data)
 
-  def __checkSelection(self, data):
+  def __checkSelection(self, state, data):
 
-    item_ID, predicate, graph_ID = data
-    is_class = self.ContainerGraph.isClass(item_ID)
-    is_sub_class = self.ContainerGraph.isSubClass(item_ID, self.current_class)
-    is_primitive = self.ContainerGraph.isPrimitive(item_ID)
-    is_value = self.ContainerGraph.isValue(predicate)
-    is_linked = self.ContainerGraph.isLinked(item_ID, self.current_class)
-    is_instantiated = self.data_container.isInstantiated(item_ID)
+    s,p,o, graph_ID = data
+    item_ID = o
+    predicate = p
+    is_class = self.data_container[self.current_data_tree].isClass(item_ID)
+    is_sub_class = self.data_container[self.current_data_tree].isSubClass(item_ID, self.current_class)
+    is_primitive = self.data_container[self.current_data_tree].isPrimitive(item_ID)
+    is_value = self.data_container[self.current_data_tree].isValue(predicate)
+    is_linked = self.data_container[self.current_data_tree].isLinked(item_ID, self.current_class)
+    is_instantiated = self.data_container[self.current_data_tree].isInstantiated(item_ID)
 
     s = "selection has data: %s    " % data
 
@@ -333,9 +356,9 @@ class BackEnd:
 
     if is_class or is_sub_class:
       if is_instantiated:
-        self.processEvent("wait_for_ID", "has_ID", item_ID)
+        self.ui_state("has_ID")
       else:
-        self.processEvent("wait_for_ID", "has_no_ID", item_ID)
+        self.ui_state("has_no_ID")
 
   # def __makeTriple(self):
   #   triple = (self.current_node, "is_a", self.)
@@ -369,28 +392,59 @@ class BackEnd:
       # self.clear()
       # self.ui.listClasses.addItems(self.class_path)
 
-  def __makeTree(self, state, data):
+  def __createDataTree(self, state, data):
 
-    # self.root_class = name
-    # self.CLASSES = {self.root_class: Graph('Memory', Literal(self.root_class))}
-    # self.current_class = self.root_class
-    # self.subclass_names[self.root_class] = [self.root_class]
-    # self.class_names.append(self.root_class)
-    # self.class_path = [self.root_class]
-    # self.link_lists[self.root_class] = []
-    # self.listClasses = [self.class_path]
-    # # self.ui.listClasses.addItems(self.class_path)
-    # self.class_definition_sequence.append(self.root_class)
-    # self.primitives[self.root_class] = {self.root_class: []}
-    # self.changed = True
+    if not self.data_container:
+      self.data_container = {1: DataGraph()}
+      self.current_data_tree = 1
+      root_class = self.root_class_container + DELIMITERS["instantiated"] + str(1)
+      self.data_container[1].create(root_class)
+      self.current_class = root_class
+      container_graph = self.ContainerGraph.CLASSES[self.root_class_container]
+      for s,p,o in container_graph.triples((None,None,None)):
+        if str(s) == self.root_class_container:
+          s_ = Literal(root_class)
+        else:
+          s_ = s
+        if str(o) == self.root_class_container:
+          o_ = Literal(root_class)
+        else:
+          o_ = o
+        data_graph = self.data_container[1].CLASSES[root_class]
+        data_graph.add((s_,p,o_))
+      pass
 
-    graph = self.ContainerGraph.CLASSES[self.current_class]
-    self.truples = prepareTree(graph, "container")
-    self.FrontEnd.controls("selectors", "classTree", "populate", self.truples, self.root_class_container)
+  def __makeDataTree(self, state, data):
+
+    graph = self.data_container[self.current_data_tree].CLASSES[self.current_class]
+    self.truples = prepareTree(graph, "data %s"%self.current_data_tree)
+    self.FrontEnd.controls("selectors", "classTree", "populate", self.truples, str(graph.identifier))
     self.__makeClassList()
 
+  # def __makeTree(self, state, data):
+  #
+  #
+  #   # self.root_class = name
+  #   # self.CLASSES = {self.root_class: Graph('Memory', Literal(self.root_class))}
+  #   # self.current_class = self.root_class
+  #   # self.subclass_names[self.root_class] = [self.root_class]
+  #   # self.class_names.append(self.root_class)
+  #   # self.class_path = [self.root_class]
+  #   # self.link_lists[self.root_class] = []
+  #   # self.listClasses = [self.class_path]
+  #   # # self.ui.listClasses.addItems(self.class_path)
+  #   # self.class_definition_sequence.append(self.root_class)
+  #   # self.primitives[self.root_class] = {self.root_class: []}
+  #   # self.changed = True
+  #
+  #   graph = self.ContainerGraph.CLASSES[self.current_class]
+  #   self.truples = prepareTree(graph, "container")
+  #   self.FrontEnd.controls("selectors", "classTree", "populate", self.truples, self.root_class_container)
+  #   self.__makeClassList()
+
   def __makeClassList(self):
-    self.FrontEnd.controls("selectors", "classList", "populate", self.class_path)
+    path = self.data_container[self.current_data_tree].class_path
+    self.FrontEnd.controls("selectors", "classList", "populate", path)
     pass
 
   def ui_state(self, state):
@@ -476,19 +530,21 @@ class BackEnd:
       show = []
       print("ooops -- no such gui state", state)
 
+    print("debugging -- state & show", state, show)
+
     objs = self.FrontEnd.gui_objects
     obj_classes = list(objs.keys())
     for oc in obj_classes:
       o_list = list(objs[oc].keys())
       for o in o_list:
+        self.FrontEnd.controls(oc, o, "hide")
+      for o in o_list:
         if oc in show:
           if o in show[oc]:
-            self.FrontEnd.controls(oc, o, "show")
-          else:
-            # print(oc, o)
-            self.FrontEnd.controls(oc, o, "hide")
-        else:
-          self.FrontEnd.controls(oc, o, "hide")
+            self.FrontEnd.controls(oc,o,"show")
+
+
+  # ====================  attic
 
   # def __processEvent(self, Event, event_data):
   #

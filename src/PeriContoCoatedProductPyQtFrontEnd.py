@@ -278,7 +278,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
   def on_listClasses_itemClicked(self, item):
     class_ID = item.text()
     print("debugging -- ", class_ID)
-    self.backEnd.processEvent("class_list_clicked", "selected_class", class_ID)
+    self.backEnd.processEvent("class_list_clicked", "selected", class_ID)
 
   def on_treeClass_itemPressed(self, item, column):
     text_ID = item.text(column)

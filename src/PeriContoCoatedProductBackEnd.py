@@ -154,7 +154,7 @@ class SuperGraph():
     # graph_class is the currently active class
     if graph_class in self.txt_subclass_names:
       return (ID in self.txt_subclass_names[graph_class]) and \
-           (ID not in self.txt_class_names)
+             (ID not in self.txt_class_names)
     else:
       return False
 
@@ -213,20 +213,89 @@ class DataGraph(SuperGraph):
     SuperGraph.__init__(self)
     pass
 
+
 class WorkingGraph(SuperGraph):
 
-  def __init__(self, container_graph, rdf_data_graph):
+  def __init__(self, container_graph):
     SuperGraph.__init__(self)
     self.container_graph = container_graph
-    self.rdf_data_graph = rdf_data_graph
     pass
 
-  def importDataGraph(self, rdf_data_graph):
-    print("debubbing -- import data graph")
-    self.data_graph = rdf_data_graph
+  def createDataGraph(self, rdf_data_graph):
 
-  def overlayContainerGraph(self, container_data_graph):
+    print("debugging -- create data graph")
+    self.rdf_data_graph = rdf_data_graph
+
+  def overlayContainerGraph(self, graph_ID, rdf_data_class_graph):
     print("debugging -- overlay container graph")
+    self.graph_ID = graph_ID
+    self.rdf_data_class_graph = rdf_data_class_graph
+
+    container_graph_ID, instance_ID = getID(graph_ID)
+    container_class_graph = self.container_graph.RDFConjunctiveGraph[container_graph_ID]
+
+    working_graph = Graph()
+
+    if len(rdf_data_class_graph) == 0:
+      for s, p, o in container_class_graph.triples((None, None, None)):
+        if str(s) == container_graph_ID:
+          s_ = Literal(graph_ID)
+        else:
+          s_ = s
+        if str(o) == container_graph_ID:
+          o_ = Literal(graph_ID)
+        else:
+          o_ = o
+        working_graph.add((s_, p, o_))
+    else:
+      for s, p, o in working_graph.triples((None, None, None)):
+        print("- %s,  %s,  %s" % (s, p, o))
+
+      for d_s, d_p, d_o in rdf_data_class_graph.triples((None, None, None)):
+        print(">>> %s, %s, %s" % (d_s, d_p, d_o))
+        for s, p, o in container_class_graph.triples((None, None, None)):
+          _s, no_s = getID(str(s))
+          _o, no_o = getID(str(o))
+          t_s = Literal(_s)
+          t_o = Literal(_o)
+          l_s = (t_s == d_s)
+          l_p = (p == d_p)
+          l_o = (t_o == d_o)
+          if l_s and l_p and l_o:
+            working_graph.add((s, p, o))
+          elif l_s and l_p:
+            working_graph.add((t_s, p, d_o))
+          elif l_o and l_p:
+            working_graph.add((d_s, p, t_o))
+          else:
+            working_graph.add((s, p, o))
+
+    for s, p, o in working_graph.triples((None, None, None)):
+      print("- %s,  %s,  %s" % (s, p, o))
+      pass
+
+    #   for s, p, o in rdf_data_class_graph.triples((None, None, None)):
+    #     if str(s) == rdf_data_graph:
+    #       s_ = Literal(root_class)
+    #     else:
+    #       s_ = s
+    #     if str(o) == container_root_class:
+    #       o_ = Literal(root_class)
+    #     else:
+    #       o_ = o
+    #     data_graph = self.data_container[data_ID].RDFConjunctiveGraph[root_class]
+    #     data_graph.add((s_, p, o_))
+    pass
+    return working_graph
+
+
+def getID(ID):
+  container_graph_ID, instance_ID = ID.split(DELIMITERS["instantiated"])
+  return container_graph_ID, instance_ID
+
+
+def makeID(ID, no):
+  return ID + DELIMITERS["instantiated"] + no
 
 
 class BackEnd:
@@ -235,6 +304,10 @@ class BackEnd:
 
     # global state
     # global class_path
+    global data_container_number
+    global class_path
+    global data_container
+
 
     self.FrontEnd = FrontEnd
     # self.ontology_graph = None
@@ -242,7 +315,7 @@ class BackEnd:
     self.changed = False
 
     self.ContainerGraph = ContainerGraph()
-    self.data_container = {}
+    data_container = {}
 
     self.ui_state("start")
     self.event_data = None
@@ -251,6 +324,9 @@ class BackEnd:
 
     self.current_class = None
     self.current_subclass = None
+
+    data_container_number = 0
+
     # self.current_item_text_ID = None
     # self.identifiers = {}
     # self.subclass_names = {}
@@ -272,7 +348,7 @@ class BackEnd:
     # self.local_path = None
     # self.database = {}
 
-    self.data_container = {}
+    data_container = {}
 
     self.automaton = {
             "start"                 : {"initialise": {"next_state": "initialised",
@@ -286,7 +362,8 @@ class BackEnd:
             "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
                                                      "actions"   : [self.__1_loadOntology,
                                                                     self.__createDataTree,
-                                                                    self.__makeDataTreeFromFile,
+                                                                    # self.__makeDataTree,
+                                                                    # self.__makeDataTreeFromFile,
                                                                     # self.__2_getIdentifier,
                                                                     ],
                                                      "gui_state" : "show_tree"},
@@ -316,10 +393,10 @@ class BackEnd:
                                                        "actions"   : [self.__updateTree],
                                                        "gui_state" : "show_tree"},
                                        },
-            "class_list_clicked"      : {"selected": {"next_state": "show_tree",
-                                                           "actions"   : [self.__shiftToSelectedClass],
-                                                           "gui_state" : "show_tree"}
-                                     },
+            "class_list_clicked"    : {"selected": {"next_state": "show_tree",
+                                                    "actions"   : [self.__shiftToSelectedClass],
+                                                    "gui_state" : "show_tree"}
+                                       },
             # "state"      : {"event": {"next_state": add next state,
             #                                                "actions"   : [list of actions],
             #                                                "gui_state" : specify gui shows (separate dictionary}
@@ -327,13 +404,14 @@ class BackEnd:
             }
     pass
 
-
   def processEvent(self, state, Event, event_data):
     # Note: cannot be called from within backend -- generates new name space
     global gui_state
     global current_event_data
     global automaton_next_state
     global action
+    global data_container_number
+    global data_container
 
     current_event_data = event_data
 
@@ -378,7 +456,7 @@ class BackEnd:
                                  "exit")
 
   def __1_loadOntology(self):
-    global current_event_data,     automaton_next_state
+    global current_event_data, automaton_next_state
     # print(">>>", current_event_data, automaton_next_state)
     event_data = current_event_data
     self.root_class_container = self.ContainerGraph.load(event_data)
@@ -398,12 +476,13 @@ class BackEnd:
   def __checkSelection(self):
     global current_event_data
     global automaton_next_state
+    global data_container_number
     # print(">>>", current_event_data, automaton_next_state)
 
     sub, p, o, graph_ID = current_event_data
     item_ID = o
     predicate = p
-    graph = self.data_container[self.current_data_tree]
+    graph = data_container[data_container_number]
     container_graph = self.ContainerGraph
 
     is_data_class = graph.isClass(sub) or (not sub)
@@ -459,22 +538,22 @@ class BackEnd:
 
   # def __5_showDataTree(self, state, event_data):
 
-  def __updateDataWithNewID(self): #, state, data):
+  def __updateDataWithNewID(self):  # , state, data):
     global current_event_data
     global automaton_next_state
     # print(">>>", current_event_data, automaton_next_state)
 
-  def __updateTree(self): #, state, data):
+  def __updateTree(self):  # , state, data):
     global current_event_data
     global automaton_next_state
     print(">>>", current_event_data, automaton_next_state)
 
-  def __shiftToSelectedClass(self): #, state, data):
+  def __shiftToSelectedClass(self):  # , state, data):
     global current_event_data
     global automaton_next_state
     # print(">>>", current_event_data, automaton_next_state)
 
-    graph = self.data_container[self.current_data_tree]
+    graph = data_container[self.current_data_tree]
     container_graph = self.ContainerGraph
     sub = current_event_data
     # is_data_class = graph.isClass(sub) or (not sub)
@@ -485,6 +564,7 @@ class BackEnd:
 
   def __shiftClass(self, class_ID, is_what):
     global class_path
+
     self.current_class = class_ID
     if class_ID not in class_path:
       # self.listClasses.append(class_ID)
@@ -498,11 +578,11 @@ class BackEnd:
       # self.ui.listClasses.addItems(class_path)
     pass
 
-    self.__makeDataTree(class_ID, is_what)
+    self.__makeDataTree()
 
     self.FrontEnd.controls("selectors", "classList", "populate", class_path)
 
-  def __createDataTree(self): #, state, data):
+  def __createDataTree(self):  # , state, data):
     """
     data dictionary has two components:
     data_ID : enumerator
@@ -511,70 +591,109 @@ class BackEnd:
     global class_path
     global current_event_data
     global automaton_next_state
+    global data_container_number
+    global data_container
+
+    data_container_number = 1
+
+    data_container[data_container_number] = DataGraph()
+    self.__makeDataTree()
+
+
     print(">>>", current_event_data, automaton_next_state)
-    data = current_event_data
 
-    if not self.data_container:
-      data_ID = 1
-      root_class = self.root_class_container
-      data_root_class = self.__makeFirstDataRoot(root_class, data_ID)
-      class_path = [data_root_class]
-    else:
-      if "data_ID" in data:
-        data_ID = data["data_ID"]
-        root_class = data["root_class"]
-      else:
-        data_ID = -1
-        root_class = self.root_class_container
 
-    self.current_data_tree = data_ID
-    self.addGraphToDataGraph(data_ID, root_class)
-
-  def addGraphToDataGraph(self, data_ID, container_root_class):
-    self.data_container[data_ID]=  DataGraph()
-    container_graph = self.ContainerGraph.RDFConjunctiveGraph[container_root_class]
-    root_class = self.__makeFirstDataRoot(container_root_class, data_ID)
-    self.data_container[data_ID].create(root_class)
-    self.current_class = root_class
-    for s, p, o in container_graph.triples((None, None, None)):
-      if str(s) == container_root_class:
-        s_ = Literal(root_class)
-      else:
-        s_ = s
-      if str(o) == container_root_class:
-        o_ = Literal(root_class)
-      else:
-        o_ = o
-      data_graph = self.data_container[data_ID].RDFConjunctiveGraph[root_class]
-      data_graph.add((s_, p, o_))
+    # data = current_event_data
+    #
+    # if not self.data_container:
+    #   data_ID = 1
+    #   root_class = self.root_class_container
+    #   data_root_class = self.__makeFirstDataRoot(root_class, data_ID)
+    #   class_path = [data_root_class]
+    # else:
+    #   if "data_ID" in data:
+    #     data_ID = data["data_ID"]
+    #     root_class = data["root_class"]
+    #   else:
+    #     data_ID = -1
+    #     root_class = self.root_class_container
+    #
+    # self.current_data_tree = data_ID
+    # working_tree = WorkingGraph(self.ContainerGraph)
+    # self.data_container[data_ID] = DataGraph()
+    # data_root_class = self.__makeFirstDataRoot(root_class, data_ID)
+    # self.data_container[data_ID].create(data_root_class)
+    # self.current_working_tree = working_tree.overlayContainerGraph(
+    #         data_root_class,
+    #         self.data_container[data_ID].RDFConjunctiveGraph[data_root_class])
+    # self.current_class = data_root_class
     pass
-    self.data_container[1].makeAllLists()
+
+    # self.addGraphToDataGraph(data_ID, root_class)
+
+  # def addGraphToDataGraph(self, data_ID, container_root_class):
+  #   self.data_container[data_ID] = DataGraph()
+  #   container_graph = self.ContainerGraph.RDFConjunctiveGraph[container_root_class]
+  #   root_class = self.__makeFirstDataRoot(container_root_class, data_ID)
+  #   self.data_container[data_ID].create(root_class)
+  #   self.current_class = root_class
+  #   for s, p, o in container_graph.triples((None, None, None)):
+  #     if str(s) == container_root_class:
+  #       s_ = Literal(root_class)
+  #     else:
+  #       s_ = s
+  #     if str(o) == container_root_class:
+  #       o_ = Literal(root_class)
+  #     else:
+  #       o_ = o
+  #     data_graph = self.data_container[data_ID].RDFConjunctiveGraph[root_class]
+  #     data_graph.add((s_, p, o_))
+  #   pass
+  #   self.data_container[1].makeAllLists()
 
   def __makeFirstDataRoot(self, container_root_class, data_ID):
+    global data_container_number
+
     root_class = container_root_class + DELIMITERS["instantiated"] + str(data_ID)
     return root_class
 
   def __addToDataTree(self, state, data):
     data = 1
 
-  def __makeDataTreeFromFile(self):#, state, file_name):
-    global current_event_data
-    global automaton_next_state
-    print(">>>", current_event_data, automaton_next_state)
-    state = automaton_next_state
-    self.__makeDataTree(state, False)
+  # def __makeDataTreeFromFile(self):  # , state, file_name):
+  #   global current_event_data
+  #   global automaton_next_state
+  #   print(">>>", current_event_data, automaton_next_state)
+  #   state = automaton_next_state
+  #   self.__makeDataTree() #state, False)
 
-  def __makeDataTree(self, graph_ID, is_what):
+  def __makeDataTree(self): #, graph_ID, is_what):
+    global data_container_number
+    global data_container
 
-    if not is_what:
-      print("make it from data container")
-      graph = self.data_container[self.current_data_tree].RDFConjunctiveGraph[self.current_class]
-    else:
-      print("make it from ontology container")
-      graph = self.ContainerGraph.RDFConjunctiveGraph[self.current_class]
+    if data_container_number == 0:
+      data_container_number = 1
 
-    self.quads = convertRDFintoInternalMultiGraph(graph, self.current_class)
-    self.FrontEnd.controls("selectors", "classTree", "populate", self.quads, self.current_class) #str(graph.identifier))
+    # if not is_what:
+    #   print("make it from data container")
+    #   graph = self.data_container[self.current_data_tree].RDFConjunctiveGraph[self.current_class]
+    # else:
+    #   print("make it from ontology container")
+    #   graph = self.ContainerGraph.RDFConjunctiveGraph[self.current_class]
+    #
+    # self.current_data_tree = data_ID
+    working_tree = WorkingGraph(self.ContainerGraph)
+    root_class = self.root_class_container
+    data_root_class = self.__makeFirstDataRoot(root_class, data_container_number)
+    data_container[data_container_number].create(data_root_class)
+    self.current_working_tree = working_tree.overlayContainerGraph(
+            data_root_class,
+            data_container[data_container_number].RDFConjunctiveGraph[data_root_class])
+    self.current_class = data_root_class
+
+    self.quads = convertRDFintoInternalMultiGraph(self.current_working_tree, self.current_class)
+
+    self.FrontEnd.controls("selectors", "classTree", "populate", self.quads, self.current_class)
     self.__makeClassList()
 
   # def __makeTree(self, state, data):
@@ -599,7 +718,8 @@ class BackEnd:
   #   self.__makeClassList()
 
   def __makeClassList(self):
-    path = self.data_container[self.current_data_tree].txt_class_path
+    global data_container_number
+    path = data_container[data_container_number].txt_class_path
     self.FrontEnd.controls("selectors", "classList", "populate", path)
     pass
 

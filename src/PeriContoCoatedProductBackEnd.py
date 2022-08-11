@@ -213,12 +213,27 @@ class DataGraph(SuperGraph):
     SuperGraph.__init__(self)
     pass
 
+class WorkingGraph(SuperGraph):
+
+  def __init__(self, container_graph, rdf_data_graph):
+    SuperGraph.__init__(self)
+    self.container_graph = container_graph
+    self.rdf_data_graph = rdf_data_graph
+    pass
+
+  def importDataGraph(self, rdf_data_graph):
+    print("debubbing -- import data graph")
+    self.data_graph = rdf_data_graph
+
+  def overlayContainerGraph(self, container_data_graph):
+    print("debugging -- overlay container graph")
+
 
 class BackEnd:
 
   def __init__(self, FrontEnd):
 
-    global state
+    # global state
     # global class_path
 
     self.FrontEnd = FrontEnd
@@ -312,11 +327,15 @@ class BackEnd:
             }
     pass
 
-    # self.processEvent("start", "initialise", None)
 
   def processEvent(self, state, Event, event_data):
     # Note: cannot be called from within backend -- generates new name space
     global gui_state
+    global current_event_data
+    global automaton_next_state
+    global action
+
+    current_event_data = event_data
 
     if state not in self.automaton:
       print("stopping here - no such state", state)
@@ -329,6 +348,8 @@ class BackEnd:
     actions = self.automaton[state][Event]["actions"]
     gui_state = self.automaton[state][Event]["gui_state"]
 
+    automaton_next_state = next_state
+
     print("automaton -- ",
           "\n             state   :", state,
           "\n             next    :", next_state,
@@ -339,12 +360,16 @@ class BackEnd:
 
     for action in actions:
       if action:
-        action(next_state, event_data)  # Note: state info must be carried along due to callback
+        action()
     self.ui_state(gui_state)
 
     return next_state
 
-  def __0_askForFileName(self, state, event_data):
+  def __0_askForFileName(self):
+    global current_event_data
+    global automaton_next_state
+    # print(">>>", current_event_data, automaton_next_state)
+    state = automaton_next_state
 
     self.FrontEnd.fileNameDialog(state, "file_name",
                                  "ontology",
@@ -352,19 +377,30 @@ class BackEnd:
                                  "*.json",
                                  "exit")
 
-  def __1_loadOntology(self, state, event_data):
+  def __1_loadOntology(self):
+    global current_event_data,     automaton_next_state
+    # print(">>>", current_event_data, automaton_next_state)
+    event_data = current_event_data
     self.root_class_container = self.ContainerGraph.load(event_data)
     self.current_class = self.root_class_container
 
-  def __selectedItem(self, state, data):
+  def __selectedItem(self):
     """
     data is a list with selected item ID, associated predicate and a graph ID
     """
+    global current_event_data
+    global automaton_next_state
+    # print(">>>", current_event_data, automaton_next_state)
+
+    data = current_event_data
     self.current_node = data[0]
 
-  def __checkSelection(self, state, data):
+  def __checkSelection(self):
+    global current_event_data
+    global automaton_next_state
+    # print(">>>", current_event_data, automaton_next_state)
 
-    sub, p, o, graph_ID = data
+    sub, p, o, graph_ID = current_event_data
     item_ID = o
     predicate = p
     graph = self.data_container[self.current_data_tree]
@@ -385,7 +421,7 @@ class BackEnd:
 
     is_instantiated = graph.isInstantiated(item_ID)
 
-    txt = "selection has data: %s    " % data
+    txt = "selection has data: %s    " % current_event_data
 
     if is_data_class: txt += " & class"
     if is_container_class: txt += " & container_class"
@@ -423,18 +459,24 @@ class BackEnd:
 
   # def __5_showDataTree(self, state, event_data):
 
-  def __updateDataWithNewID(self, state, data):
-    print("debugging -- new ID", state, data)
+  def __updateDataWithNewID(self): #, state, data):
+    global current_event_data
+    global automaton_next_state
+    # print(">>>", current_event_data, automaton_next_state)
 
-  def __updateTree(self, state, data):
-    print("debugging -- selected ID", state, data)
+  def __updateTree(self): #, state, data):
+    global current_event_data
+    global automaton_next_state
+    print(">>>", current_event_data, automaton_next_state)
 
-  def __shiftToSelectedClass(self, state, data):
-    print("debugging -- shift class", data)
+  def __shiftToSelectedClass(self): #, state, data):
+    global current_event_data
+    global automaton_next_state
+    # print(">>>", current_event_data, automaton_next_state)
 
     graph = self.data_container[self.current_data_tree]
     container_graph = self.ContainerGraph
-    sub = data
+    sub = current_event_data
     # is_data_class = graph.isClass(sub) or (not sub)
     is_container_class = container_graph.isClass(sub)
     self.__shiftClass(sub, is_container_class)
@@ -460,13 +502,17 @@ class BackEnd:
 
     self.FrontEnd.controls("selectors", "classList", "populate", class_path)
 
-  def __createDataTree(self, state, data):
+  def __createDataTree(self): #, state, data):
     """
     data dictionary has two components:
     data_ID : enumerator
     root_class : root class of the added tree
     """
     global class_path
+    global current_event_data
+    global automaton_next_state
+    print(">>>", current_event_data, automaton_next_state)
+    data = current_event_data
 
     if not self.data_container:
       data_ID = 1
@@ -511,7 +557,11 @@ class BackEnd:
   def __addToDataTree(self, state, data):
     data = 1
 
-  def __makeDataTreeFromFile(self, state, file_name):
+  def __makeDataTreeFromFile(self):#, state, file_name):
+    global current_event_data
+    global automaton_next_state
+    print(">>>", current_event_data, automaton_next_state)
+    state = automaton_next_state
     self.__makeDataTree(state, False)
 
   def __makeDataTree(self, graph_ID, is_what):

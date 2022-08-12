@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QTreeWidgetItem
 
 from PeriContoCoatedProductBackEnd import BackEnd
+from PeriContoCoatedProductBackEnd import DELIMITERS
 # from graphHAP import Graph
 from PeriContoCoatedProduct_gui import Ui_MainWindow
 from resources.resources_icons import roundButton
@@ -41,7 +42,7 @@ def makeTree(truples, origin=[], stack=[], items={}):
         if o in items:
           # print("add %s <-- %s" % (o, s),p)
           item = QTreeWidgetItem(items[o])
-          item.setForeground(0,  QBRUSHES[p])
+          item.setForeground(0, QBRUSHES[p])
           item.subject = s
           item.object = o
           item.predicate = p
@@ -198,7 +199,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.backEnd.processEvent("initialised", "create", None)
 
   def on_pushLoad_pressed(self):
-    self.backEnd.processEvent("load", )
+    self.backEnd.processEvent("load")
 
   def __makeClassTree(self, truples, root):
     widget = self.ui.treeClass
@@ -287,11 +288,23 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     object = item.object
     predicate = item.predicate
     graph_ID = item.graph_ID
+    self.path = self.__makePath(item)
     print("FrontEnd -- debugging selected item:", text_ID, subject, predicate, object)
-    self.backEnd.processEvent("show_tree", "selected", [subject, predicate, object,  graph_ID])
+    self.backEnd.processEvent("show_tree", "selected", [subject, predicate, object, graph_ID, self.path])
+
+  def __makePath(self, item):
+    texts = []
+    while item is not None:
+      texts.append(item.text(0))
+      item = item.parent()
+    texts.reverse()
+    path = DELIMITERS["path"].join(texts)
+    # print(">>>>>>>>>>>>>>>>>>>>front end -- path", path)
+    return path
 
   def on_pushInstantiate_pressed(self):
-    self.backEnd.processEvent("wait_for_ID", "add_new_ID",self.triple)
+    self.backEnd.processEvent("wait_for_ID", "add_new_ID", {"triple":self.triple,"path": self.path})
+
 
 if __name__ == "__main__":
   import sys

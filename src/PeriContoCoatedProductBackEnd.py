@@ -57,19 +57,20 @@ class SuperGraph():
     self.txt_integer_lists = {}
     self.txt_string_lists = {}
     self.txt_comment_lists = {}
+    self.enumerators = {}
 
     self.RDFConjunctiveGraph = {}
 
   def create(self, root_class):
     self.txt_root_class = root_class
     self.RDFConjunctiveGraph = {self.txt_root_class: Graph('Memory', identifier=root_class)}
-    # self.RDFConjunctiveGraph = {self.txt_root_class: Graph('Memory', Literal(self.txt_root_class))}
     self.txt_subclass_names[self.txt_root_class] = [self.txt_root_class]
     self.txt_class_names.append(self.txt_root_class)
     self.txt_class_path = [self.txt_root_class]
     self.txt_link_lists[self.txt_root_class] = []
     self.class_definition_sequence.append(self.txt_root_class)
     self.txt_primitives[self.txt_root_class] = {self.txt_root_class: []}
+    self.enumerators[self.txt_root_class] = {self.txt_root_class: None}            # keeps track of instances
 
   def load(self, JsonFile):
     """
@@ -91,8 +92,6 @@ class SuperGraph():
       # Note:  show discrepancies between python implementation and documentation. Tried .get_graph
       self.RDFConjunctiveGraph[g] = Graph()
 
-      # self.RDFConjunctiveGraph = rdflib.graph.ConjunctiveGraph( identifier=self.txt_root_class)
-
       for s, p, o in graphs_internal[g]:
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
@@ -104,7 +103,6 @@ class SuperGraph():
     print("debugging")
     for rdf_graph_ID in self.RDFConjunctiveGraph:
       rdf_graph = self.RDFConjunctiveGraph[rdf_graph_ID]
-
       self.makeAllListsForOneGraph(rdf_graph, rdf_graph_ID)
     pass
 
@@ -157,8 +155,8 @@ class SuperGraph():
           if linked_to_subclass == ID:
             return True
 
-  def isInstantiated(self, ID):
-    return DELIMITERS["instantiated"] in ID
+  # def isInstantiated(self, ID):
+  #   return DELIMITERS["instantiated"] in ID
 
 
 def makeListBasedOnPredicates(rdf_graph, rdf_predicate):
@@ -182,6 +180,15 @@ class ContainerGraph(SuperGraph):
     pass
 
 
+  def load(self, JsonFile):
+    self.txt_root_class = super().load(JsonFile)
+    for g in self.RDFConjunctiveGraph:
+      self.enumerators[g] = {}
+      for s, p, o in self.RDFConjunctiveGraph[g]:
+        self.enumerators[str(g)][str(o)] = None                          # instantiate enumerators
+    return self.txt_root_class
+
+
 class DataGraph(SuperGraph):
 
   def __init__(self):
@@ -197,20 +204,21 @@ class WorkingTree(SuperGraph):
     self.RDFConjunctiveGraph = copy.deepcopy(container_graph.RDFConjunctiveGraph)
 
 
+
   def instantiateAlongPath(self, path, no):
 
     # path_list = path.split(DELIMITERS["path"])
     for graphID in self.RDFConjunctiveGraph:
       graph = self.RDFConjunctiveGraph[graphID]
       for s, p, o in graph:
-        if (str(s) in path) and not isInstantiated(str(s)):
+        if (str(s) in path) and (not isInstantiated(str(s))):
           s_ = makeID(s,no)
           triple = (Literal(s_), p, o)
           graph.remove((s,p,o))
           graph.add(triple)
 
       for s,p,o in graph:
-        if (str(o) in path) and not isInstantiated(str(o)):
+        if (str(o) in path) and (not isInstantiated(str(o))):
           o_ = makeID(o,no)
           triple = (s, p, Literal(o_))
           graph.remove((s,p,o))
@@ -218,18 +226,11 @@ class WorkingTree(SuperGraph):
 
     instantiated_classes = {}
     for graphID in list(self.RDFConjunctiveGraph.keys()):
-      if graphID in path:
+      if (graphID in path) and (not isInstantiated(graphID)):
         graphID_ = makeID(graphID,no)
         self.RDFConjunctiveGraph[graphID_] = self.RDFConjunctiveGraph[graphID]
         del self.RDFConjunctiveGraph[graphID]
         instantiated_classes[graphID] = graphID_
-
-
-    for graphID in self.RDFConjunctiveGraph:
-      graph = self.RDFConjunctiveGraph[graphID]
-      print("\n graph :", graphID)
-      for s,p,o in graph:
-        print(str(s), MYTerms[p], str(o))
 
     return no, instantiated_classes
 
@@ -255,12 +256,12 @@ class WorkingTree(SuperGraph):
         else:
           o_ = o
         working_graph.add((s_, p, o_))
-    else:
-      for s, p, o in working_graph.triples((None, None, None)):
-        print("- %s,  %s,  %s" % (s, p, o))
+    # else:
+    #   for s, p, o in working_graph.triples((None, None, None)):
+    #     print("- %s,  %s,  %s" % (s, p, o))
 
       for d_s, d_p, d_o in rdf_data_class_graph.triples((None, None, None)):
-        print(">>> %s, %s, %s" % (d_s, d_p, d_o))
+        # print(">>> %s, %s, %s" % (d_s, d_p, d_o))
         for s, p, o in container_class_graph.triples((None, None, None)):
           _s, no_s = getID(str(s))
           _o, no_o = getID(str(o))
@@ -283,7 +284,9 @@ class WorkingTree(SuperGraph):
     return working_graph
 
 def isInstantiated(ID):
-  return DELIMITERS["path"] in ID
+  id = str(ID)
+  # print("debugging ==", id,(DELIMITERS["instantiated"] in id))
+  return DELIMITERS["instantiated"] in id
 
 def getID(ID):
   container_graph_ID, instance_ID = ID.split(DELIMITERS["instantiated"])
@@ -462,7 +465,7 @@ class BackEnd:
     is_string = working_tree.isString(predicate)
     is_linked = (predicate == "link_to_class")
 
-    is_instantiated = working_tree.isInstantiated(item_ID)
+    is_instantiated = isInstantiated(item_ID)
 
     txt = "selection has data: %s    " % current_event_data
 
@@ -486,6 +489,7 @@ class BackEnd:
         self.ui_state("has_no_ID")
 
     if is_linked:
+      print("shifting event data :", current_event_data)
       self.current_class = sub
       self.__makeWorkingTree()
       self.__shiftClass()
@@ -496,7 +500,8 @@ class BackEnd:
     global working_tree
     global class_path
 
-    print("debugging new ID ", current_event_data)
+    print("debugging new ID : event data -- ", current_event_data)
+    print("debugging new ID : current class", self.current_class)
     s,p,o = current_event_data["triple"]
     if isInstantiated(s):
       return
@@ -513,7 +518,8 @@ class BackEnd:
         index = class_path.index(i)
         class_path[index]= instantiated_classes[i]
 
-    self.current_class = makeID(self.current_class, instance_no)
+    if not isInstantiated(self.current_class):
+      self.current_class = makeID(self.current_class, instance_no)
 
     print("debugging", class_path)
 
@@ -530,6 +536,8 @@ class BackEnd:
 
   def __shiftToSelectedClass(self):  # , state, data):
     global current_event_data
+
+    print("shifting event data :", current_event_data)
 
     self.current_class = current_event_data
     self.__makeWorkingTree()

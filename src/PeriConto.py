@@ -617,8 +617,9 @@ class OntobuilderUI(QMainWindow):
       parent_item = self.ui.treeClass.currentItem()
     item = QTreeWidgetItem(parent_item)
     item.setText(0, internal_object)
+    item.predicate = predicate
     # item.setBackground(0, COLOURS[predicate])# PRIMITIVE_COLOUR)
-    item.setForeground(0, QBRUSHES[p])
+    item.setForeground(0, QBRUSHES[predicate])
     self.ui.treeClass.expandAll()
     self.changed = True
     return item
@@ -685,7 +686,8 @@ class OntobuilderUI(QMainWindow):
       parent_item = self.ui.treeClass.currentItem()
       item = QTreeWidgetItem(parent_item)
       item.setText(0, class_ID)
-      columns = item.columnCount()
+      p = "link_to_class"
+      item.predicate = p
       # item.setBackground(0, LINK_COLOUR)
       item.setForeground(0, QBRUSHES[p])
       self.ui.treeClass.expandAll()

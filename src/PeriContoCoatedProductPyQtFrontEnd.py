@@ -169,38 +169,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
     self.backEnd = BackEnd(self)
 
-  def dialog(self, state, Event, prompt, placeholder_text, limiting_list, on_fail):
-
-    dialog = UI_String(prompt, placeholder_text, limiting_list)
-    dialog.exec_()
-    name = dialog.getText()
-    if name:
-      self.backEnd.processEvent(state, Event, name)
-    elif on_fail != "close":
-      print(">>> I do not know what to do")
-    else:
-      self.close()
-
-  def fileNameDialog(self, state, Event, prompt, directory, type, on_fail):
-    name = QFileDialog.getOpenFileName(None,
-                                       prompt,
-                                       directory,
-                                       type,
-                                       )[0]
-
-    if name:
-      self.backEnd.processEvent(state, Event, name)
-    elif on_fail != "close":
-      print(">>> I do not know what to do")
-    else:
-      self.close()
-
-  def on_pushCreate_pressed(self):
-    self.backEnd.processEvent("initialised", "create", None)
-
-  def on_pushLoad_pressed(self):
-    self.backEnd.processEvent("load")
-
   def __makeClassTree(self, truples, root):
     widget = self.ui.treeClass
     widget.clear()
@@ -271,27 +239,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.gui_objects["selectors"]["integer"].hide()
     self.gui_objects["groups"]["classList"].hide()
 
-  def controls(self, gui_class, gui_obj, action, *contents):
-    # if gui_obj == "instantiate":
-    #   print("debugging -- controls", gui_class, gui_obj, action, *contents)
-    self.gui_objects_controls[gui_class][gui_obj][action](*contents)
-
-  def on_listClasses_itemClicked(self, item):
-    class_ID = item.text()
-    print("debugging -- ", class_ID)
-    self.backEnd.processEvent("class_list_clicked", "selected", class_ID)
-
-  def on_treeClass_itemPressed(self, item, column):
-    text_ID = item.text(column)
-    self.triple = (item.subject, item.predicate, item.object)
-    subject = item.subject
-    object = item.object
-    predicate = item.predicate
-    graph_ID = item.graph_ID
-    self.path = self.__makePath(item)
-    print("FrontEnd -- debugging selected item:", text_ID, subject, predicate, object)
-    self.backEnd.processEvent("show_tree", "selected", [subject, predicate, object, graph_ID, self.path])
-
   def __makePath(self, item):
     texts = []
     while item is not None:
@@ -302,8 +249,93 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     # print(">>>>>>>>>>>>>>>>>>>>front end -- path", path)
     return path
 
+  def stringDialog(self, state, Event, prompt, placeholder_text, limiting_list, on_fail):
+
+    dialog = UI_String(prompt, placeholder_text, limiting_list)
+    dialog.exec_()
+    name = dialog.getText()
+    if name:
+      self.backEnd.processEvent(state, Event, name)
+    elif on_fail != "close":
+      print(">>> I do not know what to do")
+    else:
+      self.close()
+
+  def fileNameDialog(self, state, Event, prompt, directory, type, on_fail):
+    name = QFileDialog.getOpenFileName(None,
+                                       prompt,
+                                       directory,
+                                       type,
+                                       )[0]
+
+    if name:
+      message = {"file_name": name}
+      self.backEnd.processEvent(state, Event, message)
+    elif on_fail != "close":
+      print(">>> I do not know what to do")
+    else:
+      self.close()
+
+  def controls(self, gui_class, gui_obj, action, *contents):
+    """
+    receives messages from backend with the exception of
+    - string dialog
+    - file-name dialog
+    """
+    # if gui_obj == "instantiate":
+    #   print("debugging -- controls", gui_class, gui_obj, action, *contents)
+    self.gui_objects_controls[gui_class][gui_obj][action](*contents)
+
+  def on_pushCreate_pressed(self):
+    self.backEnd.processEvent("initialised", "create", None)
+
+  def on_pushLoad_pressed(self):
+    self.backEnd.processEvent("load")
+
+  def on_listClasses_itemClicked(self, item):
+    """
+    generates a message
+    - class_ID
+    - path within class to chosen tree item
+    """
+
+    class_ID = item.text()
+    print("debugging -- ", class_ID)
+    listTree_item = self.ui.treeClass.currentItem()
+    path = self.__makePath(listTree_item)
+    message = {"class": class_ID,
+               "path" : path}
+    self.backEnd.processEvent("class_list_clicked", "selected", message)
+
+  def on_treeClass_itemPressed(self, item, column):
+    """
+    generates a message
+    - class_ID === graph_ID
+    - triple associated with the chosen tree item
+    - path within class to chosen tree item
+    """
+    # text_ID = item.text(column)
+    self.triple = (item.subject, item.predicate, item.object)
+    subject = item.subject
+    object = item.object
+    predicate = item.predicate
+    graph_ID = item.graph_ID
+    self.path = self.__makePath(item)  # used in instantiation
+    print("FrontEnd -- debugging selected item:", subject, predicate, object)
+    message = {"class" : graph_ID,
+               "triple": (subject, predicate, object),
+               "path"  : self.path}
+    self.backEnd.processEvent("show_tree", "selected", message)
+
   def on_pushInstantiate_pressed(self):
-    self.backEnd.processEvent("wait_for_ID", "add_new_ID", {"triple":self.triple,"path": self.path})
+    """
+    generates a message
+    - triple associated with the chosen tree item
+    - path within class to chosen tree item
+    """
+    message = {"triple": self.triple,
+               "path"  : self.path}
+    self.backEnd.processEvent("wait_for_ID", "add_new_ID", message)
 
 
 if __name__ == "__main__":

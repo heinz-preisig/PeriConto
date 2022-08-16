@@ -337,6 +337,9 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                "path"  : self.path}
     self.backEnd.processEvent("wait_for_ID", "add_new_ID", message)
 
+  def on_pushVisualise_pressed(self):
+    self.backEnd.processEvent("visualise", "dot_plot",{})
+
 
 if __name__ == "__main__":
   import sys

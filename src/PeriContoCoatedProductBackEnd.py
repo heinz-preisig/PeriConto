@@ -258,48 +258,64 @@ class WorkingTree(SuperGraph):
   def instantiateAlongPath(self, paths_in_classes, class_path, reminder):
 
     print("debugging -- class path and paths in classes", class_path, paths_in_classes)
-    path_position = len(class_path)-reminder-1
-    c = class_path[path_position]
-    nodes = paths_in_classes[c].split(DELIMITERS["path"])
-    N = nodes[-1]
-    from_graph = self.RDFConjunctiveGraph[c]
-    updated_nodes = []
-    instantiated = {}
-    for i in reversed(range(1, len(nodes))):
-      print(nodes[i], nodes[i - 1])
-      for s, p, o in from_graph.triples((Literal(nodes[i]), None, Literal(nodes[i - 1]))):
-        ss = str(s)
-        os = str(o)
-        print(ss, MYTerms[p], os)
-        if (not isInstantiated(ss)) and (not isInstantiated((os))):
-          enum = self.container_graph.incrementNodeEnumerator(c, ss)
-          s_i = makeID(s, enum)
-          enum = self.container_graph.incrementNodeEnumerator(c, os)
-          o_i = makeID(o, enum)
-          from_graph.remove((s, p, o))
-          from_graph.add((s_i, p, o_i))
-          if str(s_i) not in updated_nodes:
-            updated_nodes.append(str(s_i))
-          if str(o_i) not in updated_nodes:
-            updated_nodes.append(str(o_i))
-            instantiated[ss] = s_i
-            instantiated[os] = o_i
-        elif (not isInstantiated(ss)):
-          enum = self.container_graph.incrementNodeEnumerator(c, ss)
-          s_i = makeID(s, enum)
-          from_graph.remove((s, p, o))
-          from_graph.add((s_i, p, o))
-          if str(s_i) not in updated_nodes:
-            updated_nodes.append(str(s_i))
-          instantiated[ss] = s_i
+    for c in reversed(class_path):
+      # c = class_path[path_position]
+      nodes = paths_in_classes[c].split(DELIMITERS["path"])
+      N = nodes[-1]
+      from_graph = self.RDFConjunctiveGraph[c]
+      updated_nodes = []
+      instantiated = {}
+      for i in reversed(range(1, len(nodes))):
+        print(nodes[i], nodes[i - 1])
+        for s, p, o in from_graph.triples((Literal(nodes[i]), None, Literal(nodes[i - 1]))):
+          ss = str(s)
+          os = str(o)
+          print(ss, MYTerms[p], os)
+          if (not isInstantiated(ss)) and (not isInstantiated((os))):
+            enum = self.container_graph.incrementNodeEnumerator(c, ss)
+            s_i = makeID(s, enum)
+            enum = self.container_graph.incrementNodeEnumerator(c, os)
+            o_i = makeID(o, enum)
+            from_graph.remove((s, p, o))
+            from_graph.add((s_i, p, o_i))
+            if str(s_i) not in updated_nodes:
+              updated_nodes.append(str(s_i))
+            if str(o_i) not in updated_nodes:
+              updated_nodes.append(str(o_i))
+              instantiated[ss] = str(s_i)
+              instantiated[os] = str(o_i)
+          elif (not isInstantiated(ss)):
+            enum = self.container_graph.incrementNodeEnumerator(c, ss)
+            s_i = makeID(s, enum)
+            from_graph.remove((s, p, o))
+            from_graph.add((s_i, p, o))
+            if str(s_i) not in updated_nodes:
+              updated_nodes.append(str(s_i))
+            instantiated[ss] = str(s_i)
 
-    for u in instantiated:
-      if instantiated[u] in nodes:
-        i = nodes.index(u)
-        nodes[i] = updated_nodes[u]
+      for u in instantiated:
+        if u in nodes:
+          i = nodes.index(u)
+          nodes[i] = instantiated[u]
 
-    print("debugging updated nodes", nodes)
+      print("debugging updated nodes", nodes)
 
+      print("==========")
+      for s, p, o in from_graph:
+        print(s, MYTerms[p], o)
+
+      if c in instantiated:
+        i = self.container_graph.incrementClassEnumberator(c)
+        c_i = makeID(c, i)
+        path = DELIMITERS["path"].join(nodes)
+        print(">>> path", path)
+
+
+      print("updated nodes", updated_nodes)
+
+      print("==========")
+
+    return  class_path, paths_in_classes
     #   s_ = getID(str(s))
     #   enum = self.container_graph.incrementNodeEnumerator(c, s_)
     #   s_i = makeID(s, enum)
@@ -321,13 +337,6 @@ class WorkingTree(SuperGraph):
     #     from_graph.remove((s,p,o))
     #     from_graph.add((s,p,Literal(n_i)))
 
-    print("==========")
-    for s, p, o in from_graph:
-      print(s, MYTerms[p], o)
-
-    print("updated nodes", updated_nodes)
-
-    print("==========")
 
     # c = class_path[-1]
     # node_instances = {}
@@ -858,8 +867,8 @@ class BackEnd:
                                                                      )
 
     for c in working_tree.RDFConjunctiveGraph:
-      for triple in working_tree.RDFConjunctiveGraph[c]:
-        print(c, triple)
+      for s,p,o in working_tree.RDFConjunctiveGraph[c]:
+        print(c, str(s), MYTerms[p], str(s))
 
     #  fix class_list:
     # for i in class_path:

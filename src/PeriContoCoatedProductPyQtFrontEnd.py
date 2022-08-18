@@ -169,6 +169,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
     self.backEnd = BackEnd(self)
 
+
   def __makeClassTree(self, truples, root):
     widget = self.ui.treeClass
     widget.clear()

@@ -24,6 +24,12 @@ from PeriConto import getData
 from PeriConto import makeRDFCompatible
 from PeriConto import plot
 
+def copyRDFGraph(G_original):
+  G_copy = Graph()
+  for triple in G_original:
+    G_copy.add(triple)
+  return G_copy
+
 
 def convertRDFintoInternalMultiGraph(graph, graph_ID):
   """
@@ -107,16 +113,16 @@ class SuperGraph():
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
     self.makeAllListsForAllGraphs()
-
-    for g in list(self.RDFConjunctiveGraph.keys()):
-      print("\n >> loaded graph %s" % g)
-      for s, p, o in self.RDFConjunctiveGraph[g]:
-        print("- ", str(s), MYTerms[p], str(o))
+    #
+    # for g in list(self.RDFConjunctiveGraph.keys()):
+    #   print("\n >> loaded graph %s" % g)
+    #   for s, p, o in self.RDFConjunctiveGraph[g].triples((None,None,None)):
+    #     print("- ", str(s), MYTerms[p], str(o))
 
     return self.txt_root_class
 
   def makeAllListsForAllGraphs(self):
-    print("debugging")
+    # print("debugging")
     for rdf_graph_ID in self.RDFConjunctiveGraph:
       rdf_graph = self.RDFConjunctiveGraph[rdf_graph_ID]
       self.makeAllListsForOneGraph(rdf_graph, rdf_graph_ID)
@@ -146,6 +152,18 @@ class SuperGraph():
     graph_name = self.txt_root_class
     dot.render(graph_name, directory=ONTOLOGY_DIRECTORY)
     return dot
+
+  def printMe(self, text):
+
+
+    for g in list(self.RDFConjunctiveGraph.keys()):
+      print("\n %s %s" % (text, g))
+      for s, p, o in self.RDFConjunctiveGraph[g].triples((None,None,None)):
+        print("- ", str(s), MYTerms[p], str(o))
+
+    # for c in self.RDFConjunctiveGraph:
+    #   for s,p,o in self.RDFConjunctiveGraph[c]:
+    #     print(c, str(s), MYTerms[p], str(s))
 
   def isClass(self, ID):
     return ID in self.txt_class_names
@@ -253,28 +271,43 @@ class WorkingTree(SuperGraph):
   def __init__(self, container_graph):
     SuperGraph.__init__(self)
     self.container_graph = container_graph
-    self.RDFConjunctiveGraph = copy.deepcopy(container_graph.RDFConjunctiveGraph)
+
+    ### oops does not work!
+    # self.RDFConjunctiveGraph = copy.deepcopy(container_graph.RDFConjunctiveGraph)
+    self.RDFConjunctiveGraph = {}
+    for c in container_graph.RDFConjunctiveGraph:
+      G_original = container_graph.RDFConjunctiveGraph[c]
+      self.RDFConjunctiveGraph[c]= copyRDFGraph(G_original)
+
+
+    # self.printMe("copied into the working tree")
+
 
   def instantiateAlongPath(self, paths_in_classes, class_path, reminder):
 
-    print("debugging -- class path and paths in classes", class_path, paths_in_classes)
-    for c in reversed(class_path):
-      # c = class_path[path_position]
+    # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
+    # for c in reversed(class_path):
+    for c_no in range(len(class_path)-1,-1,-1):
+      c = class_path[c_no]
+      print(">>>>>>>>>>>> ", c)
       nodes = paths_in_classes[c].split(DELIMITERS["path"])
       N = nodes[-1]
-      from_graph = self.RDFConjunctiveGraph[c]
+      from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
       updated_nodes = []
       instantiated = {}
-      for i in reversed(range(1, len(nodes))):
-        print(nodes[i], nodes[i - 1])
-        for s, p, o in from_graph.triples((Literal(nodes[i]), None, Literal(nodes[i - 1]))):
+      for node_no in reversed(range(1, len(nodes))):
+        # print(nodes[node_no], nodes[node_no - 1])
+        for s, p, o in from_graph.triples((Literal(nodes[node_no]), None, Literal(nodes[node_no - 1]))):
           ss = str(s)
           os = str(o)
-          print(ss, MYTerms[p], os)
+          s_original = getID(ss)
+          o_original = getID(os)
+          c_original = getID(c)
+          # print(ss, MYTerms[p], os)
           if (not isInstantiated(ss)) and (not isInstantiated((os))):
-            enum = self.container_graph.incrementNodeEnumerator(c, ss)
+            enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
             s_i = makeID(s, enum)
-            enum = self.container_graph.incrementNodeEnumerator(c, os)
+            enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
             o_i = makeID(o, enum)
             from_graph.remove((s, p, o))
             from_graph.add((s_i, p, o_i))
@@ -285,307 +318,84 @@ class WorkingTree(SuperGraph):
               instantiated[ss] = str(s_i)
               instantiated[os] = str(o_i)
           elif (not isInstantiated(ss)):
-            enum = self.container_graph.incrementNodeEnumerator(c, ss)
+            enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
             s_i = makeID(s, enum)
             from_graph.remove((s, p, o))
-            from_graph.add((s_i, p, o))
+            from_graph.add((Literal(s_i), p, o))
             if str(s_i) not in updated_nodes:
               updated_nodes.append(str(s_i))
             instantiated[ss] = str(s_i)
+        for s,p,o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
+          if (not isInstantiated(str(s))) \
+                  and (not isInstantiated(str(o))) \
+                  and ( str(o) in instantiated):
+            o_i = instantiated[str(o)]
+            from_graph.add((s,p,Literal(o_i)))
+            from_graph.remove((s,p,o))
 
-      for u in instantiated:
-        if u in nodes:
-          i = nodes.index(u)
-          nodes[i] = instantiated[u]
+        # fix links
+        links = []
+        print("\n==== c")
+        for s,p,o in from_graph.triples((None, RDFSTerms["link_to_class"], None)):
+          print("found ", str(s), MYTerms[p], str(o))
+          link_node = paths_in_classes[c].split(DELIMITERS["path"])[-1]
+          s_original = getID(str(s))
+          o_original = getID(str(o))
+          cc = class_path[c_no+1]
+          enum = getIDNo(str(cc))
+          if (link_node == str(o)) :
+            print("got here", s,MYTerms[p],o)
+            s_i = makeID(s_original, enum)
+            links.append(((s,p,o), (Literal(s_i),p,o)))
 
-      print("debugging updated nodes", nodes)
+        for (t_old, t_new) in links:
+          from_graph.add(t_new)
+          from_graph.remove(t_old)
+          s,p,o = t_old
+          print("debugging -- old", str(s), MYTerms[p], str(o))
+          s,p,o = t_new
+          print("debugging -- new", str(s), MYTerms[p], str(o))
 
-      print("==========")
-      for s, p, o in from_graph:
-        print(s, MYTerms[p], o)
 
+      # for u in instantiated:
+      #   if u in nodes:
+      #     i = nodes.index(u)
+      #     nodes[i] = instantiated[u]
+
+      # print("debugging updated nodes", nodes)
+
+      # print("==========")
+      # for s, p, o in from_graph:
+      #   print(s, MYTerms[p], o)
+
+      c_store = c
       if c in instantiated:
-        i = self.container_graph.incrementClassEnumberator(c)
-        c_i = makeID(c, i)
-        path = DELIMITERS["path"].join(nodes)
-        print(">>> path", path)
+        node_no = self.container_graph.incrementClassEnumberator(c)
+        c_i = makeID(c, node_no)
+        path = DELIMITERS["path"].join(reversed(updated_nodes))
+        paths_in_classes[c_i] = path
+        del paths_in_classes[c]
+        index = class_path.index(c)
+        class_path[index] = c_i
+        c_store = c_i
+        del self.RDFConjunctiveGraph[c]
+
+      self.RDFConjunctiveGraph[c_store]=  from_graph
 
 
-      print("updated nodes", updated_nodes)
 
-      print("==========")
 
+      # print("updated class path", class_path)
+      # print("updated paths in classes", paths_in_classes)
+      #
+      # print("==========")
     return  class_path, paths_in_classes
-    #   s_ = getID(str(s))
-    #   enum = self.container_graph.incrementNodeEnumerator(c, s_)
-    #   s_i = makeID(s, enum)
-    #   from_graph.remove((s,p,o))
-    #   from_graph.add((s_i,p,o))
-    # for s,p,o in from_graph.triples((None, None, n)):
-    #   o_ = getID(str(o))
-    #   enum = self.container_graph.incrementNodeEnumerator(c, o_)
-    #   o_i = makeID(o, enum)
-    #   from_graph.remove((s,p,o))
-    #   from_graph.add((s,p,o_i))
-    #
-    #
-    # n = nodes[0]
-    # if not isInstantiated(n):
-    #   for s,p,o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"],Literal(n))):
-    #     i = self.container_graph.incrementNodeEnumerator(c, n)
-    #     n_i = makeID(n,i)
-    #     from_graph.remove((s,p,o))
-    #     from_graph.add((s,p,Literal(n_i)))
 
 
-    # c = class_path[-1]
-    # node_instances = {}
-    # class_instances = {}
-    #
-    # from_rdf_graph = self.RDFConjunctiveGraph[c]
-    # if not isInstantiated(c):
-    #   c_no = self.container_graph.incrementClassEnumberator(c)
-    #   c_i = makeID(c, c_no)
-    #   class_instances[c] = c_i
-    #   to_rdf_graph = Graph('Memory', identifier=c_i)
-    # else:
-    #   to_rdf_graph = self.RDFConjunctiveGraph[c]
-    #
-    # node_instances[str(c)] = set()
-    # for s, pi, o in from_rdf_graph.triples((None, None, None)):
-    #
-    #   if (not isInstantiated(s)) and (not isInstantiated(o)) \
-    #           and (s in paths_in_classes[c]) and (o in paths_in_classes[c]):
-    #     # print("add me", s,pi,o)
-    #     o_no = self.container_graph.incrementNodeEnumerator(c, str(o))
-    #     s_no = self.container_graph.incrementNodeEnumerator(c, str(s))
-    #     s_ = makeID(s, s_no)
-    #     o_ = makeID(o, o_no)
-    #     to_rdf_graph.remove((s, pi, o))
-    #     to_rdf_graph.add((Literal(s_), pi, Literal(o_)))
-    #     node_instances[str(c)].add((str(s), str(s_)))
-    #     node_instances[str(c)].add((str(o), str(o_)))
-    #
-    #   elif (not isInstantiated((s))) and (s in paths_in_classes[c]) and (o not in paths_in_classes[c]):
-    #     # print("add me s", s,pi, o)
-    #     s_no = self.container_graph.incrementNodeEnumerator(c, str(s))
-    #     s_ = makeID(s, s_no)
-    #     to_rdf_graph.remove((s, pi, o))
-    #     to_rdf_graph.add((Literal(s_), pi, o))
-    #     node_instances[str(c)].add((str(s), str(s_)))
-    #
-    #   elif (not isInstantiated((o))) and (o in paths_in_classes[c]) and (s not in paths_in_classes[c]):
-    #     # print("add me o", s,pi, o)
-    #
-    #     o_ = getID(o)
-    #     o_no = self.container_graph.incrementNodeEnumerator(c, str(o_))
-    #     o_ = makeID(o, o_no)
-    #     to_rdf_graph.remove((s, pi, o))
-    #     to_rdf_graph.add((s, pi, Literal(o_)))
-    #     node_instances[str(c)].add((str(o), str(o_)))
-    #   else:
-    #     # print("copy me", s,pi,o)
-    #     to_rdf_graph.add((s, pi, o))
-    #
-    # if not isInstantiated(c):
-    #   c_i = class_instances[c]
-    #   self.RDFConjunctiveGraph[c_i] = to_rdf_graph
-    #   del self.RDFConjunctiveGraph[c]
-    #
-    #   #
-    #   # print(">> final ", c)
-    #   # for s, pi, o in to_rdf_graph:
-    #   #   print("final", s, MYTerms[pi], o)
-    #
-    # previous_c = c
-    # for c in reversed(class_path[:-1]):
-    #   node_instances[str(c)] =set()
-    #   from_rdf_graph = self.RDFConjunctiveGraph[c]
-    #   if not isInstantiated(c):
-    #     c_no = self.container_graph.incrementClassEnumberator(c)
-    #     c_i = makeID(c, c_no)
-    #     class_instances[c] = c_i
-    #     to_rdf_graph = Graph('Memory', identifier=c_i)
-    #   else:
-    #     to_rdf_graph = self.RDFConjunctiveGraph[c]
-    #
-    #   node_instances[str(c)] = set()
-    #   for s, pi, o in from_rdf_graph.triples((None, None, None)):
-    #     # print(s,pi,o)
-    #     # o_no, s_no = self.__updateEnumerators(str(c), str(s), str(o))
-    #
-    #     if (not isInstantiated(s)) and (not isInstantiated(o)) \
-    #             and ((s in paths_in_classes[c]) or (s in paths_in_classes[previous_c])) \
-    #             and (o in paths_in_classes[c]):
-    #       # print("add me", s,pi,o)
-    #
-    #       o_no = self.container_graph.incrementNodeEnumerator(c, str(o))
-    #       s_no = self.container_graph.incrementNodeEnumerator(c, str(s))
-    #       s_ = makeID(s, s_no)
-    #       o_ = makeID(o, o_no)
-    #       to_rdf_graph.remove((s, pi, o))
-    #       to_rdf_graph.add((s_, pi, o_))
-    #       node_instances[str(c)].add((str(s), str(s_)))
-    #       node_instances[str(c)].add((str(o), str(o_)))
-    #
-    #     elif (not isInstantiated((s))) and (s in paths_in_classes[c]) and (o not in paths_in_classes[c]):
-    #       # print("add me s", s,pi, o)
-    #       s_no = self.container_graph.incrementNodeEnumerator(c, str(s))
-    #       s_ = makeID(s, s_no)
-    #       to_rdf_graph.remove((s, pi, o))
-    #       to_rdf_graph.add((Literal(s_), pi, o))
-    #       node_instances[str(c)].add((str(s), str(s_)))
-    #
-    #     elif (not isInstantiated((o))) and (o in paths_in_classes[c]) and (s not in paths_in_classes[c]):
-    #       # print("add me o", s,pi, o)
-    #       o_no = self.container_graph.incrementNodeEnumerator(c, str(o))
-    #       o_ = makeID(o, o_no)
-    #       to_rdf_graph.remove((s, pi, o))
-    #       to_rdf_graph.add((s, pi, Literal(o_)))
-    #       node_instances[str(c)].add((str(o), str(o_)))
-    #     else:
-    #       # print("copy me", s,pi,o)
-    #       to_rdf_graph.add((s, pi, o))
-    #
-    #   if not isInstantiated(c):
-    #     c_i = class_instances[c]
-    #     self.RDFConjunctiveGraph[c_i] = to_rdf_graph
-    #     del self.RDFConjunctiveGraph[c]
-    #
-    #     # print(">> final ", c)
-    #     # for s, pi, o in to_rdf_graph:
-    #     #   print("final", s, MYTerms[pi], o)
-    #     # previous_c = c
-    #
-    #
-    #   print("debugging instances", node_instances[str(c)])
-    # # update path
-    # nodes = {}
-    # updated_class_path = []
-    # for c in class_path:
-    #   if c in class_instances:
-    #     c_ = class_instances[c]
-    #     updated_class_path.append(c_)
-    #   else:
-    #     updated_class_path.append(c)
-    #     c_ = c
-    #
-    # for c in class_path:
-    #   if c in class_instances:
-    #     c_ = class_instances[c]
-    #     nodes[c_] = paths_in_classes[c].split(DELIMITERS["path"])
-    #     for n in nodes[c_]:
-    #       for k,k_ in node_instances[str(c)]:
-    #         if k in nodes[c_]:
-    #           index = nodes[c_].index(k)
-    #           nodes[c_][index] = k_
-    #
-    # updated_paths_in_classes = {}
-    # for c in class_path:
-    #   if c in class_instances:
-    #     c_ = class_instances[c]
-    #     updated_paths_in_classes[c_] = DELIMITERS["path"].join(nodes[c_])
-    #
-    #
-    # print("debugging", updated_class_path, "\n", updated_paths_in_classes)
-    # print("done updating")
-    #
-    #
-    # for c in working_tree.RDFConjunctiveGraph:
-    #   for triple in working_tree.RDFConjunctiveGraph[c]:
-    #     print(c, triple)
-    #
-    # return updated_class_path, updated_paths_in_classes
 
-    # for triple in to_rdf_graph:
-    #   print(triple)
-    # for c in reversed(class_path):
-    #   if not isInstantiated(c):
-    #     c_i = makeID(c, no)
-    #     self.__createAndAddNewInstantiatedGraph(c, c_i)
-    #     for p in paths_in_classes[c]:
-    #       for triple in self.RDFConjunctiveGraph[c_i]:
-    #         print("triple --", triple)
-
-    # def __createAndAddNewInstantiatedGraph(self, from_graph_ID, to_graph_ID):
-    #   from_rdf_graph = self.RDFConjunctiveGraph[from_graph_ID]
-    #   to_rdf_graph = Graph('Memory', identifier=to_graph_ID)
-    #   for triple in from_rdf_graph.triples((None,None,None)):
-    #     to_rdf_graph.add(triple)
-    #     print(triple)
-    #   self.makeAllListsForOneGraph(rdf_graph, to_graph_ID)
-
-    # path_list = path.split(DELIMITERS["path"])
-    # for graphID in self.RDFConjunctiveGraph:
-    #   graph = self.RDFConjunctiveGraph[graphID]
-    #   for s, p, o in graph:
-    #     if (str(s) in path) and (not isInstantiated(str(s))) and (p != RDFSTerms["link_to_class"]):
-    #       s_ = makeID(s, no)
-    #       triple = (Literal(s_), p, o)
-    #       graph.remove((s, p, o))
-    #       graph.add(triple)
-    #       self.container_graph.enumerators[graphID][s] = no
-    #
-    #   for s, p, o in graph:
-    #     if (str(o) in path) and (not isInstantiated(str(o))and (p != RDFSTerms["link_to_class"])):
-    #       o_ = makeID(o, no)
-    #       triple = (s, p, Literal(o_))
-    #       graph.remove((s, p, o))
-    #       graph.add(triple)
-    #       self.container_graph.enumerators[graphID][o] = no
-    #
-    # for graphID in self.RDFConjunctiveGraph:
-    #   graph = self.RDFConjunctiveGraph[graphID]
-    #   for s, p, o in graph.triples((None, RDFSTerms["link_to_class"], None)):
-    #     if (s in path_list) and (o in path_list):
-    #       s_ = makeID(s, no)
-    #       o_ = makeID(o, no)
-    #       triple = (Literal(s_), p, Literal(o_))
-    #       graph.remove((s, p, o))
-    #       graph.add(triple)
-    #       self.container_graph.enumerators[graphID][s] = no
-    #       self.container_graph.enumerators[graphID][o] = no
-    #
-    # instantiated_classes = {}
-    # for graphID in list(self.RDFConjunctiveGraph.keys()):
-    #   if (graphID in path) and (not isInstantiated(graphID)):
-    #     graphID_ = makeID(graphID, no)
-    #     self.RDFConjunctiveGraph[graphID_] = self.RDFConjunctiveGraph[graphID]
-    #     del self.RDFConjunctiveGraph[graphID]
-    #     instantiated_classes[graphID] = graphID_
-    #     self.container_graph.enumerators[graphID][graphID] = no
-    #
-    # for graphID in self.RDFConjunctiveGraph:
-    #   graph = self.RDFConjunctiveGraph[graphID]
-    #   for s, p, o in graph.triples((None, None, None)):
-    #     print(str(s), MYTerms[p], str(o))
-
-    # return  # no #, instantiated_classes
-
-  # def __updateNodeEnumerator(self, graph_ID, ID):
-  #   self.container_graph.enumerators["nodes_in_classes"][graph_ID][ID] + 1
-  #
-  # def __
-  #
-  # def __updateEnumerators(self, c, s, o):
-  #   if isInstantiated(c):
-  #     c_,_ = getID(c)
-  #   else:
-  #     c_ = c
-  #   if isInstantiated(s):
-  #     s_,_ = getID(s)
-  #   else:
-  #     s_ = s
-  #   s_no = self.container_graph.enumerators[c_][s_] + 1
-  #   if isInstantiated(o):
-  #     o_,_ = getID(o)
-  #   else:
-  #     o_ = o
-  #   o_no = self.container_graph.enumerators[c_][o_] + 1
-  #   return o_no, s_no
 
   def overlayContainerGraph(self, graph_ID, rdf_data_class_graph):
-    print("debugging -- overlay container graph")
+    # print("debugging -- overlay container graph")
     self.graph_ID = graph_ID
     self.RDFConjunctiveGraph[graph_ID] = rdf_data_class_graph
 
@@ -647,6 +457,13 @@ def getID(ID):
     instance_ID = None
   return container_graph_ID
 
+def getIDNo(ID):
+  if DELIMITERS["instantiated"] in ID:
+    container_graph_ID, instance_ID = ID.split(DELIMITERS["instantiated"])
+  else:
+    container_graph_ID = ID
+    instance_ID = None
+  return instance_ID
 
 def makeID(ID, no):
   return ID + DELIMITERS["instantiated"] + str(no)
@@ -669,13 +486,14 @@ class BackEnd:
     global class_path
     global data_container_number
     global data_container
-    global working_tree
+    # global working_tree
 
     self.FrontEnd = FrontEnd
     self.changed = False
 
     self.ContainerGraph = ContainerGraph()
     data_container = {}
+    self.working_tree = None
 
     self.ui_state("start")
     self.current_node = None
@@ -755,13 +573,16 @@ class BackEnd:
 
   def __loadOntology(self):
     global current_event_data
-    global working_tree
+    # global working_tree
 
     file_name = current_event_data["file_name"]
 
     event_data = current_event_data
     self.root_class_container = self.ContainerGraph.load(file_name)
-    working_tree = WorkingTree(self.ContainerGraph)
+
+    self.ContainerGraph.printMe("loaded")
+
+    self.working_tree = WorkingTree(self.ContainerGraph)
     self.current_class = self.root_class_container
 
   def __processSelectedItem(self):
@@ -771,7 +592,7 @@ class BackEnd:
     global current_event_data
     global automaton_next_state
     global data_container_number
-    global working_tree
+    # global working_tree
     global is_container_class
 
     subject, predicate, obj = current_event_data["triple"]
@@ -780,13 +601,13 @@ class BackEnd:
 
     self.current_node = subject
 
-    is_data_class = working_tree.isClass(subject) or (not subject)
+    is_data_class = self.working_tree.isClass(subject) or (not subject)
     is_container_class = self.ContainerGraph.isClass(subject)
-    is_sub_class = working_tree.isSubClass(subject, graph_ID)
-    is_value = working_tree.isValue(predicate)
-    is_integer = working_tree.isInteger(predicate)
-    is_comment = working_tree.isComment(predicate)
-    is_string = working_tree.isString(predicate)
+    is_sub_class = self.working_tree.isSubClass(subject, graph_ID)
+    is_value = self.working_tree.isValue(predicate)
+    is_integer = self.working_tree.isInteger(predicate)
+    is_comment = self.working_tree.isComment(predicate)
+    is_string = self.working_tree.isString(predicate)
     is_linked = (predicate == "link_to_class")
     is_instantiated = isInstantiated(obj)
 
@@ -803,7 +624,7 @@ class BackEnd:
       if is_integer: txt += " & integer"
       if is_comment: txt += " & comment"
       if is_string: txt += " & string"
-      print("selection : %s\n" % txt)
+      # print("selection : %s\n" % txt)
 
     if is_data_class or is_sub_class:
       if is_instantiated:
@@ -812,7 +633,7 @@ class BackEnd:
         self.ui_state("has_no_ID")
 
     if is_linked:
-      print("shifting event data :", current_event_data)
+      # print("shifting event data :", current_event_data)
       # self.previous_class = self.current_class
       self.current_class = subject
       self.__makeWorkingTree()
@@ -821,7 +642,7 @@ class BackEnd:
   def __updateDataWithNewID(self):
     global current_event_data
     global automaton_next_state
-    global working_tree
+    # global working_tree
     global class_path
 
     subject, predicate, obj = current_event_data["triple"]
@@ -842,15 +663,15 @@ class BackEnd:
 
     global_path += path
 
-    print("debugging new ID : global path -- ", global_path)
-    print("debugging new ID : current class:", self.current_class)
-    print("debugging new ID : enumerators:", self.ContainerGraph.enumerators)
-    print("debugging new ID : subject:", subject)
+    # print("debugging new ID : global path -- ", global_path)
+    # print("debugging new ID : current class:", self.current_class)
+    # print("debugging new ID : enumerators:", self.ContainerGraph.enumerators)
+    # print("debugging new ID : subject:", subject)
     # print("debugging new ID : event data -- ", current_event_data)
 
-    if isInstantiated(subject):
-      print(">>> instantiate -- %s is already instantiated" % subject)
-      return
+    # if isInstantiated(subject):
+    #   print(">>> instantiate -- %s is already instantiated" % subject)
+    #   return
 
     # no = self.ContainerGraph.getEnumerator(self.current_class, subject) + 1
 
@@ -858,17 +679,15 @@ class BackEnd:
     paths_in_classes[self.current_class] = path
 
     # instance_no, instantiated_classes = working_tree.instantiateAlongPath(global_path, no)
-    # instance_no, \
-    # instantiated_classes, \
-    # updated_path = \
-    class_path, paths_in_classes = working_tree.instantiateAlongPath(paths_in_classes,
+
+
+    # self.working_tree.printMe("before instantiate")
+    class_path, paths_in_classes = self.working_tree.instantiateAlongPath(paths_in_classes,
                                                                      class_path,
                                                                      len(class_path)
                                                                      )
 
-    for c in working_tree.RDFConjunctiveGraph:
-      for s,p,o in working_tree.RDFConjunctiveGraph[c]:
-        print(c, str(s), MYTerms[p], str(s))
+    self.working_tree.printMe("after instantiate")
 
     #  fix class_list:
     # for i in class_path:
@@ -890,18 +709,18 @@ class BackEnd:
     # self.FrontEnd.controls("selectors", "classList", "populate", class_path)
 
   def __makeDotPlot(self):
-    global working_tree
-    working_tree.makeDotGraph()
+    # global working_tree
+    self.working_tree.makeDotGraph()
 
   def __updateTree(self):  # , state, data):
     global current_event_data
     global automaton_next_state
-    print(">>>", current_event_data, automaton_next_state)
+    # print(">>>", current_event_data, automaton_next_state)
 
   def __shiftToSelectedClass(self):  # , state, data):
     global current_event_data
 
-    print("shifting event data :", current_event_data)
+    # print("shifting event data :", current_event_data)
 
     # self.previous_class = self.current_class
     self.current_class = current_event_data["class"]
@@ -917,7 +736,7 @@ class BackEnd:
       transition_path = "/".join(current_event_data["path"].split(DELIMITERS["path"])[:-1]) + DELIMITERS["path"]
       previous_class = class_path[-1:][0]
       self.path_at_transition[previous_class] = transition_path
-      print("debugging -- transition -- ", previous_class, self.current_class, self.path_at_transition)
+      # print("debugging -- transition -- ", previous_class, self.current_class, self.path_at_transition)
     else:
       print("debugging -- no current path defined")
 
@@ -933,7 +752,7 @@ class BackEnd:
     self.FrontEnd.controls("selectors", "classTree", "populate", self.quads, self.current_class)
     self.FrontEnd.controls("selectors", "classList", "populate", class_path)
 
-    print(">>>", current_event_data, automaton_next_state)
+    # print(">>>", current_event_data, automaton_next_state)
 
   def __makeFirstDataRoot(self, container_root_class, data_ID):
     global data_container_number
@@ -944,20 +763,13 @@ class BackEnd:
   def __makeWorkingTree(self):
     global data_container_number
     global data_container
-    global working_tree
+    # global working_tree
     global is_container_class
-    print("debugging make tree")
+    # print("debugging make tree")
 
     if (data_container_number == 0) or is_container_class:
-      working_tree.makeAllListsForAllGraphs()
-    # else:
-    #   data_root_class = self.__makeFirstDataRoot(root_class, data_container_number)
-    #   data_container[data_container_number].create(data_root_class)
-    #   self.current_working_tree = working_tree.overlayContainerGraph(
-    #           data_root_class,
-    #           data_container[data_container_number].RDFConjunctiveGraph[data_root_class])
-
-    self.quads = convertRDFintoInternalMultiGraph(working_tree.RDFConjunctiveGraph[self.current_class],
+      self.working_tree.makeAllListsForAllGraphs()
+    self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
                                                   self.current_class)
 
   def processEvent(self, state, Event, event_data):
@@ -968,6 +780,8 @@ class BackEnd:
     global action
     global data_container_number
     global data_container
+
+    show_automaton = False
 
     current_event_data = event_data
 
@@ -984,13 +798,14 @@ class BackEnd:
 
     automaton_next_state = next_state
 
-    print("automaton -- ",
-          "\n             state   :", state,
-          "\n             next    :", next_state,
-          "\n             actions :", actions,
-          "\n             gui     :", gui_state,
-          "\n             data    :", event_data,
-          "\n")
+    if show_automaton:
+      print("automaton -- ",
+            "\n             state   :", state,
+            "\n             next    :", next_state,
+            "\n             actions :", actions,
+            "\n             gui     :", gui_state,
+            "\n             data    :", event_data,
+            "\n")
 
     for action in actions:
       if action:
@@ -1091,9 +906,9 @@ class BackEnd:
               }
     else:
       show = []
-      print("ooops -- no such gui state", state)
+      # print("ooops -- no such gui state", state)
 
-    print("debugging -- state & show", state, show)
+    # print("debugging -- state & show", state, show)
 
     objs = self.FrontEnd.gui_objects
     obj_classes = list(objs.keys())

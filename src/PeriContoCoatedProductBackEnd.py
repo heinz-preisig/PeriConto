@@ -15,6 +15,8 @@ DELIMITERS = {"instantiated": ":",
 from rdflib import Graph
 from rdflib import Literal
 
+from collections import OrderedDict
+
 from PeriConto import MYTerms
 from PeriConto import ONTOLOGY_DIRECTORY
 from PeriConto import PRIMITIVES
@@ -142,16 +144,7 @@ class SuperGraph():
     rdf_predicate = RDFSTerms[predicate_internal]
     self.RDFConjunctiveGraph[graph_ID].add((rdf_subject, rdf_predicate, rdf_object))
 
-  def makeDotGraph(self):
-    graph_overall = Graph()
-    for cl in self.RDFConjunctiveGraph:
-      for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
-        graph_overall.add(t)
-    dot = plot(graph_overall, self.txt_class_names)
-    # print("debugging -- dot")
-    graph_name = self.txt_root_class
-    dot.render(graph_name, directory=ONTOLOGY_DIRECTORY)
-    return dot
+
 
   def printMe(self, text):
 
@@ -287,17 +280,20 @@ class WorkingTree(SuperGraph):
 
     # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
     # for c in reversed(class_path):
-    for c_no in range(len(class_path)-1,-1,-1):
+
+    instantiated = OrderedDict()
+    c_previous = None
+    for c_no in reversed(range(len(class_path))):
       c = class_path[c_no]
-      print(">>>>>>>>>>>> ", c)
+      c_original = getID(c)
+      print(">>>>>>>>>>>> ", class_path, c_no, c)
       nodes = paths_in_classes[c].split(DELIMITERS["path"])
-      N = nodes[-1]
       from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
-      updated_nodes = []
-      instantiated = {}
+      # updated_nodes = []
+      instantiated[c_original] = OrderedDict()
       for node_no in reversed(range(1, len(nodes))):
         # print(nodes[node_no], nodes[node_no - 1])
-        for s, p, o in from_graph.triples((Literal(nodes[node_no]), None, Literal(nodes[node_no - 1]))):
+        for s, p, o in from_graph.triples((Literal(nodes[node_no]), RDFSTerms["is_a_subclass_of"], Literal(nodes[node_no - 1]))):
           ss = str(s)
           os = str(o)
           s_original = getID(ss)
@@ -311,68 +307,55 @@ class WorkingTree(SuperGraph):
             o_i = makeID(o, enum)
             from_graph.remove((s, p, o))
             from_graph.add((s_i, p, o_i))
-            if str(s_i) not in updated_nodes:
-              updated_nodes.append(str(s_i))
-            if str(o_i) not in updated_nodes:
-              updated_nodes.append(str(o_i))
-              instantiated[ss] = str(s_i)
-              instantiated[os] = str(o_i)
+            instantiated[c_original][s_original] = str(s_i)
+            instantiated[c_original][o_original] = str(o_i)
           elif (not isInstantiated(ss)):
             enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
             s_i = makeID(s, enum)
             from_graph.remove((s, p, o))
             from_graph.add((Literal(s_i), p, o))
-            if str(s_i) not in updated_nodes:
-              updated_nodes.append(str(s_i))
-            instantiated[ss] = str(s_i)
-        for s,p,o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
-          if (not isInstantiated(str(s))) \
-                  and (not isInstantiated(str(o))) \
-                  and ( str(o) in instantiated):
-            o_i = instantiated[str(o)]
-            from_graph.add((s,p,Literal(o_i)))
-            from_graph.remove((s,p,o))
+            # if str(s_i) not in updated_nodes:
+            #   updated_nodes.append(str(s_i))
+            instantiated[c_original][s_original] = str(s_i)
+
+      for s,p,o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
+        if (not isInstantiated(str(s))) \
+                and (not isInstantiated(str(o))) \
+                and ( str(o) in instantiated[c_original]):
+          o_original = getID(str(o))
+          o_i = instantiated[c_original][o_original]
+          from_graph.add((s,p,Literal(o_i)))
+          from_graph.remove((s,p,o))
 
         # fix links
         links = []
-        print("\n==== c")
+      print("\n==== ")
+      triple_new = None
+      triple = None
+      if c_previous:
         for s,p,o in from_graph.triples((None, RDFSTerms["link_to_class"], None)):
-          print("found ", str(s), MYTerms[p], str(o))
-          link_node = paths_in_classes[c].split(DELIMITERS["path"])[-1]
           s_original = getID(str(s))
           o_original = getID(str(o))
-          cc = class_path[c_no+1]
-          enum = getIDNo(str(cc))
-          if (link_node == str(o)) :
-            print("got here", s,MYTerms[p],o)
-            s_i = makeID(s_original, enum)
-            links.append(((s,p,o), (Literal(s_i),p,o)))
-
-        for (t_old, t_new) in links:
-          from_graph.add(t_new)
-          from_graph.remove(t_old)
-          s,p,o = t_old
-          print("debugging -- old", str(s), MYTerms[p], str(o))
-          s,p,o = t_new
-          print("debugging -- new", str(s), MYTerms[p], str(o))
+          print("found ", str(s), MYTerms[p], str(o))
+          if (str(s_original) in instantiated[c_previous]) and (str(o_original) in instantiated[c_original]):
+            triple_new = [instantiated[c_previous][s_original], MYTerms[p], instantiated[c_original][o_original]]
+            print(">>> link to be established", str(s), str(o),"--", triple_new )
+            triple_new = (Literal(triple_new[0]),p, Literal(triple_new[2]))
+            triple = (s,p,o)
+        if triple_new:
+          from_graph.remove(triple)
+          from_graph.add(triple_new)
+      
+      c_previous = c_original
 
 
-      # for u in instantiated:
-      #   if u in nodes:
-      #     i = nodes.index(u)
-      #     nodes[i] = instantiated[u]
-
-      # print("debugging updated nodes", nodes)
-
-      # print("==========")
-      # for s, p, o in from_graph:
-      #   print(s, MYTerms[p], o)
-
+        
+      
       c_store = c
       if c in instantiated:
         node_no = self.container_graph.incrementClassEnumberator(c)
         c_i = makeID(c, node_no)
-        path = DELIMITERS["path"].join(reversed(updated_nodes))
+        path = DELIMITERS["path"].join(reversed(instantiated[c_original])) #updated_nodes))
         paths_in_classes[c_i] = path
         del paths_in_classes[c]
         index = class_path.index(c)
@@ -442,6 +425,18 @@ class WorkingTree(SuperGraph):
     #   print("- %s,  %s,  %s" % (s, p, o))
     return working_graph
 
+  def makeDotGraph(self):
+    graph_overall = Graph()
+    for cl in self.RDFConjunctiveGraph:
+      for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
+        s,p,o = t
+        print("graph adding", str(s), MYTerms[p], str(o))
+        graph_overall.add(t)
+    dot = plot(graph_overall, self.txt_class_names)
+    # print("debugging -- dot")
+    graph_name = self.txt_root_class
+    dot.render(graph_name, directory=ONTOLOGY_DIRECTORY,view=True)
+    return dot
 
 def isInstantiated(ID):
   id = str(ID)

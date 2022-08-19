@@ -98,25 +98,27 @@ def plot(graph, class_names=[]):
   # Add nodes 1 and 2
   for s, p, o in graph.triples((None, None, None)):
     ss = str(s)
+    ss_ = str(ss).replace(":","-")
     sp = str(p)
     so = str(o)
+    so_ = str(o).replace(":","-")
     if ss in class_names:
-      dot.node(ss, color='red', shape="rectangle")
+      dot.node(ss_, color='red', shape="rectangle")
     elif so in PRIMITIVES:
-      dot.node(so, color='green', shape="rectangle")
+      dot.node(so_, color='green', shape="rectangle")
     else:
-      dot.node(ss)
+      dot.node(ss_)
 
     if so in class_names:
-      dot.node(so, color='red', shape="rectangle")
+      dot.node(so_, color='red', shape="rectangle")
     else:
-      dot.node(so)
+      dot.node(so_)
 
     my_p = MYTerms[p]
     if DIRECTION[my_p] == 1:
-      dot.edge(ss, so, label=my_p, color="blue")
+      dot.edge(ss_, so_, label=my_p, color="blue")
     else:
-      dot.edge(ss, so, label=my_p, color="green")
+      dot.edge(ss_, so_, label=my_p, color="green")
 
   # Visualize the graph
   return dot

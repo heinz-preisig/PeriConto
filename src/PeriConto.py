@@ -231,6 +231,7 @@ class OntobuilderUI(QMainWindow):
     self.current_class = None
     self.current_subclass = None
     self.subclass_names = {}
+    self.value_names = {}
     self.primitives = {}
     self.class_names = []
     self.class_path = []
@@ -358,7 +359,6 @@ class OntobuilderUI(QMainWindow):
     for g in self.CLASSES:
       for n in self.subclass_names[g]:
         names.add(n)
-
     return names
 
 
@@ -472,7 +472,10 @@ class OntobuilderUI(QMainWindow):
       if self.__isSubClass(ID):
         predicate = "is_a_subclass_of"
       # rename subclass
-      forbidden = self.__makeSetOfAllNames()
+      if self.__isSubClass((ID)):
+        forbidden = self.__makeSetOfAllNames()
+      else:
+        forbidden = self.value_names[self.current_class]
       dialog = UI_String("new name", placeholdertext=str(item.text(0)),limiting_list=forbidden)
       dialog.exec_()
       new_name = dialog.getText()
@@ -589,7 +592,7 @@ class OntobuilderUI(QMainWindow):
   def on_pushAddPrimitive_pressed(self):
     # print("debugging -- add primitive")
     # forbidden = self.subclass_names[self.current_class]
-    forbidden = self.__makeSetOfAllNames()
+    forbidden = self.value_names[self.current_class] + self.subclass_names[self.current_class]
     dialog = UI_String("name for primitive", limiting_list=forbidden)
     dialog.exec_()
     primitive_ID = dialog.getText()
@@ -603,6 +606,8 @@ class OntobuilderUI(QMainWindow):
     # print("debugging")
     if not primitive_class:
       return
+
+    self.value_names[self.current_class].append(primitive_ID)
 
     # add to graph
     item = self.__addItemToTree(primitive_ID, "value", self.current_subclass)
@@ -833,7 +838,8 @@ class OntobuilderUI(QMainWindow):
       self.class_definition_sequence.append(g)
       self.class_names.append(g)
       self.subclass_names[g] = []
-      self.primitives[g] = {g: []}
+      self.primitives[g] = {}#{g: []}
+      self.value_names[g] = []
       self.link_lists[g] = []
       self.CLASSES[g] = Graph()
       for s, p_internal, o in graphs[g]:
@@ -849,6 +855,8 @@ class OntobuilderUI(QMainWindow):
             self.link_lists[g] = []
           self.link_lists[g].append((s, g, o))
         elif p == RDFSTerms["value"]:
+          self.value_names[g].append(str(o))
+          print(" adding value")
           if g not in self.primitives:
             self.primitives[g] = {}
           if o not in self.primitives[g]:

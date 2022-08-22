@@ -372,6 +372,7 @@ class OntobuilderUI(QMainWindow):
       self.JsonFile = os.path.join(ONTOLOGY_DIRECTORY, fname)
     else:
       self.close()
+      return
 
     dialog = UI_String("root identifier", placeholdertext="provide an identifier for the root")
     dialog.exec_()

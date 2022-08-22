@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QTreeWidgetItem
+from PyQt5.QtCore import pyqtSlot
 
 from PeriContoCoatedProductBackEnd import BackEnd
 from PeriContoCoatedProductBackEnd import DELIMITERS
@@ -68,7 +69,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.gui_objects["groups"] = {
             "ClassSubclassElucidation": self.ui.groupClassSubclassElucidation,
             "ValueElucidation"        : self.ui.groupValueElucidation,
-            "PrimitiveString"         : self.ui.groupString,
+            "string"         : self.ui.groupString,
             "integer"                 : self.ui.groupQuantityMeasure,
             "classList"               : self.ui.groupBoxClassList,
             "classTree"               : self.ui.groupBoxTree,
@@ -86,13 +87,9 @@ class PeriContoPyQtFrontEnd(QMainWindow):
             "classList": self.ui.listClasses,
             "classTree": self.ui.treeClass,
             "integer"  : self.ui.spinNumber,
-            }
-    self.gui_objects["textEdit"] = {
+            "string"   : self.ui.editString,
             "textValue": self.ui.textValueElucidation,
             "textClass": self.ui.textClassSubclassElucidation,
-            }
-    self.gui_objects["lineEdit"] = {
-            "stringIdentifier": self.ui.editString,
             }
 
     self.gui_objects_controls = {"buttons"  :
@@ -117,29 +114,21 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                          "classList": {"populate": self.__populateListClass,
                                                        "hide"    : self.__hideClassList,
                                                        "show"    : self.__showClassList},
-                                         # "hide": self.ui.listClasses.hide,
-                                         # "show": self.ui.listClasses.show,}
                                          "classTree": {"populate": self.__makeClassTree,
                                                        "hide"    : self.__hideClassTree,
                                                        "show"    : self.__showClassTree, },
-
-                                         "integer"  : {"hide": self.__hideInteger,
+                                         "integer"  : {"populate": self.__populateInteger,
+                                                       "hide": self.__hideInteger,
                                                        "show": self.__showInteger},
-                                         # "hide": self.ui.treeClass.hide,
-                                         # "show": self.ui.treeClass.show,},
-                                         },
-                                 "textEdit" : {
                                          "textValue": {"populate": self.__populateTextValueEdit,
                                                        "hide"    : self.ui.groupValueElucidation.hide,
                                                        "show"    : self.ui.groupValueElucidation.show},
                                          "textClass": {"populate": self.ui.textClassSubclassElucidation,
                                                        "hide"    : self.ui.textClassSubclassElucidation.hide,
                                                        "show"    : self.ui.textClassSubclassElucidation.show},
-                                         },
-                                 "lineEdit" : {
-                                         "stringIdentifier": {"populate": self.__editIdentifier,
-                                                              "hide"    : self.ui.groupString.hide,
-                                                              "show"    : self.ui.groupString.show},
+                                         "string": {"populate": self.__editIdentifier,
+                                                              "hide"    : self.ui.editString.hide,
+                                                              "show"    : self.ui.editString.show},
                                          },
                                  "groups"   : {
                                          "ClassSubclassElucidation": {
@@ -149,7 +138,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                                                       "hide": self.ui.groupValueElucidation.hide},
                                          "addValueElucidation"     : {"show": self.ui.pushAddValueElucidation.show,
                                                                       "hide": self.ui.pushAddValueElucidation.hide},
-                                         "PrimitiveString"         : {"show": self.ui.groupString.show,
+                                         "string"                  : {"show": self.ui.groupString.show,
                                                                       "hide": self.ui.groupString.hide},
                                          "integer"                 : {"show": self.ui.groupQuantityMeasure.show,
                                                                       "hide": self.ui.groupQuantityMeasure.hide},
@@ -168,7 +157,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
 
     self.backEnd = BackEnd(self)
-
 
   def __makeClassTree(self, truples, root):
     widget = self.ui.treeClass
@@ -228,6 +216,9 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.gui_objects["textEdit"]["textValue"].clear()
     self.gui_objects["textClass"]["textValue"].setPlainText(data)
 
+  def __populateInteger(self, data):
+    pass
+
   def __editIdentifier(self, data):
     self.gui_objects_controls["lineEdit"]["identifier"].clear()
     self.gui_objects_controls["lineEdit"]["identifier"].setText(data)
@@ -283,8 +274,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     - string dialog
     - file-name dialog
     """
-    # if gui_obj == "instantiate":
-    #   print("debugging -- controls", gui_class, gui_obj, action, *contents)
+    if gui_obj == "string":
+      print("debugging -- controls", gui_class, gui_obj, action, *contents)
     self.gui_objects_controls[gui_class][gui_obj][action](*contents)
 
   def on_pushCreate_pressed(self):
@@ -315,18 +306,35 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     - triple associated with the chosen tree item
     - path within class to chosen tree item
     """
-    # text_ID = item.text(column)
-    self.triple = (item.subject, item.predicate, item.object)
-    subject = item.subject
-    object = item.object
-    predicate = item.predicate
-    graph_ID = item.graph_ID
+
+    self.current_tree_item = item
+    graph_ID, object, predicate, subject = self.__getItemInfo(item)
     self.path = self.__makePath(item)  # used in instantiation
+    self.triple = (subject, predicate, object)
     print("FrontEnd -- debugging selected item:", subject, predicate, object)
     message = {"class" : graph_ID,
                "triple": (subject, predicate, object),
                "path"  : self.path}
     self.backEnd.processEvent("show_tree", "selected", message)
+
+  def __getItemInfo(self, item):
+    self.triple = (item.subject, item.predicate, item.object)
+    subject = item.subject
+    object = item.object
+    predicate = item.predicate
+    graph_ID = item.graph_ID
+    return graph_ID, object, predicate, subject
+
+  @pyqtSlot(int)
+  def on_spinNumber_valueChanged(self, number):
+    message = {"triple": self.triple,
+               "path": self.path,
+               "integer": number}
+    self.backEnd.processEvent("wait_for_ID", "got_number", message)
+    pass
+
+  def on_editString_returnPressed(self):
+    pass
 
   def on_pushInstantiate_pressed(self):
     """
@@ -339,7 +347,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.backEnd.processEvent("wait_for_ID", "add_new_ID", message)
 
   def on_pushVisualise_pressed(self):
-    self.backEnd.processEvent("visualise", "dot_plot",{})
+    self.backEnd.processEvent("visualise", "dot_plot", {})
 
 
 if __name__ == "__main__":

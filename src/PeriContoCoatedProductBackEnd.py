@@ -26,6 +26,7 @@ from PeriConto import getData
 from PeriConto import makeRDFCompatible
 from PeriConto import plot
 
+
 def copyRDFGraph(G_original):
   G_copy = Graph()
   for triple in G_original:
@@ -48,18 +49,6 @@ def convertRDFintoInternalMultiGraph(graph, graph_ID):
       quads.append((o, s, p, graph_ID))
   return quads
 
-
-#
-# def makeDotGraph(RDF_rdf_graph_dictionary, root_name, class_names):
-#     graph_overall = Graph()
-#     for cl in RDF_rdf_graph_dictionary:
-#       for t in RDF_rdf_graph_dictionary[cl].triples((None, None, None)):
-#         graph_overall.add(t)
-#     dot = plot(graph_overall, class_names)
-#     # print("debugging -- dot")
-#     graph_name = self.root_class
-#     dot.render(graph_name, directory=ONTOLOGY_DIRECTORY)
-#     return dot
 
 class SuperGraph():
   def __init__(self):
@@ -115,12 +104,6 @@ class SuperGraph():
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
     self.makeAllListsForAllGraphs()
-    #
-    # for g in list(self.RDFConjunctiveGraph.keys()):
-    #   print("\n >> loaded graph %s" % g)
-    #   for s, p, o in self.RDFConjunctiveGraph[g].triples((None,None,None)):
-    #     print("- ", str(s), MYTerms[p], str(o))
-
     return self.txt_root_class
 
   def makeAllListsForAllGraphs(self):
@@ -144,19 +127,12 @@ class SuperGraph():
     rdf_predicate = RDFSTerms[predicate_internal]
     self.RDFConjunctiveGraph[graph_ID].add((rdf_subject, rdf_predicate, rdf_object))
 
-
-
   def printMe(self, text):
-
 
     for g in list(self.RDFConjunctiveGraph.keys()):
       print("\n %s %s" % (text, g))
-      for s, p, o in self.RDFConjunctiveGraph[g].triples((None,None,None)):
+      for s, p, o in self.RDFConjunctiveGraph[g].triples((None, None, None)):
         print("- ", str(s), MYTerms[p], str(o))
-
-    # for c in self.RDFConjunctiveGraph:
-    #   for s,p,o in self.RDFConjunctiveGraph[c]:
-    #     print(c, str(s), MYTerms[p], str(s))
 
   def isClass(self, ID):
     return ID in self.txt_class_names
@@ -183,7 +159,7 @@ class SuperGraph():
     return (predicate == "comment")
 
   def isString(self, predicate):
-    return (predicate == "comment")
+    return (predicate == "string")
 
   def isLinked(self, ID, graph_class):
     # graph_class is the currently active class
@@ -192,9 +168,6 @@ class SuperGraph():
         if linked_to_class == graph_class:
           if linked_to_subclass == ID:
             return True
-
-  # def isInstantiated(self, ID):
-  #   return DELIMITERS["instantiated"] in ID
 
 
 def makeListBasedOnPredicates(rdf_graph, rdf_predicate):
@@ -239,18 +212,6 @@ class ContainerGraph(SuperGraph):
     v += 1
     return v
 
-  # def getEnumerator(self, graph_ID, subject):
-  #   if isInstantiated(graph_ID):
-  #     ID, no = getID(graph_ID)
-  #   else:
-  #     ID = graph_ID
-  #   if isInstantiated(subject):
-  #     sub, no = getID(subject)
-  #   else:
-  #     sub = subject
-  #
-  #   return self.enumerators[ID][sub]
-
 
 class DataGraph(SuperGraph):
 
@@ -270,13 +231,11 @@ class WorkingTree(SuperGraph):
     self.RDFConjunctiveGraph = {}
     for c in container_graph.RDFConjunctiveGraph:
       G_original = container_graph.RDFConjunctiveGraph[c]
-      self.RDFConjunctiveGraph[c]= copyRDFGraph(G_original)
-
+      self.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
 
     # self.printMe("copied into the working tree")
 
-
-  def instantiateAlongPath(self, paths_in_classes, class_path, reminder):
+  def instantiateAlongPath(self, paths_in_classes, class_path):
 
     # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
     # for c in reversed(class_path):
@@ -293,7 +252,8 @@ class WorkingTree(SuperGraph):
       instantiated[c_original] = OrderedDict()
       for node_no in reversed(range(1, len(nodes))):
         # print(nodes[node_no], nodes[node_no - 1])
-        for s, p, o in from_graph.triples((Literal(nodes[node_no]), RDFSTerms["is_a_subclass_of"], Literal(nodes[node_no - 1]))):
+        for s, p, o in from_graph.triples(
+                (Literal(nodes[node_no]), RDFSTerms["is_a_subclass_of"], Literal(nodes[node_no - 1]))):
           ss = str(s)
           os = str(o)
           s_original = getID(ss)
@@ -318,14 +278,14 @@ class WorkingTree(SuperGraph):
             #   updated_nodes.append(str(s_i))
             instantiated[c_original][s_original] = str(s_i)
 
-      for s,p,o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
+      for s, p, o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
         if (not isInstantiated(str(s))) \
                 and (not isInstantiated(str(o))) \
-                and ( str(o) in instantiated[c_original]):
+                and (str(o) in instantiated[c_original]):
           o_original = getID(str(o))
           o_i = instantiated[c_original][o_original]
-          from_graph.add((s,p,Literal(o_i)))
-          from_graph.remove((s,p,o))
+          from_graph.add((s, p, Literal(o_i)))
+          from_graph.remove((s, p, o))
 
         # fix links
         links = []
@@ -333,29 +293,26 @@ class WorkingTree(SuperGraph):
       triple_new = None
       triple = None
       if c_previous:
-        for s,p,o in from_graph.triples((None, RDFSTerms["link_to_class"], None)):
+        for s, p, o in from_graph.triples((None, RDFSTerms["link_to_class"], None)):
           s_original = getID(str(s))
           o_original = getID(str(o))
           print("found ", str(s), MYTerms[p], str(o))
           if (str(s_original) in instantiated[c_previous]) and (str(o_original) in instantiated[c_original]):
             triple_new = [instantiated[c_previous][s_original], MYTerms[p], instantiated[c_original][o_original]]
-            print(">>> link to be established", str(s), str(o),"--", triple_new )
-            triple_new = (Literal(triple_new[0]),p, Literal(triple_new[2]))
-            triple = (s,p,o)
+            print(">>> link to be established", str(s), str(o), "--", triple_new)
+            triple_new = (Literal(triple_new[0]), p, Literal(triple_new[2]))
+            triple = (s, p, o)
         if triple_new:
           from_graph.remove(triple)
           from_graph.add(triple_new)
-      
+
       c_previous = c_original
 
-
-        
-      
       c_store = c
       if c in instantiated:
         node_no = self.container_graph.incrementClassEnumberator(c)
         c_i = makeID(c, node_no)
-        path = DELIMITERS["path"].join(reversed(instantiated[c_original])) #updated_nodes))
+        path = DELIMITERS["path"].join(reversed(instantiated[c_original]))  # updated_nodes))
         paths_in_classes[c_i] = path
         del paths_in_classes[c]
         index = class_path.index(c)
@@ -363,19 +320,9 @@ class WorkingTree(SuperGraph):
         c_store = c_i
         del self.RDFConjunctiveGraph[c]
 
-      self.RDFConjunctiveGraph[c_store]=  from_graph
+      self.RDFConjunctiveGraph[c_store] = from_graph
 
-
-
-
-      # print("updated class path", class_path)
-      # print("updated paths in classes", paths_in_classes)
-      #
-      # print("==========")
-    return  class_path, paths_in_classes
-
-
-
+    return class_path, paths_in_classes
 
   def overlayContainerGraph(self, graph_ID, rdf_data_class_graph):
     # print("debugging -- overlay container graph")
@@ -420,23 +367,21 @@ class WorkingTree(SuperGraph):
             working_graph.add((d_s, p, t_o))
           else:
             working_graph.add((s, p, o))
-
-    # for s, p, o in working_graph.triples((None, None, None)):
-    #   print("- %s,  %s,  %s" % (s, p, o))
     return working_graph
 
   def makeDotGraph(self):
     graph_overall = Graph()
     for cl in self.RDFConjunctiveGraph:
       for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
-        s,p,o = t
+        s, p, o = t
         print("graph adding", str(s), MYTerms[p], str(o))
         graph_overall.add(t)
     dot = plot(graph_overall, self.txt_class_names)
     # print("debugging -- dot")
     graph_name = self.txt_root_class
-    dot.render(graph_name, directory=ONTOLOGY_DIRECTORY,view=True)
+    dot.render(graph_name, directory=ONTOLOGY_DIRECTORY, view=True)
     return dot
+
 
 def isInstantiated(ID):
   id = str(ID)
@@ -452,6 +397,7 @@ def getID(ID):
     instance_ID = None
   return container_graph_ID
 
+
 def getIDNo(ID):
   if DELIMITERS["instantiated"] in ID:
     container_graph_ID, instance_ID = ID.split(DELIMITERS["instantiated"])
@@ -459,6 +405,7 @@ def getIDNo(ID):
     container_graph_ID = ID
     instance_ID = None
   return instance_ID
+
 
 def makeID(ID, no):
   return ID + DELIMITERS["instantiated"] + str(no)
@@ -502,57 +449,7 @@ class BackEnd:
 
     self.instanceEnumerator = Enumerator()
 
-    self.automaton = {
-            "start"                 : {"initialise": {"next_state": "initialised",
-                                                      "actions"   : [None],
-                                                      "gui_state" : "start"},
-                                       },
-            "initialised"           : {"create": {"next_state": "got_ontology_file_name",
-                                                  "actions"   : [self.__askForFileName],
-                                                  "gui_state" : "initialise"},
-                                       },
-            "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
-                                                     "actions"   : [self.__loadOntology,
-                                                                    self.__makeWorkingTree,
-                                                                    self.__shiftClass,
-                                                                    ],
-                                                     "gui_state" : "show_tree"},
-                                       },
-            "show_tree"             : {"selected": {"next_state": "check_selection",
-                                                    "actions"   : [self.__processSelectedItem,
-                                                                   ],
-                                                    "gui_state" : "NoSet"},
-                                       },
-            "wait_for_ID"           : {"has_no_ID"  : {"next_state": "wait_for_ID",
-                                                       "actions"   : [None],
-                                                       "gui_state" : "has_no_ID"},
-                                       "has_ID"     : {"next_state": "wait_for_ID",
-                                                       "actions"   : [None],
-                                                       "gui_state" : "has_ID"},
-                                       "got_no_ID"  : {"next_state": "show_tree",
-                                                       "actions"   : [None],
-                                                       "gui_state" : "show_tree"},
-                                       "add_new_ID" : {"next_state": "show_tree",
-                                                       "actions"   : [self.__updateDataWithNewID],
-                                                       "gui_state" : "show_tree"},
-                                       "selected_ID": {"next_state": "show_tree",
-                                                       "actions"   : [self.__updateTree],
-                                                       "gui_state" : "show_tree"},
-                                       },
-            "class_list_clicked"    : {"selected": {"next_state": "show_tree",
-                                                    "actions"   : [self.__shiftToSelectedClass],
-                                                    "gui_state" : "show_tree"}
-                                       },
-            "visualise"             : {"dot_plot": {"next_state": "show_tree",
-                                                    "actions"   : [self.__makeDotPlot],
-                                                    "gui_state" : "show_tree"}
-                                       },
-            # "state"      : {"event": {"next_state": add next state,
-            #                                                "actions"   : [list of actions],
-            #                                                "gui_state" : specify gui shows (separate dictionary}
-            #                          },
-            }
-    pass
+    self.automaton = self.automaton()
 
   def __askForFileName(self):
     global current_event_data
@@ -604,7 +501,7 @@ class BackEnd:
     is_comment = self.working_tree.isComment(predicate)
     is_string = self.working_tree.isString(predicate)
     is_linked = (predicate == "link_to_class")
-    is_instantiated = isInstantiated(obj)
+    is_instantiated_object = isInstantiated(obj)
 
     debugging = True
     if debugging:
@@ -615,17 +512,17 @@ class BackEnd:
       # if is_primitive: s += " & primitive"
       if is_value: txt += " & value"
       if is_linked: txt += " & is_linked"
-      if is_instantiated: txt += " & instantiated"
+      if is_instantiated_object: txt += " & instantiated"
       if is_integer: txt += " & integer"
       if is_comment: txt += " & comment"
       if is_string: txt += " & string"
-      # print("selection : %s\n" % txt)
+      print("selection : %s\n" % txt)
 
-    if is_data_class or is_sub_class:
-      if is_instantiated:
-        self.ui_state("has_ID")
-      else:
-        self.ui_state("has_no_ID")
+    if is_integer and (not isInstantiated(subject)):
+      self.ui_state("instantiate_integer")
+
+    elif is_string and (not isInstantiated(subject)):
+      self.ui_state("instantiate_string")
 
     if is_linked:
       # print("shifting event data :", current_event_data)
@@ -642,82 +539,46 @@ class BackEnd:
 
     subject, predicate, obj = current_event_data["triple"]
     path = current_event_data["path"]
-
-    global_path = ""
-    for t in class_path:
-      if t == self.current_class:
-        break
-      # if isInstantiated(t) :
-      #   t_, no_ = getID(t)
-      # else:
-      #   t_ = t
-      try:
-        global_path += self.path_at_transition[t]  # TODO: used?
-      except:
-        print("debugging -- got in trouble")
-
-    global_path += path
-
-    # print("debugging new ID : global path -- ", global_path)
-    # print("debugging new ID : current class:", self.current_class)
-    # print("debugging new ID : enumerators:", self.ContainerGraph.enumerators)
-    # print("debugging new ID : subject:", subject)
-    # print("debugging new ID : event data -- ", current_event_data)
-
-    # if isInstantiated(subject):
-    #   print(">>> instantiate -- %s is already instantiated" % subject)
-    #   return
-
-    # no = self.ContainerGraph.getEnumerator(self.current_class, subject) + 1
+    #
+    # global_path = ""
+    # for t in class_path:
+    #   if t == self.current_class:
+    #     break
+    #   # if isInstantiated(t) :
+    #   #   t_, no_ = getID(t)
+    #   # else:
+    #   #   t_ = t
+    #   try:
+    #     global_path += self.path_at_transition[t]  # TODO: used?
+    #   except:
+    #     print("debugging -- got in trouble")
+    #
+    # global_path += path
 
     paths_in_classes = self.path_at_transition
     paths_in_classes[self.current_class] = path
-
-    # instance_no, instantiated_classes = working_tree.instantiateAlongPath(global_path, no)
-
-
-    # self.working_tree.printMe("before instantiate")
     class_path, paths_in_classes = self.working_tree.instantiateAlongPath(paths_in_classes,
-                                                                     class_path,
-                                                                     len(class_path)
-                                                                     )
+                                                                          class_path,
+                                                                          )
 
     self.working_tree.printMe("after instantiate")
-
-    #  fix class_list:
-    # for i in class_path:
-    #   if i in instantiated_classes:
-    #     index = class_path.index(i)
-    #     class_path[index] = instantiated_classes[i]
-
     current_event_data = {"class": class_path[-1]}
     self.__shiftToSelectedClass()
-
-    #
-    # if not isInstantiated(self.current_class):
-    #   self.current_class = makeID(self.current_class, instance_no)
-    #
-    # print("debugging", class_path)
-    #
-    # self.__makeWorkingTree()
-    # self.FrontEnd.controls("selectors", "classTree", "populate", self.quads, self.current_class)
-    # self.FrontEnd.controls("selectors", "classList", "populate", class_path)
 
   def __makeDotPlot(self):
     # global working_tree
     self.working_tree.makeDotGraph()
 
-  def __updateTree(self):  # , state, data):
+  def __updateTree(self):
     global current_event_data
     global automaton_next_state
     # print(">>>", current_event_data, automaton_next_state)
 
-  def __shiftToSelectedClass(self):  # , state, data):
+  def __shiftToSelectedClass(self):
     global current_event_data
 
     # print("shifting event data :", current_event_data)
 
-    # self.previous_class = self.current_class
     self.current_class = current_event_data["class"]
 
     self.__makeWorkingTree()
@@ -735,7 +596,6 @@ class BackEnd:
     else:
       print("debugging -- no current path defined")
 
-    # self.current_class = class_ID
     class_ID = self.current_class
     if class_ID not in class_path:
       class_path.append(class_ID)
@@ -766,6 +626,12 @@ class BackEnd:
       self.working_tree.makeAllListsForAllGraphs()
     self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
                                                   self.current_class)
+
+  def __gotNumber(self):
+    global current_event_data
+    path = current_event_data["path"]
+    number = current_event_data["integer"]
+    print("debugging -- got path and number:", path, number)
 
   def processEvent(self, state, Event, event_data):
     # Note: cannot be called from within backend -- generates new name space
@@ -809,6 +675,61 @@ class BackEnd:
 
     return next_state
 
+  def automaton(self):
+    automaton = {
+            "start"                 : {"initialise": {"next_state": "initialised",
+                                                      "actions"   : [None],
+                                                      "gui_state" : "start"},
+                                       },
+            "initialised"           : {"create": {"next_state": "got_ontology_file_name",
+                                                  "actions"   : [self.__askForFileName],
+                                                  "gui_state" : "initialise"},
+                                       },
+            "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
+                                                     "actions"   : [self.__loadOntology,
+                                                                    self.__makeWorkingTree,
+                                                                    self.__shiftClass,
+                                                                    ],
+                                                     "gui_state" : "show_tree"},
+                                       },
+            "show_tree"             : {"selected": {"next_state": "check_selection",
+                                                    "actions"   : [self.__processSelectedItem,
+                                                                   ],
+                                                    "gui_state" : "NoSet"},
+                                       },
+            "wait_for_ID"           : {"has_no_ID" : {"next_state": "wait_for_ID",
+                                                      "actions"   : [None],
+                                                      "gui_state" : "has_no_ID"},
+                                       "has_ID"    : {"next_state": "wait_for_ID",
+                                                      "actions"   : [None],
+                                                      "gui_state" : "has_ID"},
+                                       "got_no_ID" : {"next_state": "show_tree",
+                                                      "actions"   : [None],
+                                                      "gui_state" : "show_tree"},
+                                       "add_new_ID": {"next_state": "show_tree",
+                                                      "actions"   : [self.__updateDataWithNewID],
+                                                      "gui_state" : "show_tree"},
+                                       "got_number": {"next_state": "show_tree",
+                                                      "actions"   : [self.__gotNumber,
+                                                                     self.__updateDataWithNewID],
+                                                      "gui_state" : "show_tree"},
+                                       },
+            "class_list_clicked"    : {"selected": {"next_state": "show_tree",
+                                                    "actions"   : [self.__shiftToSelectedClass],
+                                                    "gui_state" : "show_tree"}
+                                       },
+            "visualise"             : {"dot_plot": {"next_state": "show_tree",
+                                                    "actions"   : [self.__makeDotPlot],
+                                                    "gui_state" : "show_tree"}
+                                       },
+            # "state"      : {"event": {"next_state": add next state,
+            #                                                "actions"   : [list of actions],
+            #                                                "gui_state" : specify gui shows (separate dictionary}
+            #                          },
+            }
+
+    return automaton
+
   def ui_state(self, state):
     # what to show and clear
     clear = {}
@@ -827,11 +748,11 @@ class BackEnd:
                             ],
               "selectors": ["classList",
                             "classTree"]}
-    elif state == "input_identifier":
-      show = {"buttons": ["exit",
-                          ],
-              "groups" : [
-                      "PrimitiveString"], }
+    # elif state == "input_identifier":
+    #   show = {"buttons": ["exit",
+    #                       ],
+    #           "groups" : [
+    #                   "PrimitiveString"], }
     elif state == "show_tree":
       show = {"buttons"  : ["save",
                             "exit",
@@ -840,7 +761,7 @@ class BackEnd:
               "selectors": ["classList",
                             "classTree"],
               }
-    elif state == "has_ID":
+    elif state == "has_ID":  # ???
       show = {"buttons"  : ["save",
                             "exit",
                             "visualise",
@@ -849,7 +770,7 @@ class BackEnd:
               "selectors": ["classList",
                             "classTree"],
               }
-    elif state == "has_no_ID":
+    elif state == "has_no_ID":  # ???
       show = {"buttons"  : ["save",
                             "exit",
                             "visualise",
@@ -858,13 +779,27 @@ class BackEnd:
               "selectors": ["classList",
                             "classTree"],
               }
-    elif state == "instantiate_item":
+    elif state == "instantiate_integer":
       show = {"buttons"  : ["instantiate",
                             ],
               "selectors": ["classList",
                             "classTree",
                             "integer"],
               "groups"   : "integer"}
+    elif state == "instantiate_string":
+      show = {"buttons"  : ["instantiate",
+                            ],
+              "selectors": ["classList",
+                            "classTree",
+                            "string"],
+              "groups"   : ["string"]}
+    # elif state == "instantiate_item":
+    #   show = {"buttons"  : ["instantiate",
+    #                         ],
+    #           "selectors": ["classList",
+    #                         "classTree",
+    #                         "integer"],
+    #           "groups"   : "integer"}
     elif state == "selected_subclass":
       show = {"buttons" : ["save",
                            "exit", ],
@@ -892,16 +827,16 @@ class BackEnd:
                       "PrimitiveString",
                       ]
               }
-    elif state == "selected_value":
-      show = {"buttons": ["save",
-                          "exit", ],
-              "groups" : [
-                      "ValueElucidation",
-                      ]
-              }
+    # elif state == "selected_value":
+    #   show = {"buttons": ["save",
+    #                       "exit", ],
+    #           "groups" : [
+    #                   "ValueElucidation",
+    #                   ]
+    #           }
     else:
       show = []
-      # print("ooops -- no such gui state", state)
+      print("ooops -- no such gui state", state)
 
     # print("debugging -- state & show", state, show)
 

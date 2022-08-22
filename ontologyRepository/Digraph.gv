@@ -1,80 +1,104 @@
 digraph {
-	ee
-	bb
-	ee -> bb [label=is_a_subclass_of color=blue]
-	c
-	"a-0"
-	c -> "a-0" [label=is_a_subclass_of color=blue]
-	"ff-0"
-	"cc-0"
-	"ff-0" -> "cc-0" [label=is_a_subclass_of color=blue]
-	aa
-	E
-	aa -> E [label=link_to_class color=blue]
-	F
-	C
-	F -> C [label=is_a_subclass_of color=blue]
 	d
 	"b-0"
 	d -> "b-0" [label=is_a_subclass_of color=blue]
-	aa
-	F
-	aa -> F [label=link_to_class color=blue]
-	"e-0"
-	"b-0"
-	"e-0" -> "b-0" [label=is_a_subclass_of color=blue]
-	dd
-	bb
-	dd -> bb [label=is_a_subclass_of color=blue]
-	"gg-0"
-	"cc-0"
-	"gg-0" -> "cc-0" [label=is_a_subclass_of color=blue]
-	A
-	g
-	A -> g [label=link_to_class color=blue]
-	"E-0"
-	"B-0"
-	"E-0" -> "B-0" [label=is_a_subclass_of color=blue]
-	A
-	f
-	A -> f [label=link_to_class color=blue]
-	"B-0"
+	B
 	"A-0"
-	"B-0" -> "A-0" [label=is_a_subclass_of color=blue]
-	G
-	C
-	G -> C [label=is_a_subclass_of color=blue]
-	"D-0"
-	"B-0"
-	"D-0" -> "B-0" [label=is_a_subclass_of color=blue]
-	A
-	d
-	A -> d [label=link_to_class color=blue]
-	"b-0"
-	"a-0"
-	"b-0" -> "a-0" [label=is_a_subclass_of color=blue]
+	B -> "A-0" [label=is_a_subclass_of color=blue]
+	"aa-0"
+	"G-0"
+	"aa-0" -> "G-0" [label=link_to_class color=blue]
 	aa
-	G
-	aa -> G [label=link_to_class color=blue]
-	"aa-0"
-	"D-0"
-	"aa-0" -> "D-0" [label=link_to_class color=blue]
-	f
-	c
-	f -> c [label=is_a_subclass_of color=blue]
-	"cc-0"
-	"aa-0"
-	"cc-0" -> "aa-0" [label=is_a_subclass_of color=blue]
+	D
+	aa -> D [label=link_to_class color=blue]
+	"C-0"
+	"A-0"
+	"C-0" -> "A-0" [label=is_a_subclass_of color=blue]
 	bb
 	"aa-0"
 	bb -> "aa-0" [label=is_a_subclass_of color=blue]
-	g
-	c
-	g -> c [label=is_a_subclass_of color=blue]
-	C
-	"A-0"
-	C -> "A-0" [label=is_a_subclass_of color=blue]
 	"A-0"
 	"e-0"
 	"A-0" -> "e-0" [label=link_to_class color=blue]
+	dd
+	dd_id
+	dd -> dd_id [label=value color=green]
+	f
+	c
+	f -> c [label=is_a_subclass_of color=blue]
+	"b-0"
+	"a-0"
+	"b-0" -> "a-0" [label=is_a_subclass_of color=blue]
+	integer [color=green shape=rectangle]
+	integer
+	ee_number -> integer [label=integer color=green]
+	integer [color=green shape=rectangle]
+	integer
+	ff_number -> integer [label=integer color=green]
+	aa
+	E
+	aa -> E [label=link_to_class color=blue]
+	A
+	d
+	A -> d [label=link_to_class color=blue]
+	g
+	c
+	g -> c [label=is_a_subclass_of color=blue]
+	"ff-0"
+	"cc-0"
+	"ff-0" -> "cc-0" [label=is_a_subclass_of color=blue]
+	string [color=green shape=rectangle]
+	string
+	gg_id -> string [label=value color=green]
+	A
+	g
+	A -> g [label=link_to_class color=blue]
+	"e-0"
+	"b-0"
+	"e-0" -> "b-0" [label=is_a_subclass_of color=blue]
+	F
+	"C-0"
+	F -> "C-0" [label=is_a_subclass_of color=blue]
+	ff
+	ff_number
+	ff -> ff_number [label=value color=green]
+	D
+	B
+	D -> B [label=is_a_subclass_of color=blue]
+	string [color=green shape=rectangle]
+	string
+	dd_id -> string [label=string color=green]
+	"G-0"
+	"C-0"
+	"G-0" -> "C-0" [label=is_a_subclass_of color=blue]
+	c
+	"a-0"
+	c -> "a-0" [label=is_a_subclass_of color=blue]
+	gg
+	gg_id
+	gg -> gg_id [label=value color=green]
+	E
+	B
+	E -> B [label=is_a_subclass_of color=blue]
+	dd
+	bb
+	dd -> bb [label=is_a_subclass_of color=blue]
+	A
+	f
+	A -> f [label=link_to_class color=blue]
+	ee
+	bb
+	ee -> bb [label=is_a_subclass_of color=blue]
+	gg
+	"cc-0"
+	gg -> "cc-0" [label=is_a_subclass_of color=blue]
+	"cc-0"
+	"aa-0"
+	"cc-0" -> "aa-0" [label=is_a_subclass_of color=blue]
+	ee
+	ee_number
+	ee -> ee_number [label=value color=green]
+	aa
+	F
+	aa -> F [label=link_to_class color=blue]
 }

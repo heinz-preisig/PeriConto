@@ -3,6 +3,16 @@
   "graphs": {
     "a": [
       [
+        "d",
+        "is_a_subclass_of",
+        "b"
+      ],
+      [
+        "e",
+        "is_a_subclass_of",
+        "b"
+      ],
+      [
         "g",
         "is_a_subclass_of",
         "c"
@@ -13,34 +23,9 @@
         "f"
       ],
       [
-        "d",
-        "is_a_subclass_of",
-        "b"
-      ],
-      [
-        "c",
-        "is_a_subclass_of",
-        "a"
-      ],
-      [
-        "A",
-        "link_to_class",
-        "d"
-      ],
-      [
-        "b",
-        "is_a_subclass_of",
-        "a"
-      ],
-      [
         "A",
         "link_to_class",
         "g"
-      ],
-      [
-        "e",
-        "is_a_subclass_of",
-        "b"
       ],
       [
         "f",
@@ -50,44 +35,34 @@
       [
         "A",
         "link_to_class",
+        "d"
+      ],
+      [
+        "A",
+        "link_to_class",
         "e"
+      ],
+      [
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "c",
+        "is_a_subclass_of",
+        "a"
       ]
     ],
     "A": [
-      [
-        "C",
-        "is_a_subclass_of",
-        "A"
-      ],
-      [
-        "B",
-        "is_a_subclass_of",
-        "A"
-      ],
       [
         "G",
         "is_a_subclass_of",
         "C"
       ],
       [
-        "E",
+        "C",
         "is_a_subclass_of",
-        "B"
-      ],
-      [
-        "aa",
-        "link_to_class",
-        "F"
-      ],
-      [
-        "F",
-        "is_a_subclass_of",
-        "C"
-      ],
-      [
-        "D",
-        "is_a_subclass_of",
-        "B"
+        "A"
       ],
       [
         "aa",
@@ -97,44 +72,44 @@
       [
         "aa",
         "link_to_class",
-        "D"
+        "F"
+      ],
+      [
+        "D",
+        "is_a_subclass_of",
+        "B"
       ],
       [
         "aa",
         "link_to_class",
         "E"
+      ],
+      [
+        "aa",
+        "link_to_class",
+        "D"
+      ],
+      [
+        "E",
+        "is_a_subclass_of",
+        "B"
+      ],
+      [
+        "F",
+        "is_a_subclass_of",
+        "C"
+      ],
+      [
+        "B",
+        "is_a_subclass_of",
+        "A"
       ]
     ],
     "aa": [
       [
-        "ee",
-        "value",
-        "ee_number"
-      ],
-      [
-        "ee_number",
-        "integer",
-        "integer"
-      ],
-      [
-        "dd",
+        "cc",
         "is_a_subclass_of",
-        "bb"
-      ],
-      [
-        "dd_id",
-        "string",
-        "string"
-      ],
-      [
-        "gg",
-        "value",
-        "gg_id"
-      ],
-      [
-        "dd",
-        "value",
-        "dd_id"
+        "aa"
       ],
       [
         "ff",
@@ -142,14 +117,14 @@
         "cc"
       ],
       [
-        "gg_id",
-        "value",
-        "string"
+        "ee",
+        "is_a_subclass_of",
+        "bb"
       ],
       [
-        "ff_number",
-        "integer",
-        "integer"
+        "gg",
+        "is_a_subclass_of",
+        "cc"
       ],
       [
         "bb",
@@ -157,24 +132,19 @@
         "aa"
       ],
       [
-        "gg",
-        "is_a_subclass_of",
-        "cc"
-      ],
-      [
-        "cc",
-        "is_a_subclass_of",
-        "aa"
-      ],
-      [
-        "ee",
+        "dd",
         "is_a_subclass_of",
         "bb"
       ],
       [
-        "ff",
+        "dd",
         "value",
-        "ff_number"
+        "identifier"
+      ],
+      [
+        "identifier",
+        "string",
+        "string"
       ]
     ]
   },
@@ -201,7 +171,6 @@
     "a.A.aa.dd": null,
     "a.A.aa.ff": null,
     "a.A.aa.gg": null,
-    "a.A.aa.ee": "",
-    "a.A.aa.gg_ID": ""
+    "a.A.aa.ee": ""
   }
 }

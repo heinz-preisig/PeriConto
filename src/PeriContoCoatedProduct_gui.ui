@@ -284,12 +284,12 @@
     <property name="title">
      <string>number</string>
     </property>
-    <widget class="QDoubleSpinBox" name="spinNumber">
+    <widget class="QSpinBox" name="spinNumber">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>171</width>
+       <x>20</x>
+       <y>50</y>
+       <width>181</width>
        <height>26</height>
       </rect>
      </property>

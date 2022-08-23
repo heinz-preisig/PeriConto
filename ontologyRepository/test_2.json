@@ -1,0 +1,110 @@
+{
+  "root": "a",
+  "graphs": {
+    "a": [
+      [
+        "c",
+        "value",
+        "c_number"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "d"
+      ],
+      [
+        "c_number",
+        "integer",
+        "integer"
+      ],
+      [
+        "d",
+        "is_a_subclass_of",
+        "b"
+      ],
+      [
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "c",
+        "is_a_subclass_of",
+        "a"
+      ]
+    ],
+    "A": [
+      [
+        "C",
+        "value",
+        "C_number"
+      ],
+      [
+        "B",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "C_number",
+        "integer",
+        "integer"
+      ],
+      [
+        "aa",
+        "link_to_class",
+        "B"
+      ],
+      [
+        "C",
+        "is_a_subclass_of",
+        "A"
+      ]
+    ],
+    "aa": [
+      [
+        "bb",
+        "is_a_subclass_of",
+        "aa"
+      ],
+      [
+        "bb_number",
+        "integer",
+        "integer"
+      ],
+      [
+        "cc_text",
+        "string",
+        "string"
+      ],
+      [
+        "cc",
+        "value",
+        "cc_text"
+      ],
+      [
+        "bb",
+        "value",
+        "bb_number"
+      ],
+      [
+        "cc",
+        "is_a_subclass_of",
+        "aa"
+      ]
+    ]
+  },
+  "elucidations": {
+    "a": "",
+    "a.b": null,
+    "a.c": null,
+    "a.d": null,
+    "A": null,
+    "a.A": "",
+    "a.A.B": null,
+    "a.A.C": null,
+    "aa": null,
+    "a.A.aa": "",
+    "a.A.aa.bb": null,
+    "a.A.aa.cc": null
+  }
+}

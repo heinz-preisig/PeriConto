@@ -391,6 +391,7 @@ class OntobuilderUI(QMainWindow):
     self.ui.listClasses.addItems(self.class_path)
     self.class_definition_sequence.append(self.root_class)
     self.primitives[self.root_class] = {self.root_class: []}
+    self.value_names[self.root_class] = []
     self.changed = True
 
     self.__createTree(self.root_class)
@@ -647,6 +648,7 @@ class OntobuilderUI(QMainWindow):
     self.class_definition_sequence.append(class_ID)
     self.subclass_names[class_ID] = []
     self.primitives[class_ID] = {class_ID: []}
+    self.value_names[class_ID] = []
 
     # elucidation
     self.ui.textElucidation.clear()

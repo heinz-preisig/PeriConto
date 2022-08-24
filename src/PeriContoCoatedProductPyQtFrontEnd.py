@@ -6,11 +6,11 @@ import os
 from collections import OrderedDict
 
 from PyQt5 import QtGui
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QTreeWidgetItem
-from PyQt5.QtCore import pyqtSlot
 
 from PeriContoCoatedProductBackEnd import BackEnd
 from PeriContoCoatedProductBackEnd import DELIMITERS
@@ -69,7 +69,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.gui_objects["groups"] = {
             "ClassSubclassElucidation": self.ui.groupClassSubclassElucidation,
             "ValueElucidation"        : self.ui.groupValueElucidation,
-            "string"         : self.ui.groupString,
+            "string"                  : self.ui.groupString,
             "integer"                 : self.ui.groupQuantityMeasure,
             "classList"               : self.ui.groupBoxClassList,
             "classTree"               : self.ui.groupBoxTree,
@@ -79,18 +79,19 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                    "visualise"          : self.ui.pushVisualise,
                                    "save"               : self.ui.pushSave,
                                    "exit"               : self.ui.pushExit,
-                                   "addChanges"         : self.ui.pushAddValueElucidation,
-                                   "addValueElucidation": self.ui.pushAddValueElucidation,
+                                   # "addChanges"         : self.ui.pushAddValueElucidation,
+                                   "addValueElucidation": self.ui.pushAcceptValueElucidation,
                                    "instantiate"        : self.ui.pushInstantiate,
+                                   "acceptInteger"      : self.ui.pushAcceptInteger,
+                                   "acceptString"       : self.ui.pushAcceptString,
                                    }
-    self.gui_objects["selectors"] = {
-            "classList": self.ui.listClasses,
-            "classTree": self.ui.treeClass,
-            "integer"  : self.ui.spinNumber,
-            "string"   : self.ui.editString,
-            "textValue": self.ui.textValueElucidation,
-            "textClass": self.ui.textClassSubclassElucidation,
-            }
+    self.gui_objects["selectors"] = {"classList": self.ui.listClasses,
+                                     "classTree": self.ui.treeClass,
+                                     "integer"  : self.ui.spinNumber,
+                                     "string"   : self.ui.editString,
+                                     "textValue": self.ui.textValueElucidation,
+                                     "textClass": self.ui.textClassSubclassElucidation,
+                                     }
 
     self.gui_objects_controls = {"buttons"  :
                                    {"load"               : {"hide": self.ui.pushLoad.hide,
@@ -103,32 +104,42 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                                             "show": self.ui.pushSave.show, },
                                     "exit"               : {"hide": self.ui.pushExit.hide,
                                                             "show": self.ui.pushExit.show, },
-                                    "addChanges"         : {"hide": self.ui.pushAddValueElucidation.hide,
-                                                            "show": self.ui.pushAddValueElucidation.show, },
-                                    "addValueElucidation": {"hide": self.ui.pushAddValueElucidation.hide,
-                                                            "show": self.ui.pushAddValueElucidation.show, },
+                                    # "addChanges"         : {"hide": self.ui.pushAddValueElucidation.hide,
+                                    #                         "show": self.ui.pushAddValueElucidation.show, },
+                                    "addValueElucidation": {"hide": self.ui.pushAcceptValueElucidation.hide,
+                                                            "show": self.ui.pushAcceptValueElucidation.show, },
                                     "instantiate"        : {"hide": self.ui.pushInstantiate.hide,
-                                                            "show": self.ui.pushInstantiate.show}
+                                                            "show": self.ui.pushInstantiate.show},
+                                    "acceptInteger"      : {"hide": self.ui.pushAcceptInteger.hide,
+                                                            "show": self.ui.pushAcceptInteger.show},
+                                    "acceptString"       : {"hide": self.ui.pushAcceptString.hide,
+                                                            "show": self.ui.pushAcceptString.show},
                                     },
                                  "selectors": {
                                          "classList": {"populate": self.__populateListClass,
+                                                       "clear"   : self.ui.listClasses.clear,
                                                        "hide"    : self.__hideClassList,
                                                        "show"    : self.__showClassList},
                                          "classTree": {"populate": self.__makeClassTree,
+                                                       "clear"   : self.ui.treeClass.clear,
                                                        "hide"    : self.__hideClassTree,
                                                        "show"    : self.__showClassTree, },
                                          "integer"  : {"populate": self.__populateInteger,
-                                                       "hide": self.__hideInteger,
-                                                       "show": self.__showInteger},
+                                                       "clear"   : self.ui.spinNumber.clear,
+                                                       "hide"    : self.__hideInteger,
+                                                       "show"    : self.__showInteger},
                                          "textValue": {"populate": self.__populateTextValueEdit,
+                                                       "clear"   : self.ui.editString.clear,
                                                        "hide"    : self.ui.groupValueElucidation.hide,
                                                        "show"    : self.ui.groupValueElucidation.show},
                                          "textClass": {"populate": self.ui.textClassSubclassElucidation,
+                                                       "clear"   : self.ui.textClassSubclassElucidation.clear,
                                                        "hide"    : self.ui.textClassSubclassElucidation.hide,
                                                        "show"    : self.ui.textClassSubclassElucidation.show},
-                                         "string": {"populate": self.__editIdentifier,
-                                                              "hide"    : self.ui.editString.hide,
-                                                              "show"    : self.ui.editString.show},
+                                         "string"   : {"populate": self.__editIdentifier,
+                                                       "clear"   : self.ui.editString.clear,
+                                                       "hide"    : self.ui.editString.hide,
+                                                       "show"    : self.ui.editString.show},
                                          },
                                  "groups"   : {
                                          "ClassSubclassElucidation": {
@@ -136,8 +147,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                                  "hide": self.ui.groupClassSubclassElucidation.hide},
                                          "ValueElucidation"        : {"show": self.ui.groupValueElucidation.show,
                                                                       "hide": self.ui.groupValueElucidation.hide},
-                                         "addValueElucidation"     : {"show": self.ui.pushAddValueElucidation.show,
-                                                                      "hide": self.ui.pushAddValueElucidation.hide},
+                                         "addValueElucidation"     : {"show": self.ui.pushAcceptValueElucidation.show,
+                                                                      "hide": self.ui.pushAcceptValueElucidation.hide},
                                          "string"                  : {"show": self.ui.groupString.show,
                                                                       "hide": self.ui.groupString.hide},
                                          "integer"                 : {"show": self.ui.groupQuantityMeasure.show,
@@ -155,8 +166,13 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     roundButton(self.ui.pushVisualise, "dot_graph", tooltip="visualise ontology")
     roundButton(self.ui.pushSave, "save", tooltip="save ontology")
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
+    roundButton(self.ui.pushAcceptInteger, "accept", tooltip="accept string")
+    roundButton(self.ui.pushAcceptString, "accept", tooltip="accept string")
+    roundButton(self.ui.pushAcceptValueElucidation, "accept", tooltip="accept text")
 
     self.backEnd = BackEnd(self)
+
+    # self.block = True  # Note: qt emits a signal if a widget is populated. Thus one has to block the event after populating
 
   def __makeClassTree(self, truples, root):
     widget = self.ui.treeClass
@@ -209,19 +225,29 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.gui_objects["selectors"]["classList"].show()
 
   def __populateTextValueEdit(self, data):
-    self.gui_objects["textEdit"]["textValue"].clear()
-    self.gui_objects["textEdit"]["textValue"].setPlainText(data)
+    self.gui_objects["selectors"]["textValue"].blockSignals(True)
+    self.gui_objects["selectors"]["textValue"].clear()
+    self.gui_objects["selectors"]["textValue"].setPlainText(data)
+    self.gui_objects["selectors"]["textValue"].blockSignals(False)
 
   def __populateClassSubclassElucidation(self, data):
-    self.gui_objects["textEdit"]["textValue"].clear()
-    self.gui_objects["textClass"]["textValue"].setPlainText(data)
+    self.gui_objects["selectors"]["textValue"].blockSignals(True)
+    self.gui_objects["selectors"]["textValue"].clear()
+    self.gui_objects["selectors"]["textValue"].setPlainText(data)
+    self.gui_objects["selectors"]["textValue"].blockSignals(False)
 
   def __populateInteger(self, data):
+    value = data["value"]
+    self.gui_objects["selectors"]["integer"].blockSignals(True)
+    self.gui_objects["selectors"]["integer"].clear()
+    self.gui_objects["selectors"]["integer"].setValue(value)
+    self.gui_objects["selectors"]["integer"].blockSignals(False)
     pass
 
   def __editIdentifier(self, data):
-    self.gui_objects_controls["lineEdit"]["identifier"].clear()
-    self.gui_objects_controls["lineEdit"]["identifier"].setText(data)
+    text = data["text"]
+    self.gui_objects["selectors"]["string"].clear()
+    self.gui_objects["selectors"]["string"].setText(text)
 
   def __showInteger(self):
     self.gui_objects["selectors"]["integer"].show()
@@ -270,7 +296,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def controls(self, gui_class, gui_obj, action, *contents):
     """
-    receives messages from backend with the exception of
+    receives messages from backend except
     - string dialog
     - file-name dialog
     """
@@ -290,6 +316,9 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     - class_ID
     - path within class to chosen tree item
     """
+    # if self.block:
+    #   self.block = False
+    #   return
 
     class_ID = item.text()
     print("debugging -- ", class_ID)
@@ -327,10 +356,14 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   @pyqtSlot(int)
   def on_spinNumber_valueChanged(self, number):
-    message = {"triple": self.triple,
-               "path": self.path,
+    pass
+
+  def on_pushAcceptInteger_pressed(self):
+    number = self.ui.spinNumber.value()
+    message = {"triple" : self.triple,
+               "path"   : self.path,
                "integer": number}
-    self.backEnd.processEvent("wait_for_ID", "got_number", message)
+    self.backEnd.processEvent("wait_for_ID", "got_integer", message)
     pass
 
   def on_editString_returnPressed(self):

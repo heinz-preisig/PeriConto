@@ -228,20 +228,20 @@
     <widget class="QPlainTextEdit" name="textValueElucidation">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>110</x>
        <y>40</y>
        <width>441</width>
        <height>91</height>
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushAddValueElucidation">
+    <widget class="QPushButton" name="pushAcceptValueElucidation">
      <property name="geometry">
       <rect>
-       <x>460</x>
-       <y>80</y>
-       <width>101</width>
-       <height>23</height>
+       <x>20</x>
+       <y>60</y>
+       <width>52</width>
+       <height>52</height>
       </rect>
      </property>
      <property name="text">
@@ -264,11 +264,24 @@
     <widget class="QLineEdit" name="editString">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>531</width>
+       <x>90</x>
+       <y>50</y>
+       <width>461</width>
        <height>25</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushAcceptString">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>52</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>accept</string>
      </property>
     </widget>
    </widget>
@@ -292,6 +305,19 @@
        <width>181</width>
        <height>26</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushAcceptInteger">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>40</y>
+       <width>52</width>
+       <height>52</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>accept</string>
      </property>
     </widget>
    </widget>

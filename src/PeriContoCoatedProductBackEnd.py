@@ -287,7 +287,7 @@ class WorkingTree(SuperGraph):
     # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
     # for c in reversed(class_path):
 
-    instantiated = OrderedDict()
+    instantiated = {} #OrderedDict()
 
     c = class_path[-1]
     c_original = getID(c)
@@ -295,7 +295,7 @@ class WorkingTree(SuperGraph):
     print(">>>>>>>>>>>> ", class_path, c)
     nodes = paths_in_classes[c].split(DELIMITERS["path"])
 
-    instantiated[c_original] = OrderedDict()
+    instantiated[c_original] = {}
 
     if nodes[-1] not in PRIMITIVES:  # the last in the path must be a primitive being instantiated
       print("problems")
@@ -403,7 +403,7 @@ class WorkingTree(SuperGraph):
       nodes = paths_in_classes[c].split(DELIMITERS["path"])
       from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
       # updated_nodes = []
-      instantiated[c_original] = OrderedDict()  # here it is set
+      instantiated[c_original] = {} #OrderedDict()  # here it is set
       for node_no in reversed(range(1, len(nodes))):
         # print(nodes[node_no], nodes[node_no - 1])
         for s, p, o in from_graph.triples(
@@ -468,7 +468,7 @@ class WorkingTree(SuperGraph):
         index = class_path.index(c)
         class_path[index] = c_i
         c_store = c_i
-        instantiated[c]= c_i
+        instantiated[c][c]= c_i
         # del instantiated[c]
         del self.RDFConjunctiveGraph[c]
 

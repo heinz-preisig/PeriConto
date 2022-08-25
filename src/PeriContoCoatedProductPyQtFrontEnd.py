@@ -300,8 +300,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     - string dialog
     - file-name dialog
     """
-    if gui_obj == "string":
-      print("debugging -- controls", gui_class, gui_obj, action, *contents)
+    # if gui_obj == "string":
+    #   print("debugging -- controls", gui_class, gui_obj, action, *contents)
     self.gui_objects_controls[gui_class][gui_obj][action](*contents)
 
   def on_pushCreate_pressed(self):
@@ -321,7 +321,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     #   return
 
     class_ID = item.text()
-    print("debugging -- ", class_ID)
+    # print("debugging -- ", class_ID)
     listTree_item = self.ui.treeClass.currentItem()
     path = self.__makePath(listTree_item)
     message = {"class": class_ID,

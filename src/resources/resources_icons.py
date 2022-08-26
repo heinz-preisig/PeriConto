@@ -3,7 +3,6 @@ import os
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
-
 # ===========================================  icons ==============================
 ICONS = {}
 ICONS["+"] = "plus-icon.png"
@@ -62,8 +61,7 @@ def getIcon(what):
     print("assertation error %s is not in the icon dictionary" % what)
     os.exit()
 
-
-  f_name = os.path.join( os.path.curdir, "resources","icons", ICONS[what])
+  f_name = os.path.join(os.path.curdir, "resources", "icons", ICONS[what])
   # print("debugging .....", f_name)
   if os.path.exists(f_name):
     pm = QtGui.QPixmap(f_name)

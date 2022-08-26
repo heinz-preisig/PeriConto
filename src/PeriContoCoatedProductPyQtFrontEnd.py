@@ -5,6 +5,8 @@ this is the front end
 import os
 from collections import OrderedDict
 
+from resources.pop_up_message_box import makeMessageBox
+
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication
@@ -266,6 +268,11 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     path = DELIMITERS["path"].join(texts)
     # print(">>>>>>>>>>>>>>>>>>>>front end -- path", path)
     return path
+
+  def dialogYesNo(self, message="hi", buttons=["NO", "YES"]):
+
+    return makeMessageBox(message=message, buttons=buttons)
+
 
   def stringDialog(self, state, Event, prompt, placeholder_text, limiting_list, on_fail):
 

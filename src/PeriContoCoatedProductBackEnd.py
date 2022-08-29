@@ -292,8 +292,8 @@ class ContainerGraph(SuperGraph):
     return v
 
   def incrementNodeEnumerator(self, class_ID, node_ID):
-    if node_ID == "b":
-      print("debugging -- enumerator")
+    # if node_ID == "b":
+    #   print("debugging -- enumerator")
     v = self.enumerators["nodes_in_classes"][class_ID][node_ID]
     v += 1
     self.enumerators["nodes_in_classes"][class_ID][node_ID] = v
@@ -390,97 +390,83 @@ class WorkingTree(SuperGraph):
 
   def instantiateAlongPath(self, paths_in_classes, class_path):
 
-    # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
+    print("debugging -- class path and paths in classes", class_path, paths_in_classes)
     # for c in reversed(class_path):
 
     instantiated = {}  # OrderedDict()
 
+    # we start at the end, where the primitive was just instantiated
     c = class_path[-1]
     c_original = getID(c)
     from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
     # print("debugging -- >>>>>>>>>>>> ", class_path, c)
     nodes = paths_in_classes[c].split(DELIMITERS["path"])
 
-    instantiated[c_original] = {}
+    instantiated[c_original] = {} # keep track on what node in the path has been instantiated
 
-    if nodes[-1] not in PRIMITIVES:  # the last in the path must be a primitive being instantiated
-      print("problems")
+    primitive = nodes[-1]  # get the primitive
+    primitive_name = nodes[-2]  # that's the node with the name for the primitive
+    value_name = nodes[-3] # that's the quantity given a value with the name being the node [-2]
 
-    ss = nodes[-2]
-    os = nodes[-1]
-    # print("debugging -- we have now subject and object, where the object is the data type", ss, os)
-    rms_subject = Literal(nodes[-2])  # that's the one 'assigned' to the primitive
-    rms_object = Literal(nodes[-1])  # that's the primitive
-    s_original = nodes[-2]
-    o_original = nodes[-1]  # that's the primitive
-    # for primitive in PRIMITIVES:
-    primitive = o_original
-    # for s, p, o in from_graph.triples((rms_subject, RDFSTerms[primitive], rms_object)):
-    last_s = None
-    last_s_i = None
 
-    for s, p, o in from_graph.triples((rms_subject, RDFSTerms[primitive], rms_object)):
-      # print("debugging -- processing", str(s), MYTerms[p], str(o))
-      if (isInstantiated(ss)):
-        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> error should not be instantiated")
-      s_enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
-      if o_original in PRIMITIVES:
-        o_enum = self.container_graph.incrementPrimitiveEnumerator(primitive)
+    if primitive not in PRIMITIVES:
+      print("error >>>>>>>  %s must be a primitive"%primitive)
+      return
+
+    # both must not be instantiated
+    if isInstantiated(primitive) or isInstantiated(primitive_name) or isInstantiated(value_name):
+      print("error >>>>>>>>  neither node can be instantiated", primitive, primitive_name, value_name)
+      return
+
+    primitive_enum = self.container_graph.incrementPrimitiveEnumerator(primitive)
+    primitive_i = makeID(primitive, primitive_enum)
+    instantiated[c_original][primitive] = primitive_i
+
+    primitive_name_enum = self.container_graph.incrementNodeEnumerator(c_original, primitive_name)
+    primitive_name_i = makeID(primitive_name, primitive_name_enum)
+    instantiated[c_original][primitive_name] = primitive_name_i
+
+    value_name_enum = self.container_graph.incrementNodeEnumerator(c_original, value_name)
+    value_name_i = makeID(value_name, value_name_enum)
+    instantiated[c_original][value_name] = value_name_i
+
+    from_graph.remove((Literal(primitive_name), RDFSTerms[primitive], Literal(primitive)))
+    from_graph.add((Literal(primitive_name_i), RDFSTerms[primitive], Literal(primitive_i)))
+    from_graph.remove((Literal(value_name), RDFSTerms["value"], Literal(primitive_name)))
+    from_graph.add((Literal(value_name_i), RDFSTerms["value"], Literal(primitive_name_i)))
+
+
+    for n in reversed(nodes[1:-2]):
+      if n not in instantiated[c_original][n]:
+        print("error >>>>>>>>>>>>>> previous node must be instantiated", n)
       else:
-        o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
-      s_i = makeID(ss, s_enum)
-      instantiated[c_original][s_original] = s_i
-      o_i = makeID(os, o_enum)
-      instantiated[c_original][o_original] = o_i
-      from_graph.remove((s, p, o))
-      from_graph.add((Literal(s_i), p, Literal(o_i)))
-
-      last_s = s
-      last_s_i = s_i
-
-    for s, p, o in from_graph.triples((None, RDFSTerms["value"], Literal(last_s))):
-
-      if isInstantiated(str(s)):
-        print(">>>>>>>>>>>>> problems")
-
-      # print("debugging -- remove", str(s), MYTerms[p], str(o))
-      s_original = getID(str(s))
-      s_enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
-      s_i = makeID(s_original, s_enum)
-      instantiated[c_original][s_original] = s_i
-      # print("debugging -- add", s_i, MYTerms[p], last_s_i)
-      from_graph.remove((s, p, o))
-      from_graph.add((Literal(s_i), p, Literal(last_s_i)))
-
-    for n in reversed(nodes[:-2]):
-      # print("debugging -- node", n)
-      if n in instantiated[c_original]:
-        # print("debugging -- instantiated ", n, instantiated[c_original][n])
-        for s, p, o in from_graph.triples((Literal(n), RDFSTerms["is_a_subclass_of"], None)):
-          if not isInstantiated(str(o)):
-            # print("debugging -- remove", str(s), MYTerms[p], str(o))
+        for s,p,o in from_graph.triples( (Literal(getID(n)), RDFSTerms["is_a_subclass_of"], None) ):
+          n_i = instantiated[c_original][n]
+          if isInstantiated((str(o))): # hit an instantiated node
             from_graph.remove((s, p, o))
-            n_i = instantiated[c_original][n]
+            from_graph.add(( Literal(n_i),p,o))
+          else:
             o_original = getID(str(o))
             o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
             o_i = makeID(o_original, o_enum)
             instantiated[c_original][o_original] = o_i
-            # print("debugging -- add", n_i, MYTerms[p], o_i)
+            from_graph.remove((s,p, o))
+            from_graph.add((Literal(n_i),p,Literal(o_i)))
 
-            from_graph.add((Literal(n_i), p, Literal(o_i)))
+    print("debugging \n")
+    for s,p,o in from_graph.triples((None,None,None)):
+      print(str(s), MYTerms[p], str(o))
 
-    for s, p, o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
-      if (not isInstantiated(str(s))) and (not isInstantiated(o)):
-        o_original = getID(str(o))
-        if o_original in instantiated[c_original]:
-          # print("debugging -- remove", s, MYTerms[p], o)
-          from_graph.remove((s, p, o))
-          o_i = instantiated[c_original][o_original]
-          # print("debugging -- add", s, p, o_i)
-          from_graph.add((s, p, Literal(o_i)))
+    for n in instantiated[c_original]:
+      n_i = instantiated[c_original][n]
+      for s,p,o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], Literal(n))):
+        from_graph.remove((s,p,o))
+        from_graph.add((s,p,Literal(n_i)))
 
-    # for s, p, o in from_graph:
-    #   print(s, p, o)
+    print("debugging \n")
+    for s,p,o in from_graph.triples((None,None,None)):
+      print(str(s), MYTerms[p], str(o))
+
 
     if c in instantiated[c_original]:
       c_store = instantiated[c_original][c]
@@ -494,69 +480,120 @@ class WorkingTree(SuperGraph):
 
     ### end of the first class, the class where the instantiation took place, being modified
 
+
+
     c_previous = c_store #getID(c_store)
     for c in reversed(class_path[:-1]):
+      linked_node = nodes[0]                           # this is the link to the previous class
+      # linked_node_i = instantiated[c_original][linked_node]
+      c_previous_original = c_original
+
       c_original = getID(c)
       # print("debugging -- >>>>>>>>>>>> ", class_path, c)
       nodes = paths_in_classes[c].split(DELIMITERS["path"])
       from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
-      # updated_nodes = []
-      instantiated[c_original] = {}  # OrderedDict()  # here it is set
-      for node_no in reversed(range(1, len(nodes))):
-        # print(nodes[node_no], nodes[node_no - 1])
-        for s, p, o in from_graph.triples(
-                (Literal(nodes[node_no]), RDFSTerms["is_a_subclass_of"], Literal(nodes[node_no - 1]))):
-          ss = str(s)
-          os = str(o)
-          s_original = getID(ss)
-          o_original = getID(os)
-          # print(ss, MYTerms[p], os)
-          if (ss not in instantiated[c_original]) \
-                  and (os not in instantiated[c_original]):
-            #(not isInstantiated(ss)) and (not isInstantiated((os))):
-            enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
-            s_i = makeID(s, enum)
-            enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
-            o_i = makeID(o, enum)
-            from_graph.remove((s, p, o))
-            from_graph.add((s_i, p, o_i))
-            instantiated[c_original][s_original] = str(s_i)
-            instantiated[c_original][o_original] = str(o_i)
-          elif (not isInstantiated(ss) and isInstantiated(os)):
-            enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
-            s_i = makeID(s, enum)
-            from_graph.remove((s, p, o))
-            from_graph.add((Literal(s_i), p, o))
-            instantiated[c_original][s_original] = str(s_i)
 
-      for s, p, o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
-        if (not isInstantiated(str(s))) \
-                and (not isInstantiated(str(o))) \
-                and (str(o) in instantiated[c_original]):
-          o_original = getID(str(o))
-          o_i = instantiated[c_original][o_original]
-          from_graph.add((s, p, Literal(o_i)))
+      print("debugging \n")
+      for s, p, o in from_graph.triples((None, None, None)):
+        print(str(s), MYTerms[p], str(o))
+
+      instantiated[c_original] = {}  # OrderedDict()  # here it is set
+      for s,p,o in from_graph.triples((Literal(linked_node) , RDFSTerms["link_to_class"], None)):
+        from_graph.remove((s,p,o))
+        o_enum = self.container_graph.incrementNodeEnumerator(c_original, str(o))
+        o_i = makeID(str(o),o_enum)
+        instantiated[c_original][str(o)] = o_i
+        s_i = instantiated[c_previous_original][str(s)]
+        from_graph.add((Literal(s_i), p,  Literal(o_i)))
+
+
+      for n in reversed(nodes[0:-1]):
+        for s,p,o in from_graph.triples( (Literal(getID(n)), RDFSTerms["is_a_subclass_of"], None) ):
+          if n in instantiated[c_original]:
+            n_i = instantiated[c_original][n]
+          else:
+            n_enum = self.container_graph.incrementNodeEnumerator(c_original, n)
+            n_i = makeID(n, n_enum)
+          if isInstantiated(getID(str(o))): # hit an instantiated node
+            from_graph.remove((s, p, o))
+            from_graph.add((s,p, Literal(n_i)))
+          else:
+            o_original = getID(str(o))
+            o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
+            o_i = makeID(o_original, o_enum)
+            instantiated[c_original][o_original] = o_i
+            from_graph.remove((s,p, o))
+            from_graph.add((Literal(n_i),p,Literal(o_i)))
+
+      print("debugging \n")
+      for s, p, o in from_graph.triples((None, None, None)):
+        print(str(s), MYTerms[p], str(o))
+
+      for n in instantiated[c_original]:
+        n_i = instantiated[c_original][n]
+        for s, p, o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], Literal(n))):
           from_graph.remove((s, p, o))
+          from_graph.add((s, p, Literal(n_i)))
+
+      print("debugging \n")
+      for s, p, o in from_graph.triples((None, None, None)):
+        print(str(s), MYTerms[p], str(o))
+
+      # for node_no in reversed(range(1, len(nodes))):
+      #   # print(nodes[node_no], nodes[node_no - 1])
+      #   for s, p, o in from_graph.triples(
+      #           (Literal(nodes[node_no]), RDFSTerms["is_a_subclass_of"], Literal(nodes[node_no - 1]))):
+      #     ss = str(s)
+      #     os = str(o)
+      #     s_original = getID(ss)
+      #     o_original = getID(os)
+      #     # print(ss, MYTerms[p], os)
+      #     if (ss not in instantiated[c_original]) \
+      #             and (os not in instantiated[c_original]):
+      #       #(not isInstantiated(ss)) and (not isInstantiated((os))):
+      #       enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
+      #       s_i = makeID(s, enum)
+      #       enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
+      #       o_i = makeID(o, enum)
+      #       from_graph.remove((s, p, o))
+      #       from_graph.add((s_i, p, o_i))
+      #       instantiated[c_original][s_original] = str(s_i)
+      #       instantiated[c_original][o_original] = str(o_i)
+      #     elif (not isInstantiated(ss) and isInstantiated(os)):
+      #       enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
+      #       s_i = makeID(s, enum)
+      #       from_graph.remove((s, p, o))
+      #       from_graph.add((Literal(s_i), p, o))
+      #       instantiated[c_original][s_original] = str(s_i)
+      #
+      # for s, p, o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
+      #   if (not isInstantiated(str(s))) \
+      #           and (not isInstantiated(str(o))) \
+      #           and (str(o) in instantiated[c_original]):
+      #     o_original = getID(str(o))
+      #     o_i = instantiated[c_original][o_original]
+      #     from_graph.add((s, p, Literal(o_i)))
+      #     from_graph.remove((s, p, o))
 
       # fix links
       # print("\n==== ")
-      triple_new = None
-      triple = None
-      if c_previous:
-        for s, p, o in from_graph.triples((None, RDFSTerms["link_to_class"], None)):
-          s_original = getID(str(s))
-          o_original = getID(str(o))
-          # print("debugging --found ", str(s), MYTerms[p], str(o))
-          if (str(s_original) in instantiated[getID(c_previous)]) and (str(o_original) in instantiated[c_original]):
-            triple_new = [instantiated[getID(c_previous)][s_original], MYTerms[p], instantiated[c_original][o_original]]
-            # print("debugging -- link to be established", str(s), str(o), "--", triple_new)
-            triple_new = (Literal(triple_new[0]), p, Literal(triple_new[2]))
-            triple = (s, p, o)
-        if triple_new:
-          from_graph.remove(triple)
-          from_graph.add(triple_new)
-
-      c_previous = c_original
+      # triple_new = None
+      # triple = None
+      # if c_previous:
+      #   for s, p, o in from_graph.triples((None, RDFSTerms["link_to_class"], None)):
+      #     s_original = getID(str(s))
+      #     o_original = getID(str(o))
+      #     # print("debugging --found ", str(s), MYTerms[p], str(o))
+      #     if (str(s_original) in instantiated[getID(c_previous)]) and (str(o_original) in instantiated[c_original]):
+      #       triple_new = [instantiated[getID(c_previous)][s_original], MYTerms[p], instantiated[c_original][o_original]]
+      #       # print("debugging -- link to be established", str(s), str(o), "--", triple_new)
+      #       triple_new = (Literal(triple_new[0]), p, Literal(triple_new[2]))
+      #       triple = (s, p, o)
+      #   if triple_new:
+      #     from_graph.remove(triple)
+      #     from_graph.add(triple_new)
+      #
+      # c_previous = c_original
 
       c_store = c
       if c in instantiated:

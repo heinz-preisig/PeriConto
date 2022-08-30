@@ -168,7 +168,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     roundButton(self.ui.pushVisualise, "dot_graph", tooltip="visualise ontology")
     roundButton(self.ui.pushSave, "save", tooltip="save ontology")
     roundButton(self.ui.pushExit, "exit", tooltip="exit")
-    roundButton(self.ui.pushAcceptInteger, "accept", tooltip="accept string")
+    roundButton(self.ui.pushAcceptInteger, "accept", tooltip="accept integer")
     roundButton(self.ui.pushAcceptString, "accept", tooltip="accept string")
     roundButton(self.ui.pushAcceptValueElucidation, "accept", tooltip="accept text")
 
@@ -374,6 +374,14 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     pass
 
   def on_editString_returnPressed(self):
+    pass
+
+  def on_pushAcceptString_pressed(self):
+    string = self.ui.editString.text()
+    message = {"triple" : self.triple,
+               "path"   : self.path,
+               "string": string}
+    self.backEnd.processEvent("wait_for_ID", "got_string", message)
     pass
 
   def on_pushInstantiate_pressed(self):

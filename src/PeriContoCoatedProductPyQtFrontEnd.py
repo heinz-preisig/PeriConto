@@ -347,7 +347,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     graph_ID, object, predicate, subject = self.__getItemInfo(item)
     self.path = self.__makePath(item)  # used in instantiation
     self.triple = (subject, predicate, object)
-    print("FrontEnd -- debugging selected item:", subject, predicate, object)
+    # print("FrontEnd -- debugging selected item:", subject, predicate, object)
     message = {"class" : graph_ID,
                "triple": (subject, predicate, object),
                "path"  : self.path}

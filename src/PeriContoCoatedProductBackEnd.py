@@ -48,7 +48,7 @@ def plot(graph, class_names=[]):
     so = str(o)
     so_ = str(o).replace(":", "-")
     s_ID = getID(str(s))
-    if s_ID in PRIMITIVES:      # primitives are not having a unique name so we equip them with an incremental suffix
+    if s_ID in PRIMITIVES:  # primitives are not having a unique name so we equip them with an incremental suffix
       if isInstantiated(ss):
         ss_ += "_%s" % suffix
         suffix += 1
@@ -94,23 +94,23 @@ def convertRDFintoInternalMultiGraph(graph, graph_ID):
       quads.append((o, s, p, graph_ID))
   return quads
 
+
 def convertQuadsGraphIntoRDFGraph(quads):
   graph = Graph()
-  for f,s,p,graphID in quads:
+  for f, s, p, graphID in quads:
     if p not in ["value"] + PRIMITIVES:
-      graph.add((Literal(f),RDFSTerms[p],Literal(s)))
+      graph.add((Literal(f), RDFSTerms[p], Literal(s)))
     else:
-      graph.add((Literal(s),RDFSTerms(p),Literal(f)))
+      graph.add((Literal(s), RDFSTerms(p), Literal(f)))
   return graph
 
+
 def extractSubTree(quads, root, extracts=[], stack=[]):
-  for s,o,p,graphID in quads:
+  for s, o, p, graphID in quads:
     if o == root:
-      extracts.append((s,o,p,graphID))
+      extracts.append((s, o, p, graphID))
       stack.append(s)
-      extractSubTree(quads, s, extracts = extracts, stack=stack)
-
-
+      extractSubTree(quads, s, extracts=extracts, stack=stack)
 
 
 class SuperGraph():
@@ -132,9 +132,7 @@ class SuperGraph():
 
     self.RDFConjunctiveGraph = {}
 
-
     pass
-
 
   def create(self, root_class):
     self.txt_root_class = root_class
@@ -199,13 +197,11 @@ class SuperGraph():
     extract an RDF-subgraph from an RDF-Graph given a root as a string, a label
     it is done via the quads generation that ignore the directionality
     """
-    quads = convertRDFintoInternalMultiGraph(self.RDFConjunctiveGraph[graph_ID],graph_ID)
+    quads = convertRDFintoInternalMultiGraph(self.RDFConjunctiveGraph[graph_ID], graph_ID)
     extracts = []
     extractSubTree(quads, root, extracts)  # as quads
     graph = convertQuadsGraphIntoRDFGraph(extracts)
     return graph
-
-
 
   def printMe(self, text):
 
@@ -390,10 +386,11 @@ class WorkingTree(SuperGraph):
 
   def instantiateAlongPath(self, paths_in_classes, class_path):
 
-    print("debugging -- class path and paths in classes", class_path, paths_in_classes)
-    # for c in reversed(class_path):
+    debug = False
 
-    instantiated = {}  # OrderedDict()
+    # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
+
+    instantiated = {}
 
     # we start at the end, where the primitive was just instantiated
     c = class_path[-1]
@@ -402,15 +399,14 @@ class WorkingTree(SuperGraph):
     # print("debugging -- >>>>>>>>>>>> ", class_path, c)
     nodes = paths_in_classes[c].split(DELIMITERS["path"])
 
-    instantiated[c_original] = {} # keep track on what node in the path has been instantiated
+    instantiated[c_original] = {}  # keep track on what node in the path has been instantiated
 
     primitive = nodes[-1]  # get the primitive
     primitive_name = nodes[-2]  # that's the node with the name for the primitive
-    value_name = nodes[-3] # that's the quantity given a value with the name being the node [-2]
-
+    value_name = nodes[-3]  # that's the quantity given a value with the name being the node [-2]
 
     if primitive not in PRIMITIVES:
-      print("error >>>>>>>  %s must be a primitive"%primitive)
+      print("error >>>>>>>  %s must be a primitive" % primitive)
       return
 
     # both must not be instantiated
@@ -435,38 +431,34 @@ class WorkingTree(SuperGraph):
     from_graph.remove((Literal(value_name), RDFSTerms["value"], Literal(primitive_name)))
     from_graph.add((Literal(value_name_i), RDFSTerms["value"], Literal(primitive_name_i)))
 
+    node_list = reversed(nodes[1:-2])
+    stop = False
+    for n in node_list:
+      for s, p, o in from_graph.triples((Literal(getID(n)), RDFSTerms["is_a_subclass_of"], None)):
+        n_i = instantiated[c_original][n]
+        if isInstantiated((str(o))):  # hit an instantiated node
+          from_graph.remove((s, p, o))
+          from_graph.add((Literal(n_i), p, o))
+          # print("debugging - >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> stop 1")
+          stop = True
+          break
+        else:
+          o_original = getID(str(o))
+          o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
+          o_i = makeID(o_original, o_enum)
+          instantiated[c_original][o_original] = o_i
+          from_graph.remove((s, p, o))
+          from_graph.add((Literal(n_i), p, Literal(o_i)))
 
-    for n in reversed(nodes[1:-2]):
-      if n not in instantiated[c_original][n]:
-        print("error >>>>>>>>>>>>>> previous node must be instantiated", n)
-      else:
-        for s,p,o in from_graph.triples( (Literal(getID(n)), RDFSTerms["is_a_subclass_of"], None) ):
-          n_i = instantiated[c_original][n]
-          if isInstantiated((str(o))): # hit an instantiated node
-            from_graph.remove((s, p, o))
-            from_graph.add(( Literal(n_i),p,o))
-          else:
-            o_original = getID(str(o))
-            o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
-            o_i = makeID(o_original, o_enum)
-            instantiated[c_original][o_original] = o_i
-            from_graph.remove((s,p, o))
-            from_graph.add((Literal(n_i),p,Literal(o_i)))
-
-    print("debugging \n")
-    for s,p,o in from_graph.triples((None,None,None)):
-      print(str(s), MYTerms[p], str(o))
+    self.debuggPrintGraph(from_graph, debug)
 
     for n in instantiated[c_original]:
       n_i = instantiated[c_original][n]
-      for s,p,o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], Literal(n))):
-        from_graph.remove((s,p,o))
-        from_graph.add((s,p,Literal(n_i)))
+      for s, p, o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], Literal(n))):
+        from_graph.remove((s, p, o))
+        from_graph.add((s, p, Literal(n_i)))
 
-    print("debugging \n")
-    for s,p,o in from_graph.triples((None,None,None)):
-      print(str(s), MYTerms[p], str(o))
-
+    self.debuggPrintGraph(from_graph, debug)
 
     if c in instantiated[c_original]:
       c_store = instantiated[c_original][c]
@@ -478,13 +470,24 @@ class WorkingTree(SuperGraph):
     else:
       c_store = c
 
+    if not isInstantiated(c):
+      c_i = instantiated[c][c]
+    else:
+      c_i = c
+
+    t = self.updatePathsInClasses(c, instantiated, paths_in_classes)
+    del paths_in_classes[c]
+    paths_in_classes[c_i] = t
+
+    if stop:
+      return class_path, paths_in_classes
+
     ### end of the first class, the class where the instantiation took place, being modified
 
+    c_previous = c_store  # getID(c_store)
 
-
-    c_previous = c_store #getID(c_store)
     for c in reversed(class_path[:-1]):
-      linked_node = nodes[0]                           # this is the link to the previous class
+      linked_node = nodes[0]  # this is the link to the previous class
       # linked_node_i = instantiated[c_original][linked_node]
       c_previous_original = c_original
 
@@ -493,41 +496,41 @@ class WorkingTree(SuperGraph):
       nodes = paths_in_classes[c].split(DELIMITERS["path"])
       from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
 
-      print("debugging \n")
-      for s, p, o in from_graph.triples((None, None, None)):
-        print(str(s), MYTerms[p], str(o))
+      self.debuggPrintGraph(from_graph, debug)
 
       instantiated[c_original] = {}  # OrderedDict()  # here it is set
-      for s,p,o in from_graph.triples((Literal(linked_node) , RDFSTerms["link_to_class"], None)):
-        from_graph.remove((s,p,o))
+      for s, p, o in from_graph.triples((Literal(linked_node), RDFSTerms["link_to_class"], None)):
+        from_graph.remove((s, p, o))
         o_enum = self.container_graph.incrementNodeEnumerator(c_original, str(o))
-        o_i = makeID(str(o),o_enum)
+        o_i = makeID(str(o), o_enum)
         instantiated[c_original][str(o)] = o_i
         s_i = instantiated[c_previous_original][str(s)]
-        from_graph.add((Literal(s_i), p,  Literal(o_i)))
+        from_graph.add((Literal(s_i), p, Literal(o_i)))
 
+      node_list = reversed(nodes[0:-1])
+      for n in node_list:
 
-      for n in reversed(nodes[0:-1]):
-        for s,p,o in from_graph.triples( (Literal(getID(n)), RDFSTerms["is_a_subclass_of"], None) ):
+        for s, p, o in from_graph.triples((Literal(getID(n)), RDFSTerms["is_a_subclass_of"], None)):
           if n in instantiated[c_original]:
             n_i = instantiated[c_original][n]
           else:
             n_enum = self.container_graph.incrementNodeEnumerator(c_original, n)
             n_i = makeID(n, n_enum)
-          if isInstantiated(getID(str(o))): # hit an instantiated node
+          if isInstantiated((str(o))):  # hit an instantiated node
             from_graph.remove((s, p, o))
-            from_graph.add((s,p, Literal(n_i)))
+            from_graph.add((Literal(n_i), p, o))
+            # print("debugging - >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> stop 2")
+            stop = True
+            break
           else:
             o_original = getID(str(o))
             o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
             o_i = makeID(o_original, o_enum)
             instantiated[c_original][o_original] = o_i
-            from_graph.remove((s,p, o))
-            from_graph.add((Literal(n_i),p,Literal(o_i)))
+            from_graph.remove((s, p, o))
+            from_graph.add((Literal(n_i), p, Literal(o_i)))
 
-      print("debugging \n")
-      for s, p, o in from_graph.triples((None, None, None)):
-        print(str(s), MYTerms[p], str(o))
+      self.debuggPrintGraph(from_graph, debug)
 
       for n in instantiated[c_original]:
         n_i = instantiated[c_original][n]
@@ -535,65 +538,7 @@ class WorkingTree(SuperGraph):
           from_graph.remove((s, p, o))
           from_graph.add((s, p, Literal(n_i)))
 
-      print("debugging \n")
-      for s, p, o in from_graph.triples((None, None, None)):
-        print(str(s), MYTerms[p], str(o))
-
-      # for node_no in reversed(range(1, len(nodes))):
-      #   # print(nodes[node_no], nodes[node_no - 1])
-      #   for s, p, o in from_graph.triples(
-      #           (Literal(nodes[node_no]), RDFSTerms["is_a_subclass_of"], Literal(nodes[node_no - 1]))):
-      #     ss = str(s)
-      #     os = str(o)
-      #     s_original = getID(ss)
-      #     o_original = getID(os)
-      #     # print(ss, MYTerms[p], os)
-      #     if (ss not in instantiated[c_original]) \
-      #             and (os not in instantiated[c_original]):
-      #       #(not isInstantiated(ss)) and (not isInstantiated((os))):
-      #       enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
-      #       s_i = makeID(s, enum)
-      #       enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
-      #       o_i = makeID(o, enum)
-      #       from_graph.remove((s, p, o))
-      #       from_graph.add((s_i, p, o_i))
-      #       instantiated[c_original][s_original] = str(s_i)
-      #       instantiated[c_original][o_original] = str(o_i)
-      #     elif (not isInstantiated(ss) and isInstantiated(os)):
-      #       enum = self.container_graph.incrementNodeEnumerator(c_original, s_original)
-      #       s_i = makeID(s, enum)
-      #       from_graph.remove((s, p, o))
-      #       from_graph.add((Literal(s_i), p, o))
-      #       instantiated[c_original][s_original] = str(s_i)
-      #
-      # for s, p, o in from_graph.triples((None, RDFSTerms["is_a_subclass_of"], None)):
-      #   if (not isInstantiated(str(s))) \
-      #           and (not isInstantiated(str(o))) \
-      #           and (str(o) in instantiated[c_original]):
-      #     o_original = getID(str(o))
-      #     o_i = instantiated[c_original][o_original]
-      #     from_graph.add((s, p, Literal(o_i)))
-      #     from_graph.remove((s, p, o))
-
-      # fix links
-      # print("\n==== ")
-      # triple_new = None
-      # triple = None
-      # if c_previous:
-      #   for s, p, o in from_graph.triples((None, RDFSTerms["link_to_class"], None)):
-      #     s_original = getID(str(s))
-      #     o_original = getID(str(o))
-      #     # print("debugging --found ", str(s), MYTerms[p], str(o))
-      #     if (str(s_original) in instantiated[getID(c_previous)]) and (str(o_original) in instantiated[c_original]):
-      #       triple_new = [instantiated[getID(c_previous)][s_original], MYTerms[p], instantiated[c_original][o_original]]
-      #       # print("debugging -- link to be established", str(s), str(o), "--", triple_new)
-      #       triple_new = (Literal(triple_new[0]), p, Literal(triple_new[2]))
-      #       triple = (s, p, o)
-      #   if triple_new:
-      #     from_graph.remove(triple)
-      #     from_graph.add(triple_new)
-      #
-      # c_previous = c_original
+      self.debuggPrintGraph(from_graph, debug)
 
       c_store = c
       if c in instantiated:
@@ -608,68 +553,36 @@ class WorkingTree(SuperGraph):
 
       self.RDFConjunctiveGraph[c_store] = from_graph
 
-    # finally, update paths in classes
-    new_paths_in_classes = {}
-    for c in list(paths_in_classes.keys()):
-      c_original = getID(c)
-      nodes = paths_in_classes[c].split(DELIMITERS["path"])
-      new_nodes = []
-      for n in nodes:
-        if n in instantiated[c_original]:
-          new_nodes.append(instantiated[c_original][n])
-        else:
-          # print(">>>>>>>>>>>troubles", c, c_original, n)
-          new_nodes.append(n)
-
       if not isInstantiated(c):
         c_i = instantiated[c][c]
       else:
         c_i = c
-      new_paths_in_classes[c_i] = DELIMITERS["path"].join(new_nodes)
+      t = self.updatePathsInClasses(c, instantiated, paths_in_classes)
+      del paths_in_classes[c]
+      paths_in_classes[c_i] = t
+      if stop:
+        return class_path, paths_in_classes
 
-    return class_path, new_paths_in_classes
+    return class_path, paths_in_classes
 
-  # def overlayContainerGraph(self, graph_ID, rdf_data_class_graph):
-  #   # print("debugging -- overlay container graph")
-  #   self.graph_ID = graph_ID
-  #   self.RDFConjunctiveGraph[graph_ID] = rdf_data_class_graph
-  #
-  #   container_graph_ID = getID(graph_ID)
-  #   container_class_graph = self.container_graph.RDFConjunctiveGraph[container_graph_ID]
-  #
-  #   working_graph = Graph()
-  #
-  #   if len(rdf_data_class_graph) == 0:
-  #     for s, p, o in container_class_graph.triples((None, None, None)):
-  #       if str(s) == container_graph_ID:
-  #         s_ = Literal(graph_ID)
-  #       else:
-  #         s_ = s
-  #       if str(o) == container_graph_ID:
-  #         o_ = Literal(graph_ID)
-  #       else:
-  #         o_ = o
-  #       working_graph.add((s_, p, o_))
-  #
-  #     for d_s, d_p, d_o in rdf_data_class_graph.triples((None, None, None)):
-  #       # print(">>> %s, %s, %s" % (d_s, d_p, d_o))
-  #       for s, p, o in container_class_graph.triples((None, None, None)):
-  #         _s = getID(str(s))
-  #         _o = getID(str(o))
-  #         t_s = Literal(_s)
-  #         t_o = Literal(_o)
-  #         l_s = (t_s == d_s)
-  #         l_p = (p == d_p)
-  #         l_o = (t_o == d_o)
-  #         if l_s and l_p and l_o:
-  #           working_graph.add((s, p, o))
-  #         elif l_s and l_p:
-  #           working_graph.add((t_s, p, d_o))
-  #         elif l_o and l_p:
-  #           working_graph.add((d_s, p, t_o))
-  #         else:
-  #           working_graph.add((s, p, o))
-  #   return working_graph
+  def debuggPrintGraph(self, from_graph, debug):
+    if debug:
+      print("debugging \n")
+      for s, p, o in from_graph.triples((None, None, None)):
+        print(str(s), MYTerms[p], str(o))
+
+  def updatePathsInClasses(self, c, instantiated, paths_in_classes):
+    c_original = getID(c)
+    nodes = paths_in_classes[c].split(DELIMITERS["path"])
+    new_nodes = []
+    for n in nodes:
+      if n in instantiated[c_original]:
+        new_nodes.append(instantiated[c_original][n])
+      else:
+        # print(">>>>>>>>>>>troubles", c, c_original, n)
+        new_nodes.append(n)
+    t = DELIMITERS["path"].join(new_nodes)
+    return t
 
   def makeDotGraph(self):
     graph_overall = Graph()
@@ -722,15 +635,31 @@ class Enumerator(int):
     return self
 
 
+class Stack(dict):
+  def __init__(self):
+    dict.__init__(self)
+
+  def push(self, key, item):
+    self[key] = item
+
+  def pop(self, key):
+    v = self[key]
+    return v
+
+  def reduce(self, keys):
+    delete_key = []
+    for k in self:
+      if k not in keys:
+        delete_key.append(k)
+    for k in delete_key:
+      del self[k]
+
+
 class BackEnd:
 
   def __init__(self, FrontEnd):
 
     global state
-    # global class_path
-    # global data_container_number
-    # global data_container
-    # global working_tree
 
     self.FrontEnd = FrontEnd
     self.changed = False
@@ -746,7 +675,7 @@ class BackEnd:
     self.data_container_number = 0
     self.class_path = []
 
-    self.path_at_transition = {}  # Note: path at the point of transition to another class. Key: class_ID
+    self.path_at_transition = Stack()  # Note: path at the point of transition to another class. Key: class_ID
 
     self.instanceEnumerator = Enumerator()
 
@@ -766,7 +695,6 @@ class BackEnd:
 
   def __loadOntology(self):
     global current_event_data
-    # global working_tree
 
     file_name = current_event_data["file_name"]
 
@@ -836,11 +764,8 @@ class BackEnd:
       elif dialog == "NO":
         pass
 
-
-
     if is_linked:
       # print("shifting event data :", current_event_data)
-      # self.previous_class = self.current_class
       self.current_class = subject
       self.__makeWorkingTree()
       self.__shiftClass()
@@ -853,54 +778,47 @@ class BackEnd:
     # now one needs to connect this branch to the working graph at the location below the current node
     # 1st find the below node
 
-
-
   def __gotInteger(self):
     global current_event_data
     global automaton_next_state
-    # global class_path
 
-    # subject, predicate, obj = current_event_data["triple"]
     value = current_event_data["integer"]
     path = current_event_data["path"]
 
-    paths_in_classes = self.path_at_transition
+    paths_in_classes = copy.copy(self.path_at_transition)  # Note: this was a hard one
     paths_in_classes[self.current_class] = path
     self.class_path, paths_in_classes = self.working_tree.instantiateAlongPath(paths_in_classes,
                                                                                self.class_path,
                                                                                )
-    # need to update path at transitions too
-    self.path_at_transition = {}
-    for c in self.class_path[:-1]:
-      self.path_at_transition[c] = paths_in_classes[c]
+    for key in paths_in_classes:
+      item = paths_in_classes[key]
+      self.path_at_transition.push(key, item)
+    self.path_at_transition.reduce(self.class_path[:-1])
 
     # make global path
-    global_path_nodes = []
-    global_node_IDs = []
-    nodes = self.__extractNodesFromPaths(paths_in_classes)
-    for n in nodes:
-      global_path_nodes.append(getID(n))
-      global_node_IDs.append(getIDNo(n))
-
-    global_path = DELIMITERS["path"].join(global_path_nodes)
-    global_IDs = DELIMITERS["instantiated"].join(global_node_IDs)
-
-    # print("debugging -- global path", global_path)
+    global_path, global_IDs = self.__extractGlobalNodesAndIDsFromPaths(paths_in_classes)
 
     self.working_tree.data.addInteger(global_path, global_IDs, value)
 
-    # self.working_tree.printMe("after instantiate")
     current_event_data = {"class": self.class_path[-1]}
     self.__shiftToSelectedClass()
 
-  def __extractNodesFromPaths(self, paths_in_classes):
+  def __extractGlobalNodesAndIDsFromPaths(self, paths_in_classes):
     """
-    extracts a dictionary of nodes one entry for each active class
+    extracts the global path and the associated IDs
     """
-    nodes = {}
+    nodes = []
     for c in self.class_path:
-      nodes[c] = paths_in_classes[c].rstrip(DELIMITERS["path"]).split(DELIMITERS["path"])  # drop last delimiter
-    return nodes
+      nodes.extend(paths_in_classes[c].rstrip(DELIMITERS["path"]).split(DELIMITERS["path"]))  # drop last delimiter
+
+    global_path_nodes = []
+    global_node_IDs = []
+    for n in nodes:
+      global_path_nodes.append(getID(n))
+      global_node_IDs.append(getIDNo(n))
+    global_path = DELIMITERS["path"].join(global_path_nodes)
+    global_IDs = DELIMITERS["instantiated"].join(global_node_IDs)
+    return global_path, global_IDs
 
   def __clearInteger(self):
     self.FrontEnd.controls("selectors", "integer", "populate", {"value": 0})
@@ -928,16 +846,14 @@ class BackEnd:
     self.__shiftClass()
 
   def __shiftClass(self):
-    # global class_path
     global current_event_data
 
     if "path" in current_event_data:
-      transition_path = "/".join(current_event_data["path"].split(DELIMITERS["path"])[:-1]) + DELIMITERS["path"]
-      previous_class = self.class_path[-1:][0]
-      self.path_at_transition[previous_class] = transition_path
-      # print("debugging -- transition -- ", previous_class, self.current_class, self.path_at_transition)
-    # else:
-    #   print("debugging -- no current path defined")
+      t = current_event_data["path"].split(DELIMITERS["path"])[:-1]
+      if len(t) > 0:
+        transition_path = "/".join(t) + DELIMITERS["path"]
+        previous_class = self.class_path[-1:][0]
+        self.path_at_transition.push(previous_class, transition_path)
 
     class_ID = self.current_class
     if class_ID not in self.class_path:
@@ -947,29 +863,26 @@ class BackEnd:
       self.class_path = self.class_path[:i + 1]
     pass
 
+    self.path_at_transition.reduce(self.class_path[:-1])
+
     self.FrontEnd.controls("selectors", "classTree", "populate", self.quads, self.current_class)
     self.FrontEnd.controls("selectors", "classList", "populate", self.class_path)
 
-    # print(">>>", current_event_data, automaton_next_state)
 
   def __makeFirstDataRoot(self, container_root_class, data_ID):
-    # global data_container_number
 
     root_class = container_root_class + DELIMITERS["instantiated"] + str(data_ID)
     return root_class
 
   def __makeWorkingTree(self):
-    # global data_container_number
     global data_container
-    # global working_tree
     global is_container_class
-    # print("debugging make tree")
 
     if (self.data_container_number == 0) or is_container_class:
       self.working_tree.makeAllListsForAllGraphs()
     self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
                                                   self.current_class)
-    print("debugging -- the quads", self.quads)
+    # print("debugging -- the quads", self.quads)
 
   def __gotNumber(self):
     global current_event_data
@@ -983,7 +896,6 @@ class BackEnd:
     global current_event_data
     global automaton_next_state
     global action
-    # global data_container_number
     global data_container
 
     show_automaton = False
@@ -1047,18 +959,6 @@ class BackEnd:
                                                        "actions"   : [self.__gotNumber,
                                                                       self.__gotInteger],
                                                        "gui_state" : "show_tree"},
-                                       # "has_no_ID" : {"next_state": "wait_for_ID",
-                                       #                "actions"   : [None],
-                                       #                "gui_state" : "has_no_ID"},
-                                       # "has_ID"    : {"next_state": "wait_for_ID",
-                                       #                "actions"   : [None],
-                                       #                "gui_state" : "has_ID"},
-                                       # "got_no_ID" : {"next_state": "show_tree",
-                                       #                "actions"   : [None],
-                                       #                "gui_state" : "show_tree"},
-                                       # "add_new_ID": {"next_state": "show_tree",
-                                       #                "actions"   : [self.__updateDataWithNewID],
-                                       #                "gui_state" : "show_tree"},
                                        },
             "class_list_clicked"    : {"selected": {"next_state": "show_tree",
                                                     "actions"   : [self.__shiftToSelectedClass],
@@ -1094,11 +994,6 @@ class BackEnd:
                             ],
               "selectors": ["classList",
                             "classTree"]}
-    # elif state == "input_identifier":
-    #   show = {"buttons": ["exit",
-    #                       ],
-    #           "groups" : [
-    #                   "PrimitiveString"], }
     elif state == "show_tree":
       show = {"buttons"  : ["save",
                             "exit",
@@ -1107,24 +1002,6 @@ class BackEnd:
               "selectors": ["classList",
                             "classTree"],
               }
-    # elif state == "has_ID":  # ???
-    #   show = {"buttons"  : ["save",
-    #                         "exit",
-    #                         "visualise",
-    #                         "instantiate",
-    #                         ],
-    #           "selectors": ["classList",
-    #                         "classTree"],
-    #           }
-    # elif state == "has_no_ID":  # ???
-    #   show = {"buttons"  : ["save",
-    #                         "exit",
-    #                         "visualise",
-    #                         "instantiate",
-    #                         ],
-    #           "selectors": ["classList",
-    #                         "classTree"],
-    #           }
     elif state == "instantiate_integer":
       show = {"buttons"  : ["instantiate",
                             "acceptInteger",
@@ -1141,13 +1018,6 @@ class BackEnd:
                             "classTree",
                             "string"],
               "groups"   : ["string"]}
-    # elif state == "instantiate_item":
-    #   show = {"buttons"  : ["instantiate",
-    #                         ],
-    #           "selectors": ["classList",
-    #                         "classTree",
-    #                         "integer"],
-    #           "groups"   : "integer"}
     elif state == "selected_subclass":
       show = {"buttons" : ["save",
                            "exit", ],
@@ -1175,13 +1045,6 @@ class BackEnd:
                       "PrimitiveString",
                       ]
               }
-    # elif state == "selected_value":
-    #   show = {"buttons": ["save",
-    #                       "exit", ],
-    #           "groups" : [
-    #                   "ValueElucidation",
-    #                   ]
-    #           }
     else:
       show = []
       print("ooops -- no such gui state", state)
@@ -1201,7 +1064,9 @@ class BackEnd:
 
 
 if __name__ == "__main__":
-  quads = [('c_number', 'c', 'value', 'a'), ('integer', 'c_number', 'integer', 'a'), ('c', 'a', 'is_a_subclass_of', 'a'), ('b', 'a', 'is_a_subclass_of', 'a'), ('d', 'b', 'is_a_subclass_of', 'a'), ('A', 'd', 'link_to_class', 'a')]
+  quads = [('c_number', 'c', 'value', 'a'), ('integer', 'c_number', 'integer', 'a'),
+           ('c', 'a', 'is_a_subclass_of', 'a'), ('b', 'a', 'is_a_subclass_of', 'a'),
+           ('d', 'b', 'is_a_subclass_of', 'a'), ('A', 'd', 'link_to_class', 'a')]
   extracts = []
-  extractSubTree(quads,'b', extracts)
+  extractSubTree(quads, 'b', extracts)
   print(extracts)

@@ -795,8 +795,11 @@ class BackEnd:
 
       debuggPrintGraph(w_graph, True)
 
-      for c in self.working_tree.container_graph.RDFConjunctiveGraph:
-        if c not in self.working_tree.RDFConjunctiveGraph:
+      # for c in self.working_tree.container_graph.RDFConjunctiveGraph:
+      for i in range(self.class_path.index(self.current_class), len(self.class_path)):
+        c = self.class_path[i]
+        if (c not in self.working_tree.RDFConjunctiveGraph) and (c != getID(self.current_class)):
+          print("debugging -- adding graph:", c)
           G_original = self.working_tree.container_graph.RDFConjunctiveGraph[c]
           self.working_tree.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
       pass

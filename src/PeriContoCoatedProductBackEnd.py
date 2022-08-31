@@ -8,7 +8,6 @@ an instantiated "node" is <<name>>:<<ID>>
 
 """
 
-
 import copy
 
 DELIMITERS = {"instantiated": ":",
@@ -28,7 +27,7 @@ from PeriConto import getData
 from PeriConto import makeRDFCompatible
 from PeriConto import DIRECTION
 
-COLOUR ={
+COLOUR = {
         "is_a_subclass_of": "blue",
         "link_to_class"   : "red",
         "value"           : "black",
@@ -777,18 +776,18 @@ class BackEnd:
 
   def __addBranch(self):
     sub_graph = self.working_tree.container_graph.extractSubgraph(getID(self.current_node),
-                                                              getID(self.current_class))
+                                                                  getID(self.current_class))
 
     debuggPrintGraph(sub_graph, True)
 
-    #TODO: a problem with adding to the root node
+    # TODO: a problem with adding to the root node
 
     w_graph = self.working_tree.RDFConjunctiveGraph[self.current_class]
     for s, p, o in w_graph.triples(
             (Literal(self.current_node), RDFSTerms["is_a_subclass_of"], None)):
       print("debugging -- obj:", str(o))
       to_connect = getID(self.current_node)
-      w_graph.add((Literal(to_connect),p,Literal(str(o))))
+      w_graph.add((Literal(to_connect), p, Literal(str(o))))
 
       w_graph = w_graph + sub_graph
       self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph

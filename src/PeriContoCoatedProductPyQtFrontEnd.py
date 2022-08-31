@@ -5,8 +5,6 @@ this is the front end
 import os
 from collections import OrderedDict
 
-from resources.pop_up_message_box import makeMessageBox
-
 from PyQt5 import QtGui
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QApplication
@@ -18,6 +16,7 @@ from PeriContoCoatedProductBackEnd import BackEnd
 from PeriContoCoatedProductBackEnd import DELIMITERS
 # from graphHAP import Graph
 from PeriContoCoatedProduct_gui import Ui_MainWindow
+from resources.pop_up_message_box import makeMessageBox
 from resources.resources_icons import roundButton
 from resources.ui_string_dialog_impl import UI_String
 
@@ -273,7 +272,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
     return makeMessageBox(message=message, buttons=buttons)
 
-
   def stringDialog(self, state, Event, prompt, placeholder_text, limiting_list, on_fail):
 
     dialog = UI_String(prompt, placeholder_text, limiting_list)
@@ -378,8 +376,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def on_pushAcceptString_pressed(self):
     string = self.ui.editString.text()
-    message = {"triple" : self.triple,
-               "path"   : self.path,
+    message = {"triple": self.triple,
+               "path"  : self.path,
                "string": string}
     self.backEnd.processEvent("wait_for_ID", "got_string", message)
     pass

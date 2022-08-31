@@ -261,16 +261,33 @@ class SuperGraph():
     rdf_predicate = RDFSTerms[predicate_internal]
     self.RDFConjunctiveGraph[graph_ID].add((rdf_subject, rdf_predicate, rdf_object))
 
-  def extractSubgraph(self, root, graph_ID):
-    """
-    extract an RDF-subgraph from an RDF-Graph given a root as a string, a label
-    it is done via the quads generation that ignore the directionality
-    """
-    quads = convertRDFintoInternalMultiGraph(self.RDFConjunctiveGraph[graph_ID], graph_ID)
-    extracts = []
-    extractSubTree(quads, root, extracts)  # as quads
-    graph = convertQuadsGraphIntoRDFGraph(extracts)
-    return graph
+  # def extractSubgraph(self, root, graph_ID):
+  #   """
+  #   extract an RDF-subgraph from an RDF-Graph given a root as a string, a label
+  #   it is done via the quads generation that ignore the directionality
+  #   """
+  #   quads = convertRDFintoInternalMultiGraph(self.RDFConjunctiveGraph[graph_ID], graph_ID)
+  #   extracts = []
+  #   extractSubTree(quads, root, extracts)  # as quads
+  #   graph = convertQuadsGraphIntoRDFGraph(extracts)
+  #   linked_classes = []
+  #   for s,p,o in graph.triples((None, RDFSTerms["link_to_class"],None)):
+  #     c_next = getID(s)
+  #     linked_classes.append(getID(s))
+  #   if c_next:
+  #     self.getLinkedGraphs(c_next, linked_classes, stack=[])
+  #   return graph, linked_classes
+  #
+  # def getLinkedGraphs(self, c_current, linked_classes, stack=[]):
+  #   graph = self.RDFConjunctiveGraph[c_current]
+  #   stack.append(c_current)
+  #   for s,p,o in graph.triples((None, RDFSTerms["link_to_class"],None)):
+  #     c_next = getID(s)
+  #     if c_next not in stack:
+  #       linked_classes.append(c_next)
+  #       stack.append(c_next)
+  #       self.getLinkedGraphs(c_next, linked_classes, stack= stack)
+
 
   def printMe(self, text):
 
@@ -653,6 +670,33 @@ class WorkingTree(SuperGraph):
       leg.render("legend", directory=ONTOLOGY_DIRECTORY, view=True)
     return dot
 
+  def extractSubgraph(self, root, graph_ID):
+    """
+    extract an RDF-subgraph from an RDF-Graph given a root as a string, a label
+    it is done via the quads generation that ignore the directionality
+    """
+    quads = convertRDFintoInternalMultiGraph(self.container_graph.RDFConjunctiveGraph[graph_ID], graph_ID)
+    extracts = []
+    extractSubTree(quads, root, extracts)  # as quads
+    graph = convertQuadsGraphIntoRDFGraph(extracts)
+    linked_classes = []
+    c_next = None
+    for s,p,o in graph.triples((None, RDFSTerms["link_to_class"],None)):
+      c_next = getID(str(s))
+    if c_next:
+      linked_classes.append(c_next)
+      self.getLinkedGraphs(c_next, linked_classes, stack=[])
+    return graph, linked_classes
+
+  def getLinkedGraphs(self, c_current, linked_classes, stack=[]):
+    graph = self.container_graph.RDFConjunctiveGraph[c_current]
+    stack.append(c_current)
+    for s,p,o in graph.triples((None, RDFSTerms["link_to_class"],None)):
+      c_next = getID(str(s))
+      if c_next not in stack:
+        linked_classes.append(c_next)
+        stack.append(c_next)
+        self.getLinkedGraphs(c_next, linked_classes, stack= stack)
 
 def isInstantiated(ID):
   id = str(ID)
@@ -826,32 +870,40 @@ class BackEnd:
       self.__shiftClass()
 
   def __addBranch(self):
-    sub_graph = self.working_tree.container_graph.extractSubgraph(getID(self.current_node),
+    sub_graph, linked_classes = self.working_tree.extractSubgraph(getID(self.current_node),
                                                                   getID(self.current_class))
 
     debuggPrintGraph(sub_graph, True)
 
-    # TODO: a problem with adding to the root node
+    # TODO: fix link below
+    print("debugging -- linked_classes", linked_classes)
 
-    w_graph = self.working_tree.RDFConjunctiveGraph[self.current_class]
-    for s, p, o in w_graph.triples(
-            (Literal(self.current_node), RDFSTerms["is_a_subclass_of"], None)):
-      print("debugging -- obj:", str(o))
-      to_connect = getID(self.current_node)
-      w_graph.add((Literal(to_connect), p, Literal(str(o))))
+    w_graph= self.working_tree.RDFConjunctiveGraph[self.current_class] + sub_graph
+    self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph
 
-      w_graph = w_graph + sub_graph
-      self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph
+    for c in linked_classes:
+      self.working_tree.RDFConjunctiveGraph[c] = copy.copy(self.working_tree.container_graph.RDFConjunctiveGraph[c])
 
-      debuggPrintGraph(w_graph, True)
 
-      for i in range(self.class_path.index(self.current_class), len(self.class_path)):
-        c = self.class_path[i]
-        if (c not in self.working_tree.RDFConjunctiveGraph) and (c != getID(self.current_class)):
-          print("debugging -- adding graph:", c)
-          G_original = self.working_tree.container_graph.RDFConjunctiveGraph[c]
-          self.working_tree.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
-      pass
+
+    # for s, p, o in w_graph.triples(
+    #         (Literal(self.current_node), RDFSTerms["is_a_subclass_of"], None)):
+    #   print("debugging -- obj:", str(o))
+    #   to_connect = getID(self.current_node)   # TODO: this here
+    #   w_graph.add((Literal(to_connect), p, Literal(str(o))))
+    #
+    #   w_graph = w_graph + sub_graph
+    #   self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph
+    #
+    #   debuggPrintGraph(w_graph, True)
+    #
+    #   for i in range(self.class_path.index(self.current_class), len(self.class_path)):
+    #     c = self.class_path[i]
+    #     if (c not in self.working_tree.RDFConjunctiveGraph) and (c != getID(self.current_class)):
+    #       print("debugging -- adding graph:", c)
+    #       G_original = self.working_tree.container_graph.RDFConjunctiveGraph[c]
+    #       self.working_tree.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
+    #   pass
 
     self.__makeWorkingTree()
     self.__shiftClass()

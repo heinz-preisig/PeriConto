@@ -1,0 +1,59 @@
+graph {
+	d
+	b
+	d -- b [color=blue]
+	A
+	d
+	A -- d [color=red]
+	b
+	a
+	b -- a [color=blue]
+	string [color=green shape=rectangle]
+	string
+	cc_text -- string [color=cyan]
+	c
+	c_number
+	c -- c_number [color=black]
+	aa
+	B
+	aa -- B [color=red]
+	C
+	C_number
+	C -- C_number [color=black]
+	integer [color=green shape=rectangle]
+	integer
+	C_number -- integer [color=darkorange]
+	cc
+	aa
+	cc -- aa [color=blue]
+	c
+	a
+	c -- a [color=blue]
+	integer [color=green shape=rectangle]
+	integer
+	c_number -- integer [color=darkorange]
+	B
+	A
+	B -- A [color=blue]
+	integer [color=green shape=rectangle]
+	integer
+	bb_number -- integer [color=darkorange]
+	cc
+	cc_text
+	cc -- cc_text [color=black]
+	bb
+	bb_number
+	bb -- bb_number [color=black]
+	C
+	A
+	C -- A [color=blue]
+	bb
+	aa
+	bb -- aa [color=blue]
+	{
+		node [bb=rectangle rankdir=LR shape=none]
+		s
+		o
+		s -- o [label="sub classing" color=blue]
+	}
+}

@@ -9,6 +9,7 @@ an instantiated "node" is <<name>>:<<ID>>
 """
 
 import copy
+import os.path
 
 DELIMITERS = {"instantiated": ":",
               "path"        : "/"}
@@ -16,7 +17,8 @@ DELIMITERS = {"instantiated": ":",
 from rdflib import Graph
 from rdflib import Literal
 
-from graphviz import Digraph
+# from graphviz import Digraph
+import graphviz
 
 from PeriConto import MYTerms
 from PeriConto import ONTOLOGY_DIRECTORY
@@ -27,7 +29,7 @@ from PeriConto import getData
 from PeriConto import makeRDFCompatible
 from PeriConto import DIRECTION
 
-COLOUR = {
+EDGE_COLOUR = {
         "is_a_subclass_of": "blue",
         "link_to_class"   : "red",
         "value"           : "black",
@@ -48,7 +50,7 @@ def plot(graph, class_names=[]):
   """
   Create Digraph plot
   """
-  dot = Digraph()
+  dot = graphviz.Digraph()
   # Add nodes 1 and 2
   suffix = 0
   for s, p, o in graph.triples((None, None, None)):
@@ -83,13 +85,60 @@ def plot(graph, class_names=[]):
     if DIRECTION[my_p] == 1:
       dot.edge(ss_, so_,
                # label=my_p,
-               color=COLOUR[my_p])
+               color=EDGE_COLOUR[my_p])
     else:
       dot.edge(ss_, so_,
                # label=my_p,
-               color=COLOUR[my_p])
+               color=EDGE_COLOUR[my_p])
+
+  return dot
+
+def LegendPlot():
+
+  """
+  Create Digraph plot
+  """
+  dot = graphviz.Digraph()
+
+  atr = {"label"   : "Legend",
+         "style"   : "solid",
+         "rankdir" : "TB",
+         "bb"      : "rectangle",
+         # "ranksep" : "0.05",
+         # "nodesep" : "0.01",
+         "labelloc": "b",
+         # "len"     : "0",
+         "shape"   : "none",
+         }
+
+  l = graphviz.Digraph(node_attr=atr, name="Legend")  # {"style": "filled", "shape": 'none', "rankdir":"LR"})
+
+  # l.node("legend", label="Legend", shape="box")
+  for i in EDGE_COLOUR:
+    s = i + " "
+    l.node(s, label=i)
+    l.node("o", label="o")
+    l.edge(s, "o", color=EDGE_COLOUR[i])
+
+  # l.edge("legend","o")
+  dot.subgraph(l)
 
   # Visualize the graph
+  # dot.node('tab', shape="none", label='''<<TABLE>
+  #  <TR>
+  #    <TD>"boarder="0" left</TD>
+  #    <TD>right</TD>
+  #  </TR>
+  # </TABLE>>''')
+  #
+
+  # l = graphviz.Digraph( node_attr=atr)
+  #
+  # l.node("class", label="Class")
+  # l.node("abstract", label = "Abstract")
+  # l.node("interface", label = "Interface")
+  # dot.subgraph(l)
+
   return dot
 
 
@@ -594,12 +643,14 @@ class WorkingTree(SuperGraph):
     for cl in self.RDFConjunctiveGraph:
       for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
         s, p, o = t
-        # print("debugging -- graph adding", str(s), MYTerms[p], str(o))
         graph_overall.add(t)
     dot = plot(graph_overall, self.txt_class_names)
-    # print("debugging -- dot")
     graph_name = self.txt_root_class
     dot.render(graph_name, directory=ONTOLOGY_DIRECTORY, view=True)
+    if not os.path.exists(os.path.join(ONTOLOGY_DIRECTORY, "legend.pdf")):
+      # TODO: add button for legend
+      leg = LegendPlot()
+      leg.render("legend", directory=ONTOLOGY_DIRECTORY, view=True)
     return dot
 
 
@@ -794,11 +845,10 @@ class BackEnd:
 
       debuggPrintGraph(w_graph, True)
 
-      # for c in self.working_tree.container_graph.RDFConjunctiveGraph:
       for i in range(self.class_path.index(self.current_class), len(self.class_path)):
         c = self.class_path[i]
         if (c not in self.working_tree.RDFConjunctiveGraph) and (c != getID(self.current_class)):
-          # print("debugging -- adding graph:", c)
+          print("debugging -- adding graph:", c)
           G_original = self.working_tree.container_graph.RDFConjunctiveGraph[c]
           self.working_tree.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
       pass

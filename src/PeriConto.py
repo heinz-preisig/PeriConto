@@ -64,6 +64,16 @@ COLOURS = {
         "string"          : QtGui.QColor(255, 200, 200, 255),
         }
 
+
+EDGE_COLOUR = {
+        "is_a_subclass_of": "blue",
+        "link_to_class"   : "red",
+        "value"           : "black",
+        "comment"         : "green",
+        "integer"         : "darkorange",
+        "string"          : "cyan",
+        }
+
 QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
             "link_to_class"   : QtGui.QBrush(COLOURS["link_to_class"]),
             "value"           : QtGui.QBrush(COLOURS["value"]),
@@ -115,10 +125,23 @@ def plot(graph, class_names=[]):
       dot.node(so_)
 
     my_p = MYTerms[p]
+    # if DIRECTION[my_p] == 1:
+    #   dot.edge(ss_, so_, label=my_p, color="blue")
+    # else:
+    #   dot.edge(ss_, so_, label=my_p, color="green")
+
     if DIRECTION[my_p] == 1:
-      dot.edge(ss_, so_, label=my_p, color="blue")
+      dot.edge(ss_, so_,
+               # label=my_p,
+               color=EDGE_COLOUR[my_p])
     else:
-      dot.edge(ss_, so_, label=my_p, color="green")
+      dot.edge(ss_, so_,
+               # label=my_p,
+               color=EDGE_COLOUR[my_p])
+
+  dot.node('l')
+  dot.node('r')
+  dot.edge('l','r', color=EDGE_COLOUR[my_p])
 
   # Visualize the graph
   return dot

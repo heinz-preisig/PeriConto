@@ -1,62 +1,53 @@
 digraph {
-	"b-0"
-	"a-0"
-	"b-0" -> "a-0" [color=blue]
-	"C-1"
-	"C_number-1"
-	"C-1" -> "C_number-1" [color=black]
-	"A-0"
-	"d-0"
-	"A-0" -> "d-0" [color=red]
-	B
-	"A-0"
-	B -> "A-0" [color=blue]
-	cc
-	cc_text
-	cc -> cc_text [color=black]
-	bb
-	bb_number
-	bb -> bb_number [color=black]
-	bb
-	aa
-	bb -> aa [color=blue]
-	"c_number-0"
-	"integer-0_0"
-	"c_number-0" -> "integer-0_0" [color=darkorange]
-	"d-0"
-	"b-0"
-	"d-0" -> "b-0" [color=blue]
-	"c-0"
-	"c_number-0"
-	"c-0" -> "c_number-0" [color=black]
-	"c-0"
-	"a-0"
-	"c-0" -> "a-0" [color=blue]
-	"C-0"
-	"C_number-0"
-	"C-0" -> "C_number-0" [color=black]
-	"C-1"
-	"A-0"
-	"C-1" -> "A-0" [color=blue]
 	aa
 	B
 	aa -> B [color=red]
-	"C_number-0"
-	"integer-1_1"
-	"C_number-0" -> "integer-1_1" [color=darkorange]
-	"C_number-1"
-	"integer-2_2"
-	"C_number-1" -> "integer-2_2" [color=darkorange]
-	integer [color=green shape=rectangle]
-	integer
-	bb_number -> integer [color=darkorange]
-	"C-0"
-	"A-0"
-	"C-0" -> "A-0" [color=blue]
+	d
+	b
+	d -> b [color=blue]
+	c
+	a
+	c -> a [color=blue]
 	cc
 	aa
 	cc -> aa [color=blue]
+	bb
+	bb_number
+	bb -> bb_number [color=black]
+	A
+	d
+	A -> d [color=red]
+	B
+	A
+	B -> A [color=blue]
+	C
+	A
+	C -> A [color=blue]
+	b
+	a
+	b -> a [color=blue]
+	integer [color=green shape=rectangle]
+	integer
+	bb_number -> integer [color=darkorange]
+	bb
+	aa
+	bb -> aa [color=blue]
+	integer [color=green shape=rectangle]
+	integer
+	c_number -> integer [color=darkorange]
+	cc
+	cc_text
+	cc -> cc_text [color=black]
+	integer [color=green shape=rectangle]
+	integer
+	C_number -> integer [color=darkorange]
+	c
+	c_number
+	c -> c_number [color=black]
 	string [color=green shape=rectangle]
 	string
 	cc_text -> string [color=cyan]
+	C
+	C_number
+	C -> C_number [color=black]
 }

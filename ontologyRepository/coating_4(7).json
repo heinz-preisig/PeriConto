@@ -3,29 +3,44 @@
   "graphs": {
     "coatedProduct": [
       [
-        "preservative",
+        "defoamerAgent",
         "is_a_subclass_of",
         "additive"
-      ],
-      [
-        "dye",
-        "is_a_subclass_of",
-        "additive"
-      ],
-      [
-        "pigment",
-        "is_a_subclass_of",
-        "coatingLayer"
       ],
       [
         "material",
         "link_to_class",
-        "catalyst"
+        "extender"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "binder"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "defoamerAgent"
+      ],
+      [
+        "rheologyAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "wettingAgent"
       ],
       [
         "wettingAgent",
         "is_a_subclass_of",
         "additive"
+      ],
+      [
+        "extender",
+        "is_a_subclass_of",
+        "coatingLayer"
       ],
       [
         "inhibitorPigment",
@@ -38,24 +53,9 @@
         "dye"
       ],
       [
-        "material",
-        "link_to_class",
-        "filler"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "defoamerAgent"
-      ],
-      [
-        "colourPigment",
+        "filler",
         "is_a_subclass_of",
         "pigment"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "extender"
       ],
       [
         "material",
@@ -63,27 +63,12 @@
         "preTreatedSurface"
       ],
       [
-        "binder",
-        "is_a_subclass_of",
-        "coatingLayer"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "substrate"
-      ],
-      [
-        "surfaceActiveAgent",
+        "lightStabiliser",
         "is_a_subclass_of",
         "additive"
       ],
       [
-        "catalyst",
-        "is_a_subclass_of",
-        "additive"
-      ],
-      [
-        "defoamerAgent",
+        "dryingAgent",
         "is_a_subclass_of",
         "additive"
       ],
@@ -93,9 +78,44 @@
         "coatedProduct"
       ],
       [
-        "lightStabiliser",
+        "pigment",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "preTreatedSurface",
+        "is_a_subclass_of",
+        "layers"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "preservative"
+      ],
+      [
+        "surfaceActiveAgent",
         "is_a_subclass_of",
         "additive"
+      ],
+      [
+        "preservative",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "lightStabiliser"
+      ],
+      [
+        "coatingLayer",
+        "is_a_subclass_of",
+        "layers"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "substrate"
       ],
       [
         "material",
@@ -110,17 +130,12 @@
       [
         "material",
         "link_to_class",
-        "preservative"
+        "rheologyAgent"
       ],
       [
-        "rheologyAgent",
+        "catalyst",
         "is_a_subclass_of",
         "additive"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "wettingAgent"
       ],
       [
         "material",
@@ -128,34 +143,9 @@
         "dryingAgent"
       ],
       [
-        "material",
-        "link_to_class",
-        "inhibitorPigment"
-      ],
-      [
-        "dryingAgent",
+        "dye",
         "is_a_subclass_of",
         "additive"
-      ],
-      [
-        "preTreatedSurface",
-        "is_a_subclass_of",
-        "layers"
-      ],
-      [
-        "filler",
-        "is_a_subclass_of",
-        "pigment"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "binder"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "rheologyAgent"
       ],
       [
         "substrate",
@@ -163,39 +153,39 @@
         "coatedProduct"
       ],
       [
-        "extender",
+        "material",
+        "link_to_class",
+        "catalyst"
+      ],
+      [
+        "colourPigment",
+        "is_a_subclass_of",
+        "pigment"
+      ],
+      [
+        "binder",
         "is_a_subclass_of",
         "coatingLayer"
-      ],
-      [
-        "coatingLayer",
-        "is_a_subclass_of",
-        "layers"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "colourPigment"
-      ],
-      [
-        "material",
-        "link_to_class",
-        "lightStabiliser"
       ]
     ],
     "productionProcess": [
       [
-        "pickling",
+        "washing",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
       ],
       [
-        "reaction",
-        "link_to_class",
-        "polymerisationProcess"
+        "polymerisationProcess",
+        "is_a_subclass_of",
+        "productionProcess"
       ],
       [
-        "andozing",
+        "surfaceTreatmentProcess",
+        "is_a_subclass_of",
+        "productionProcess"
+      ],
+      [
+        "pickling",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
       ],
@@ -205,75 +195,85 @@
         "surfaceTreatmentProcess"
       ],
       [
-        "washing",
+        "andozing",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
       ],
       [
-        "surfaceTreatmentProcess",
-        "is_a_subclass_of",
-        "productionProcess"
+        "reaction",
+        "link_to_class",
+        "polymerisationProcess"
       ],
       [
         "etching",
         "is_a_subclass_of",
         "surfaceTreatmentProcess"
-      ],
-      [
-        "polymerisationProcess",
-        "is_a_subclass_of",
-        "productionProcess"
       ]
     ],
     "material": [
-      [
-        "processProduct",
-        "is_a_subclass_of",
-        "material"
-      ],
       [
         "chemicalComponent",
         "link_to_class",
         "offTheShelf"
       ],
       [
-        "productionProcess",
-        "link_to_class",
-        "processProduct"
+        "processProduct",
+        "is_a_subclass_of",
+        "material"
       ],
       [
         "offTheShelf",
         "is_a_subclass_of",
         "material"
+      ],
+      [
+        "productionProcess",
+        "link_to_class",
+        "processProduct"
       ]
     ],
     "chemicalComponent": [
-      [
-        "URL",
-        "string",
-        "string"
-      ],
       [
         "chemicalComponent",
         "value",
         "quantityMeasure"
       ],
       [
-        "chemicalComponent",
-        "value",
-        "URL"
+        "URL",
+        "string",
+        "string"
       ],
       [
         "quantityMeasure",
         "integer",
         "integer"
+      ],
+      [
+        "chemicalComponent",
+        "value",
+        "URL"
       ]
     ],
     "reaction": [
       [
-        "chemicalComponent",
-        "link_to_class",
-        "reactant"
+        "solvent",
+        "is_a_subclass_of",
+        "nonreactive"
+      ],
+      [
+        "biological",
+        "is_a_subclass_of",
+        "reaction"
+      ],
+      [
+        "nonreactive",
+        "is_a_subclass_of",
+        "chemical"
+      ],
+      [
+        "product",
+        "is_a_subclass_of",
+        "chemical"
       ],
       [
         "reactant",
@@ -284,26 +284,6 @@
         "chemical",
         "is_a_subclass_of",
         "reaction"
-      ],
-      [
-        "nonreactive",
-        "is_a_subclass_of",
-        "chemical"
-      ],
-      [
-        "solvent",
-        "is_a_subclass_of",
-        "nonreactive"
-      ],
-      [
-        "chemicalComponent",
-        "link_to_class",
-        "product"
-      ],
-      [
-        "product",
-        "is_a_subclass_of",
-        "chemical"
       ]
     ]
   },
@@ -345,11 +325,10 @@
     "reaction": null,
     "coatedProduct.material.productionProcess.reaction": null,
     "coatedProduct.material.productionProcess.reaction.chemical": null,
+    "coatedProduct.material.productionProcess.reaction.biological": null,
     "coatedProduct.filler": null,
     "coatedProduct.material.productionProcess.reaction.reactant": null,
     "coatedProduct.material.productionProcess.reaction.nonreactive": null,
-    "coatedProduct.material.productionProcess.reaction.solvent": null,
-    "coatedProduct.material.productionProcess.reaction.chemicalComponent": "",
-    "coatedProduct.inhibitorPigment": ""
+    "coatedProduct.material.productionProcess.reaction.solvent": null
   }
 }

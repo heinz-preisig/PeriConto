@@ -1,71 +1,62 @@
 digraph {
-	"c-0"
-	"a-0"
-	"c-0" -> "a-0" [color=blue]
-	cc
-	"aa-0"
-	cc -> "aa-0" [color=blue]
-	"C-0"
-	"C_number-0"
-	"C-0" -> "C_number-0" [color=black]
 	"b-0"
 	"a-0"
 	"b-0" -> "a-0" [color=blue]
-	cc
-	cc_text
-	cc -> cc_text [color=black]
-	"B-0"
-	"A-0"
-	"B-0" -> "A-0" [color=blue]
-	"c_number-0"
-	"integer-0_0"
-	"c_number-0" -> "integer-0_0" [color=darkorange]
-	"C_number-0"
-	"integer-3_1"
-	"C_number-0" -> "integer-3_1" [color=darkorange]
-	"d-0"
-	"b-0"
-	"d-0" -> "b-0" [color=blue]
-	"c-1"
-	"a-0"
-	"c-1" -> "a-0" [color=blue]
-	"bb-1"
-	"aa-0"
-	"bb-1" -> "aa-0" [color=blue]
-	"bb_number-1"
-	"integer-2_2"
-	"bb_number-1" -> "integer-2_2" [color=darkorange]
-	"bb-0"
-	"aa-0"
-	"bb-0" -> "aa-0" [color=blue]
-	string [color=green shape=rectangle]
-	string
-	cc_text -> string [color=cyan]
-	"c-1"
-	"c_number-1"
-	"c-1" -> "c_number-1" [color=black]
-	"bb_number-0"
-	"integer-1_3"
-	"bb_number-0" -> "integer-1_3" [color=darkorange]
-	"c-0"
-	"c_number-0"
-	"c-0" -> "c_number-0" [color=black]
+	"C-1"
+	"C_number-1"
+	"C-1" -> "C_number-1" [color=black]
 	"A-0"
 	"d-0"
 	"A-0" -> "d-0" [color=red]
-	"aa-0"
-	"B-0"
-	"aa-0" -> "B-0" [color=red]
-	"bb-1"
-	"bb_number-1"
-	"bb-1" -> "bb_number-1" [color=black]
-	"c_number-1"
-	"integer-4_4"
-	"c_number-1" -> "integer-4_4" [color=darkorange]
+	B
+	"A-0"
+	B -> "A-0" [color=blue]
+	cc
+	cc_text
+	cc -> cc_text [color=black]
+	bb
+	bb_number
+	bb -> bb_number [color=black]
+	bb
+	aa
+	bb -> aa [color=blue]
+	"c_number-0"
+	"integer-0_0"
+	"c_number-0" -> "integer-0_0" [color=darkorange]
+	"d-0"
+	"b-0"
+	"d-0" -> "b-0" [color=blue]
+	"c-0"
+	"c_number-0"
+	"c-0" -> "c_number-0" [color=black]
+	"c-0"
+	"a-0"
+	"c-0" -> "a-0" [color=blue]
+	"C-0"
+	"C_number-0"
+	"C-0" -> "C_number-0" [color=black]
+	"C-1"
+	"A-0"
+	"C-1" -> "A-0" [color=blue]
+	aa
+	B
+	aa -> B [color=red]
+	"C_number-0"
+	"integer-1_1"
+	"C_number-0" -> "integer-1_1" [color=darkorange]
+	"C_number-1"
+	"integer-2_2"
+	"C_number-1" -> "integer-2_2" [color=darkorange]
+	integer [color=green shape=rectangle]
+	integer
+	bb_number -> integer [color=darkorange]
 	"C-0"
 	"A-0"
 	"C-0" -> "A-0" [color=blue]
-	"bb-0"
-	"bb_number-0"
-	"bb-0" -> "bb_number-0" [color=black]
+	cc
+	aa
+	cc -> aa [color=blue]
+	string [color=green shape=rectangle]
+	string
+	cc_text -> string [color=cyan]
 }

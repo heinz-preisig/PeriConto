@@ -49,6 +49,7 @@ def copyRDFGraph(G_original):
 def plot(graph, class_names=[]):
   """
   Create Digraph plot
+  color names : https://graphviz.org/doc/info/colors.html
   """
   dot = graphviz.Digraph()
   # Add nodes 1 and 2
@@ -69,17 +70,25 @@ def plot(graph, class_names=[]):
       if isInstantiated(so):
         so_ += "_%s" % suffix
         suffix += 1
-    if ss in class_names:
-      dot.node(ss_, color='red', shape="rectangle")
-    elif so in PRIMITIVES:
-      dot.node(so_, color='green', shape="rectangle")
+    if getID(ss) in class_names:
+      dot.node(ss_, color='red', style = "filled", fillcolor="lightcoral", shape="none")
+    elif getID(so) in PRIMITIVES:
+      if isInstantiated(so):
+        dot.node(so_, color='green',  style='filled', fillcolor="yellow", shape="none")
+      else:
+        dot.node(so_, color='green',  style='filled', fillcolor="gray", shape="none")
     else:
       dot.node(ss_)
 
-    if so in class_names:
-      dot.node(so_, color='red', shape="rectangle")
+    if so == class_names[0]:
+      dot.node(so_, style="filled", fillcolor="red", shape="none")
     else:
       dot.node(so_)
+
+    # if so in class_names:
+    #   dot.node(so_, color='red', style = "filled", fillcolor="",  shape="rectangle")
+    # else:
+    #   dot.node(so_)
 
     my_p = MYTerms[p]
     if DIRECTION[my_p] == 1:
@@ -176,9 +185,9 @@ def extractSubTree(quads, root, extracts=[], stack=[]):
       extractSubTree(quads, s, extracts=extracts, stack=stack)
 
 
-def debuggPrintGraph(graph, debug):
+def debuggPrintGraph(graph, debug, text=""):
   if debug:
-    print("\ndebugging:")
+    print("\ndebugging: %s"%text)
     for s, p, o in graph.triples((None, None, None)):
       print(str(s), MYTerms[p], str(o))
 
@@ -260,34 +269,6 @@ class SuperGraph():
     rdf_object = makeRDFCompatible(object_internal)
     rdf_predicate = RDFSTerms[predicate_internal]
     self.RDFConjunctiveGraph[graph_ID].add((rdf_subject, rdf_predicate, rdf_object))
-
-  # def extractSubgraph(self, root, graph_ID):
-  #   """
-  #   extract an RDF-subgraph from an RDF-Graph given a root as a string, a label
-  #   it is done via the quads generation that ignore the directionality
-  #   """
-  #   quads = convertRDFintoInternalMultiGraph(self.RDFConjunctiveGraph[graph_ID], graph_ID)
-  #   extracts = []
-  #   extractSubTree(quads, root, extracts)  # as quads
-  #   graph = convertQuadsGraphIntoRDFGraph(extracts)
-  #   linked_classes = []
-  #   for s,p,o in graph.triples((None, RDFSTerms["link_to_class"],None)):
-  #     c_next = getID(s)
-  #     linked_classes.append(getID(s))
-  #   if c_next:
-  #     self.getLinkedGraphs(c_next, linked_classes, stack=[])
-  #   return graph, linked_classes
-  #
-  # def getLinkedGraphs(self, c_current, linked_classes, stack=[]):
-  #   graph = self.RDFConjunctiveGraph[c_current]
-  #   stack.append(c_current)
-  #   for s,p,o in graph.triples((None, RDFSTerms["link_to_class"],None)):
-  #     c_next = getID(s)
-  #     if c_next not in stack:
-  #       linked_classes.append(c_next)
-  #       stack.append(c_next)
-  #       self.getLinkedGraphs(c_next, linked_classes, stack= stack)
-
 
   def printMe(self, text):
 
@@ -464,6 +445,7 @@ class WorkingTree(SuperGraph):
 
     debug = False
 
+
     print("debugging -- class path and paths in classes", class_path, paths_in_classes)
 
     instantiated = {}
@@ -472,6 +454,8 @@ class WorkingTree(SuperGraph):
     c = class_path[-1]
     c_original = getID(c)
     from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
+
+    debuggPrintGraph(from_graph, debug, text="starting")
     # print("debugging -- >>>>>>>>>>>> ", class_path, c)
     nodes = paths_in_classes[c].split(DELIMITERS["path"])
 
@@ -517,8 +501,9 @@ class WorkingTree(SuperGraph):
           from_graph.add((Literal(n_i), p, o))
           # print("debugging - >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> stop 1")
           stop = True
+          debuggPrintGraph(from_graph, debug, text="stop 1")
           break
-        else:
+        else: # todo: here is the problem
           o_original = getID(str(o))
           o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
           o_i = makeID(o_original, o_enum)
@@ -526,7 +511,7 @@ class WorkingTree(SuperGraph):
           from_graph.remove((s, p, o))
           from_graph.add((Literal(n_i), p, Literal(o_i)))
 
-    debuggPrintGraph(from_graph, debug)
+    # debuggPrintGraph(from_graph, debug, text="completed node list")
 
     for n in instantiated[c_original]:
       n_i = instantiated[c_original][n]
@@ -534,7 +519,7 @@ class WorkingTree(SuperGraph):
         from_graph.remove((s, p, o))
         from_graph.add((s, p, Literal(n_i)))
 
-    debuggPrintGraph(from_graph, debug)
+    # debuggPrintGraph(from_graph, debug)
 
     if c in instantiated[c_original]:
       c_store = instantiated[c_original][c]
@@ -561,28 +546,30 @@ class WorkingTree(SuperGraph):
 
     ### end of the first class, the class where the instantiation took place, being modified
 
-    c_previous = c_store  # getID(c_store)
-
     for c in reversed(class_path[:-1]):
       linked_node = nodes[0]  # this is the link to the previous class
+
       # linked_node_i = instantiated[c_original][linked_node]
       c_previous_original = c_original
 
       c_original = getID(c)
       # print("debugging -- >>>>>>>>>>>> ", class_path, c)
       nodes = paths_in_classes[c].split(DELIMITERS["path"])
+      linked_to_node = nodes[-2]
       from_graph = copy.deepcopy(self.RDFConjunctiveGraph[c])
 
-      debuggPrintGraph(from_graph, debug)
+      debuggPrintGraph(from_graph, debug, text= "before handling the links")
 
       instantiated[c_original] = {}  # OrderedDict()  # here it is set
-      for s, p, o in from_graph.triples((Literal(linked_node), RDFSTerms["link_to_class"], None)):
+      for s, p, o in from_graph.triples((Literal(linked_node), RDFSTerms["link_to_class"], Literal(linked_to_node))):
         from_graph.remove((s, p, o))
         o_enum = self.container_graph.incrementNodeEnumerator(c_original, str(o))
         o_i = makeID(str(o), o_enum)
         instantiated[c_original][str(o)] = o_i
         s_i = instantiated[c_previous_original][str(s)]
         from_graph.add((Literal(s_i), p, Literal(o_i)))
+
+      debuggPrintGraph(from_graph, debug, text="after handling the links")
 
       node_list = reversed(nodes[0:-1])
       for n in node_list:
@@ -607,7 +594,7 @@ class WorkingTree(SuperGraph):
             from_graph.remove((s, p, o))
             from_graph.add((Literal(n_i), p, Literal(o_i)))
 
-      debuggPrintGraph(from_graph, debug)
+      # debuggPrintGraph(from_graph, debug)
 
       for n in instantiated[c_original]:
         n_i = instantiated[c_original][n]
@@ -615,7 +602,7 @@ class WorkingTree(SuperGraph):
           from_graph.remove((s, p, o))
           from_graph.add((s, p, Literal(n_i)))
 
-      debuggPrintGraph(from_graph, debug)
+      debuggPrintGraph(from_graph, debug, text="putting things back")
 
       c_store = c
       if c in instantiated:
@@ -661,7 +648,8 @@ class WorkingTree(SuperGraph):
       for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
         s, p, o = t
         graph_overall.add(t)
-    dot = plot(graph_overall, self.txt_class_names)
+    class_names = list(self.RDFConjunctiveGraph.keys())
+    dot = plot(graph_overall, class_names)
     graph_name = self.txt_root_class
     dot.render(graph_name, directory=ONTOLOGY_DIRECTORY, view=True)
     if not os.path.exists(os.path.join(ONTOLOGY_DIRECTORY, "legend.pdf")):
@@ -709,7 +697,6 @@ def getID(ID):
     container_graph_ID, instance_ID = ID.split(DELIMITERS["instantiated"])
   else:
     container_graph_ID = ID
-    instance_ID = None
   return container_graph_ID
 
 
@@ -717,7 +704,6 @@ def getIDNo(ID):
   if DELIMITERS["instantiated"] in ID:
     container_graph_ID, instance_ID = ID.split(DELIMITERS["instantiated"])
   else:
-    container_graph_ID = ID
     instance_ID = None
   return instance_ID
 
@@ -804,6 +790,7 @@ class BackEnd:
     self.ContainerGraph.printMe("loaded")
 
     self.working_tree = WorkingTree(self.ContainerGraph)
+    self.txt_class_names = list(self.working_tree.container_graph.RDFConjunctiveGraph.keys())
 
     self.current_class = self.root_class_container
 
@@ -870,46 +857,33 @@ class BackEnd:
       self.__shiftClass()
 
   def __addBranch(self):
+    debug = False
     sub_graph, linked_classes = self.working_tree.extractSubgraph(getID(self.current_node),
                                                                   getID(self.current_class))
 
-    debuggPrintGraph(sub_graph, True)
+    debuggPrintGraph(sub_graph, debug)
 
-    # TODO: fix link below
     print("debugging -- linked_classes", linked_classes)
 
     w_graph= self.working_tree.RDFConjunctiveGraph[self.current_class] + sub_graph
+
+    debuggPrintGraph(self.working_tree.RDFConjunctiveGraph[self.current_class], debug)
+    debuggPrintGraph(w_graph, debug)
+
+    for s, p, o in w_graph.triples(
+            (Literal(self.current_node), RDFSTerms["is_a_subclass_of"], None)):
+      print("debugging -- obj:", str(o))
+      to_connect = getID(self.current_node)
+      w_graph.add((Literal(to_connect), p, Literal(str(o))))
+
     self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph
 
     for c in linked_classes:
       self.working_tree.RDFConjunctiveGraph[c] = copy.copy(self.working_tree.container_graph.RDFConjunctiveGraph[c])
 
-
-
-    # for s, p, o in w_graph.triples(
-    #         (Literal(self.current_node), RDFSTerms["is_a_subclass_of"], None)):
-    #   print("debugging -- obj:", str(o))
-    #   to_connect = getID(self.current_node)   # TODO: this here
-    #   w_graph.add((Literal(to_connect), p, Literal(str(o))))
-    #
-    #   w_graph = w_graph + sub_graph
-    #   self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph
-    #
-    #   debuggPrintGraph(w_graph, True)
-    #
-    #   for i in range(self.class_path.index(self.current_class), len(self.class_path)):
-    #     c = self.class_path[i]
-    #     if (c not in self.working_tree.RDFConjunctiveGraph) and (c != getID(self.current_class)):
-    #       print("debugging -- adding graph:", c)
-    #       G_original = self.working_tree.container_graph.RDFConjunctiveGraph[c]
-    #       self.working_tree.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
-    #   pass
-
     self.__makeWorkingTree()
     self.__shiftClass()
 
-    # now one needs to connect this branch to the working graph at the location below the current node
-    # 1st find the below node
 
   def __gotInteger(self):
     global current_event_data
@@ -1000,7 +974,6 @@ class BackEnd:
     self.__shiftClass()
 
   def __shiftClass(self):
-    # global class_path
     global current_event_data
 
     if "path" in current_event_data:
@@ -1027,7 +1000,6 @@ class BackEnd:
     # print(">>>", current_event_data, automaton_next_state)
 
   def __makeFirstDataRoot(self, container_root_class, data_ID):
-    # global data_container_number
 
     root_class = container_root_class + DELIMITERS["instantiated"] + str(data_ID)
     return root_class
@@ -1048,8 +1020,7 @@ class BackEnd:
     global current_event_data
     global automaton_next_state
     global action
-    # global data_container_number
-    global data_container
+    # global data_container
 
     show_automaton = False
 

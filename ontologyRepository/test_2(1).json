@@ -3,36 +3,6 @@
   "graphs": {
     "a": [
       [
-        "f",
-        "is_a_subclass_of",
-        "a"
-      ],
-      [
-        "c",
-        "is_a_subclass_of",
-        "a"
-      ],
-      [
-        "c_number",
-        "integer",
-        "integer"
-      ],
-      [
-        "A",
-        "link_to_class",
-        "e"
-      ],
-      [
-        "b",
-        "is_a_subclass_of",
-        "a"
-      ],
-      [
-        "e",
-        "is_a_subclass_of",
-        "a"
-      ],
-      [
         "c",
         "value",
         "c_number"
@@ -43,26 +13,41 @@
         "d"
       ],
       [
+        "c_number",
+        "integer",
+        "integer"
+      ],
+      [
         "d",
         "is_a_subclass_of",
         "b"
       ],
       [
-        "A",
-        "link_to_class",
-        "f"
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "c",
+        "is_a_subclass_of",
+        "a"
       ]
     ],
     "A": [
       [
-        "C_number",
-        "integer",
-        "integer"
-      ],
-      [
         "C",
         "value",
         "C_number"
+      ],
+      [
+        "B",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "C_number",
+        "integer",
+        "integer"
       ],
       [
         "aa",
@@ -73,18 +58,13 @@
         "C",
         "is_a_subclass_of",
         "A"
-      ],
-      [
-        "B",
-        "is_a_subclass_of",
-        "A"
       ]
     ],
     "aa": [
       [
-        "cc_text",
-        "string",
-        "string"
+        "bb",
+        "is_a_subclass_of",
+        "aa"
       ],
       [
         "bb_number",
@@ -92,14 +72,9 @@
         "integer"
       ],
       [
-        "bb",
-        "value",
-        "bb_number"
-      ],
-      [
-        "cc",
-        "is_a_subclass_of",
-        "aa"
+        "cc_text",
+        "string",
+        "string"
       ],
       [
         "cc",
@@ -108,6 +83,11 @@
       ],
       [
         "bb",
+        "value",
+        "bb_number"
+      ],
+      [
+        "cc",
         "is_a_subclass_of",
         "aa"
       ]
@@ -125,8 +105,6 @@
     "aa": null,
     "a.A.aa": "",
     "a.A.aa.bb": null,
-    "a.A.aa.cc": null,
-    "a.e": null,
-    "a.f": null
+    "a.A.aa.cc": null
   }
 }

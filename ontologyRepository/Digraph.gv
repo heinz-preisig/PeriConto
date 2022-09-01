@@ -1,53 +1,230 @@
 digraph {
-	aa
-	B
-	aa -> B [color=red]
-	d
-	b
-	d -> b [color=blue]
-	c
-	a
-	c -> a [color=blue]
-	cc
-	aa
-	cc -> aa [color=blue]
-	bb
-	bb_number
-	bb -> bb_number [color=black]
-	A
-	d
-	A -> d [color=red]
-	B
-	A
-	B -> A [color=blue]
-	C
-	A
-	C -> A [color=blue]
-	b
-	a
-	b -> a [color=blue]
-	integer [color=green shape=rectangle]
+	integer [color=green fillcolor=gray shape=none style=filled]
 	integer
-	bb_number -> integer [color=darkorange]
-	bb
-	aa
-	bb -> aa [color=blue]
-	integer [color=green shape=rectangle]
-	integer
-	c_number -> integer [color=darkorange]
-	cc
-	cc_text
-	cc -> cc_text [color=black]
-	integer [color=green shape=rectangle]
-	integer
-	C_number -> integer [color=darkorange]
-	c
-	c_number
-	c -> c_number [color=black]
-	string [color=green shape=rectangle]
+	quantityMeasure -> integer [color=darkorange]
+	binder
+	"coatingLayer-0"
+	binder -> "coatingLayer-0" [color=blue]
+	chemicalComponent [color=red fillcolor=lightcoral shape=none style=filled]
+	quantityMeasure
+	chemicalComponent -> quantityMeasure [color=black]
+	extender
+	coatingLayer
+	extender -> coatingLayer [color=blue]
+	additive
+	coatingLayer
+	additive -> coatingLayer [color=blue]
+	rheologyAgent
+	additive
+	rheologyAgent -> additive [color=blue]
+	"extender-0"
+	"coatingLayer-0"
+	"extender-0" -> "coatingLayer-0" [color=blue]
+	offTheShelf
+	material
+	offTheShelf -> material [color=blue]
+	"string-1_0" [color=green fillcolor=yellow shape=none style=filled]
+	"string-1_0"
+	"URL-1" -> "string-1_0" [color=cyan]
+	processProduct
+	"material-0"
+	processProduct -> "material-0" [color=blue]
+	surfaceActiveAgent
+	additive
+	surfaceActiveAgent -> additive [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	defoamerAgent
+	material -> defoamerAgent [color=red]
+	chemicalComponent [color=red fillcolor=lightcoral shape=none style=filled]
+	reactant
+	chemicalComponent -> reactant [color=red]
+	washing
+	surfaceTreatmentProcess
+	washing -> surfaceTreatmentProcess [color=blue]
+	preservative
+	additive
+	preservative -> additive [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	surfaceActiveAgent
+	material -> surfaceActiveAgent [color=red]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	extender
+	material -> extender [color=red]
+	"offTheShelf-1"
+	"material-0"
+	"offTheShelf-1" -> "material-0" [color=blue]
+	reactant
+	chemical
+	reactant -> chemical [color=blue]
+	processProduct
+	material
+	processProduct -> material [color=blue]
+	productionProcess [color=red fillcolor=lightcoral shape=none style=filled]
+	processProduct
+	productionProcess -> processProduct [color=red]
+	catalyst
+	additive
+	catalyst -> additive [color=blue]
+	defoamerAgent
+	additive
+	defoamerAgent -> additive [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	substrate
+	material -> substrate [color=red]
+	binder
+	coatingLayer
+	binder -> coatingLayer [color=blue]
+	chemicalComponent [color=red fillcolor=lightcoral shape=none style=filled]
+	URL
+	chemicalComponent -> URL [color=black]
+	layers
+	"coatedProduct-0"
+	layers -> "coatedProduct-0" [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	preservative
+	material -> preservative [color=red]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	wettingAgent
+	material -> wettingAgent [color=red]
+	nonreactive
+	chemical
+	nonreactive -> chemical [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	dryingAgent
+	material -> dryingAgent [color=red]
+	surfaceTreatmentProcess
+	productionProcess [fillcolor=red shape=none style=filled]
+	surfaceTreatmentProcess -> productionProcess [color=blue]
+	etching
+	surfaceTreatmentProcess
+	etching -> surfaceTreatmentProcess [color=blue]
+	preTreatedSurface
+	layers
+	preTreatedSurface -> layers [color=blue]
+	solGelCoating
+	surfaceTreatmentProcess
+	solGelCoating -> surfaceTreatmentProcess [color=blue]
+	"coatingLayer-0"
+	"layers-0"
+	"coatingLayer-0" -> "layers-0" [color=blue]
+	substrate
+	"coatedProduct-0"
+	substrate -> "coatedProduct-0" [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	binder
+	material -> binder [color=red]
+	pigment
+	"coatingLayer-0"
+	pigment -> "coatingLayer-0" [color=blue]
+	andozing
+	surfaceTreatmentProcess
+	andozing -> surfaceTreatmentProcess [color=blue]
+	solvent
+	nonreactive
+	solvent -> nonreactive [color=blue]
+	product
+	chemical
+	product -> chemical [color=blue]
+	dryingAgent
+	additive
+	dryingAgent -> additive [color=blue]
+	reaction [color=red fillcolor=lightcoral shape=none style=filled]
+	polymerisationProcess
+	reaction -> polymerisationProcess [color=red]
+	"chemicalComponent-0" [color=red fillcolor=lightcoral shape=none style=filled]
+	"URL-0"
+	"chemicalComponent-0" -> "URL-0" [color=black]
+	chemicalComponent [color=red fillcolor=lightcoral shape=none style=filled]
+	product
+	chemicalComponent -> product [color=red]
+	string [color=green fillcolor=gray shape=none style=filled]
 	string
-	cc_text -> string [color=cyan]
-	C
-	C_number
-	C -> C_number [color=black]
+	URL -> string [color=cyan]
+	colourPigment
+	pigment
+	colourPigment -> pigment [color=blue]
+	"layers-0"
+	"coatedProduct-0"
+	"layers-0" -> "coatedProduct-0" [color=blue]
+	"chemicalComponent-0" [color=red fillcolor=lightcoral shape=none style=filled]
+	"offTheShelf-0"
+	"chemicalComponent-0" -> "offTheShelf-0" [color=red]
+	preTreatedSurface
+	"layers-0"
+	preTreatedSurface -> "layers-0" [color=blue]
+	inhibitorPigment
+	pigment
+	inhibitorPigment -> pigment [color=blue]
+	"chemicalComponent-1" [color=red fillcolor=lightcoral shape=none style=filled]
+	"URL-1"
+	"chemicalComponent-1" -> "URL-1" [color=black]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	filler
+	material -> filler [color=red]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	colourPigment
+	material -> colourPigment [color=red]
+	wettingAgent
+	additive
+	wettingAgent -> additive [color=blue]
+	filler
+	pigment
+	filler -> pigment [color=blue]
+	additive
+	"coatingLayer-0"
+	additive -> "coatingLayer-0" [color=blue]
+	"string-0_1" [color=green fillcolor=yellow shape=none style=filled]
+	"string-0_1"
+	"URL-0" -> "string-0_1" [color=cyan]
+	"chemicalComponent-1" [color=red fillcolor=lightcoral shape=none style=filled]
+	"offTheShelf-1"
+	"chemicalComponent-1" -> "offTheShelf-1" [color=red]
+	"material-0" [color=red fillcolor=lightcoral shape=none style=filled]
+	"extender-0"
+	"material-0" -> "extender-0" [color=red]
+	pickling
+	surfaceTreatmentProcess
+	pickling -> surfaceTreatmentProcess [color=blue]
+	dye
+	additive
+	dye -> additive [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	rheologyAgent
+	material -> rheologyAgent [color=red]
+	chemicalComponent [color=red fillcolor=lightcoral shape=none style=filled]
+	offTheShelf
+	chemicalComponent -> offTheShelf [color=red]
+	chemical
+	reaction
+	chemical -> reaction [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	preTreatedSurface
+	material -> preTreatedSurface [color=red]
+	pigment
+	coatingLayer
+	pigment -> coatingLayer [color=blue]
+	coatingLayer
+	layers
+	coatingLayer -> layers [color=blue]
+	"offTheShelf-0"
+	"material-0"
+	"offTheShelf-0" -> "material-0" [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	catalyst
+	material -> catalyst [color=red]
+	lightStabiliser
+	additive
+	lightStabiliser -> additive [color=blue]
+	polymerisationProcess
+	productionProcess [fillcolor=red shape=none style=filled]
+	polymerisationProcess -> productionProcess [color=blue]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	inhibitorPigment
+	material -> inhibitorPigment [color=red]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	lightStabiliser
+	material -> lightStabiliser [color=red]
+	material [color=red fillcolor=lightcoral shape=none style=filled]
+	dye
+	material -> dye [color=red]
 }

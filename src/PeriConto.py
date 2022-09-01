@@ -115,12 +115,19 @@ def plot(graph, class_names=[]):
     if ss in class_names:
       dot.node(ss_, color='red', shape="rectangle")
     elif so in PRIMITIVES:
-      dot.node(so_, color='green', shape="rectangle")
+      dot.node(so_, color='green',  style='filled', fillcolor="gray", shape="none")
+      # dot.node(so_, color='green', shape="rectangle")
     else:
       dot.node(ss_)
 
-    if so in class_names:
-      dot.node(so_, color='red', shape="rectangle")
+    # if so in class_names:
+    #   dot.node(so_, color='red', shape="rectangle")
+    # else:
+    #   dot.node(so_)
+    if so == class_names[0]:
+      dot.node(so_, style="filled", fillcolor="red", shape="none")
+    elif so in class_names:
+      dot.node(so_, style="filled", fillcolor="lightcoral", shape="none")
     else:
       dot.node(so_)
 
@@ -139,9 +146,6 @@ def plot(graph, class_names=[]):
                # label=my_p,
                color=EDGE_COLOUR[my_p])
 
-  dot.node('l')
-  dot.node('r')
-  dot.edge('l','r', color=EDGE_COLOUR[my_p])
 
   # Visualize the graph
   return dot

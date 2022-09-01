@@ -1,182 +1,179 @@
 digraph {
-	colourPigment
-	pigment
-	colourPigment -> pigment [color=blue]
-	material [color=red shape=rectangle]
-	filler
-	material -> filler [color=red]
-	material [color=red shape=rectangle]
-	surfaceActiveAgent
-	material -> surfaceActiveAgent [color=red]
-	defoamerAgent
-	additive
-	defoamerAgent -> additive [color=blue]
-	productionProcess [color=red shape=rectangle]
-	processProduct
-	productionProcess -> processProduct [color=red]
-	material [color=red shape=rectangle]
-	preTreatedSurface
-	material -> preTreatedSurface [color=red]
-	material [color=red shape=rectangle]
-	binder
-	material -> binder [color=red]
-	material [color=red shape=rectangle]
-	dryingAgent
-	material -> dryingAgent [color=red]
-	preTreatedSurface
-	layers
-	preTreatedSurface -> layers [color=blue]
-	product
-	chemical
-	product -> chemical [color=blue]
-	material [color=red shape=rectangle]
-	inhibitorPigment
-	material -> inhibitorPigment [color=red]
-	catalyst
-	additive
-	catalyst -> additive [color=blue]
-	chemicalComponent [color=red shape=rectangle]
-	quantityMeasure
-	chemicalComponent -> quantityMeasure [color=black]
-	nonreactive
-	chemical
-	nonreactive -> chemical [color=blue]
-	material [color=red shape=rectangle]
-	substrate
-	material -> substrate [color=red]
-	material [color=red shape=rectangle]
-	lightStabiliser
-	material -> lightStabiliser [color=red]
-	material [color=red shape=rectangle]
-	rheologyAgent
-	material -> rheologyAgent [color=red]
-	offTheShelf
-	material [color=red shape=rectangle]
-	offTheShelf -> material [color=blue]
-	reactant
-	chemical
-	reactant -> chemical [color=blue]
-	pickling
-	surfaceTreatmentProcess
-	pickling -> surfaceTreatmentProcess [color=blue]
-	polymerisationProcess
-	productionProcess [color=red shape=rectangle]
-	polymerisationProcess -> productionProcess [color=blue]
-	dye
-	additive
-	dye -> additive [color=blue]
-	material [color=red shape=rectangle]
-	colourPigment
-	material -> colourPigment [color=red]
-	material [color=red shape=rectangle]
-	catalyst
-	material -> catalyst [color=red]
-	binder
-	coatingLayer
-	binder -> coatingLayer [color=blue]
-	surfaceTreatmentProcess
-	productionProcess [color=red shape=rectangle]
-	surfaceTreatmentProcess -> productionProcess [color=blue]
-	solvent
-	nonreactive
-	solvent -> nonreactive [color=blue]
-	material [color=red shape=rectangle]
-	preservative
-	material -> preservative [color=red]
-	solGelCoating
-	surfaceTreatmentProcess
-	solGelCoating -> surfaceTreatmentProcess [color=blue]
-	substrate
-	coatedProduct [color=red shape=rectangle]
-	substrate -> coatedProduct [color=blue]
-	dryingAgent
-	additive
-	dryingAgent -> additive [color=blue]
-	rheologyAgent
-	additive
-	rheologyAgent -> additive [color=blue]
-	pigment
-	coatingLayer
-	pigment -> coatingLayer [color=blue]
-	etching
-	surfaceTreatmentProcess
-	etching -> surfaceTreatmentProcess [color=blue]
-	extender
-	coatingLayer
-	extender -> coatingLayer [color=blue]
 	andozing
 	surfaceTreatmentProcess
 	andozing -> surfaceTreatmentProcess [color=blue]
-	reaction [color=red shape=rectangle]
-	polymerisationProcess
-	reaction -> polymerisationProcess [color=red]
-	material [color=red shape=rectangle]
-	defoamerAgent
-	material -> defoamerAgent [color=red]
-	chemical
-	reaction [color=red shape=rectangle]
-	chemical -> reaction [color=blue]
-	material [color=red shape=rectangle]
-	extender
-	material -> extender [color=red]
-	string [color=green shape=rectangle]
-	string
-	URL -> string [color=cyan]
-	chemicalComponent [color=red shape=rectangle]
-	URL
-	chemicalComponent -> URL [color=black]
-	inhibitorPigment
-	pigment
-	inhibitorPigment -> pigment [color=blue]
-	chemicalComponent [color=red shape=rectangle]
-	product
-	chemicalComponent -> product [color=red]
+	coatingLayer
+	layers
+	coatingLayer -> layers [color=blue]
+	substrate
+	coatedProduct [fillcolor=red shape=none style=filled]
+	substrate -> coatedProduct [color=blue]
+	solvent
+	nonreactive
+	solvent -> nonreactive [color=blue]
+	etching
+	surfaceTreatmentProcess
+	etching -> surfaceTreatmentProcess [color=blue]
+	layers
+	coatedProduct [fillcolor=red shape=none style=filled]
+	layers -> coatedProduct [color=blue]
 	preservative
 	additive
 	preservative -> additive [color=blue]
 	chemicalComponent [color=red shape=rectangle]
-	reactant
-	chemicalComponent -> reactant [color=red]
-	washing
-	surfaceTreatmentProcess
-	washing -> surfaceTreatmentProcess [color=blue]
-	material [color=red shape=rectangle]
-	dye
-	material -> dye [color=red]
-	layers
-	coatedProduct [color=red shape=rectangle]
-	layers -> coatedProduct [color=blue]
-	integer [color=green shape=rectangle]
-	integer
-	quantityMeasure -> integer [color=darkorange]
-	additive
-	coatingLayer
-	additive -> coatingLayer [color=blue]
-	chemicalComponent [color=red shape=rectangle]
 	offTheShelf
 	chemicalComponent -> offTheShelf [color=red]
-	lightStabiliser
-	additive
-	lightStabiliser -> additive [color=blue]
+	material [color=red shape=rectangle]
+	substrate
+	material -> substrate [color=red]
 	surfaceActiveAgent
 	additive
 	surfaceActiveAgent -> additive [color=blue]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	URL -> string [color=cyan]
+	processProduct
+	material [fillcolor=lightcoral shape=none style=filled]
+	processProduct -> material [color=blue]
+	rheologyAgent
+	additive
+	rheologyAgent -> additive [color=blue]
+	productionProcess [color=red shape=rectangle]
+	processProduct
+	productionProcess -> processProduct [color=red]
+	material [color=red shape=rectangle]
+	extender
+	material -> extender [color=red]
+	colourPigment
+	pigment
+	colourPigment -> pigment [color=blue]
+	material [color=red shape=rectangle]
+	rheologyAgent
+	material -> rheologyAgent [color=red]
+	nonreactive
+	chemical
+	nonreactive -> chemical [color=blue]
+	solGelCoating
+	surfaceTreatmentProcess
+	solGelCoating -> surfaceTreatmentProcess [color=blue]
+	material [color=red shape=rectangle]
+	inhibitorPigment
+	material -> inhibitorPigment [color=red]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	quantityMeasure -> integer [color=darkorange]
+	material [color=red shape=rectangle]
+	catalyst
+	material -> catalyst [color=red]
+	material [color=red shape=rectangle]
+	preservative
+	material -> preservative [color=red]
+	dryingAgent
+	additive
+	dryingAgent -> additive [color=blue]
+	material [color=red shape=rectangle]
+	binder
+	material -> binder [color=red]
+	product
+	chemical
+	product -> chemical [color=blue]
+	lightStabiliser
+	additive
+	lightStabiliser -> additive [color=blue]
+	surfaceTreatmentProcess
+	productionProcess [fillcolor=lightcoral shape=none style=filled]
+	surfaceTreatmentProcess -> productionProcess [color=blue]
+	pigment
+	coatingLayer
+	pigment -> coatingLayer [color=blue]
+	additive
+	coatingLayer
+	additive -> coatingLayer [color=blue]
+	offTheShelf
+	material [fillcolor=lightcoral shape=none style=filled]
+	offTheShelf -> material [color=blue]
+	extender
+	coatingLayer
+	extender -> coatingLayer [color=blue]
+	reaction [color=red shape=rectangle]
+	polymerisationProcess
+	reaction -> polymerisationProcess [color=red]
+	material [color=red shape=rectangle]
+	dye
+	material -> dye [color=red]
+	dye
+	additive
+	dye -> additive [color=blue]
+	defoamerAgent
+	additive
+	defoamerAgent -> additive [color=blue]
+	material [color=red shape=rectangle]
+	surfaceActiveAgent
+	material -> surfaceActiveAgent [color=red]
+	polymerisationProcess
+	productionProcess [fillcolor=lightcoral shape=none style=filled]
+	polymerisationProcess -> productionProcess [color=blue]
+	material [color=red shape=rectangle]
+	colourPigment
+	material -> colourPigment [color=red]
+	material [color=red shape=rectangle]
+	preTreatedSurface
+	material -> preTreatedSurface [color=red]
+	chemicalComponent [color=red shape=rectangle]
+	reactant
+	chemicalComponent -> reactant [color=red]
+	material [color=red shape=rectangle]
+	defoamerAgent
+	material -> defoamerAgent [color=red]
 	filler
 	pigment
 	filler -> pigment [color=blue]
-	coatingLayer
-	layers
-	coatingLayer -> layers [color=blue]
-	processProduct
-	material [color=red shape=rectangle]
-	processProduct -> material [color=blue]
 	wettingAgent
 	additive
 	wettingAgent -> additive [color=blue]
 	material [color=red shape=rectangle]
+	dryingAgent
+	material -> dryingAgent [color=red]
+	catalyst
+	additive
+	catalyst -> additive [color=blue]
+	reactant
+	chemical
+	reactant -> chemical [color=blue]
+	material [color=red shape=rectangle]
 	wettingAgent
 	material -> wettingAgent [color=red]
-	l
-	r
-	l -> r [color=red]
+	pickling
+	surfaceTreatmentProcess
+	pickling -> surfaceTreatmentProcess [color=blue]
+	chemicalComponent [color=red shape=rectangle]
+	quantityMeasure
+	chemicalComponent -> quantityMeasure [color=black]
+	chemicalComponent [color=red shape=rectangle]
+	URL
+	chemicalComponent -> URL [color=black]
+	binder
+	coatingLayer
+	binder -> coatingLayer [color=blue]
+	chemicalComponent [color=red shape=rectangle]
+	product
+	chemicalComponent -> product [color=red]
+	inhibitorPigment
+	pigment
+	inhibitorPigment -> pigment [color=blue]
+	chemical
+	reaction [fillcolor=lightcoral shape=none style=filled]
+	chemical -> reaction [color=blue]
+	material [color=red shape=rectangle]
+	lightStabiliser
+	material -> lightStabiliser [color=red]
+	washing
+	surfaceTreatmentProcess
+	washing -> surfaceTreatmentProcess [color=blue]
+	preTreatedSurface
+	layers
+	preTreatedSurface -> layers [color=blue]
+	material [color=red shape=rectangle]
+	filler
+	material -> filler [color=red]
 }

@@ -1,206 +1,65 @@
 digraph {
-	aa [color=red shape=rectangle]
-	G
-	aa -> G [color=red]
-	l
-	r
-	l -> r [color=red]
-	aa [color=red shape=rectangle]
-	E
-	aa -> E [color=red]
-	l
-	r
-	l -> r [color=red]
-	integer [color=green shape=rectangle]
+	f
+	a [fillcolor=red shape=none style=filled]
+	f -> a [color=blue]
+	bb
+	bb_number
+	bb -> bb_number [color=black]
+	integer [color=green fillcolor=gray shape=none style=filled]
 	integer
-	ff_number -> integer [color=darkorange]
-	l
-	r
-	l -> r [color=darkorange]
-	D
-	B
-	D -> B [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	gg
-	gg_id
-	gg -> gg_id [color=black]
-	l
-	r
-	l -> r [color=black]
-	A [color=red shape=rectangle]
-	d
-	A -> d [color=red]
-	l
-	r
-	l -> r [color=red]
-	ee
-	bb
-	ee -> bb [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	integer [color=green shape=rectangle]
-	integer
-	ee_number -> integer [color=darkorange]
-	l
-	r
-	l -> r [color=darkorange]
-	c
-	a [color=red shape=rectangle]
-	c -> a [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	dd
-	bb
-	dd -> bb [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	aa [color=red shape=rectangle]
-	F
-	aa -> F [color=red]
-	l
-	r
-	l -> r [color=red]
-	bb
-	aa [color=red shape=rectangle]
-	bb -> aa [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	ff
-	cc
-	ff -> cc [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	g
-	c
-	g -> c [color=blue]
-	l
-	r
-	l -> r [color=blue]
+	bb_number -> integer [color=darkorange]
 	C
-	A [color=red shape=rectangle]
-	C -> A [color=blue]
-	l
-	r
-	l -> r [color=blue]
+	C_number
+	C -> C_number [color=black]
 	A [color=red shape=rectangle]
 	e
 	A -> e [color=red]
-	l
-	r
-	l -> r [color=red]
+	e
+	a [fillcolor=red shape=none style=filled]
+	e -> a [color=blue]
+	C
+	A [fillcolor=lightcoral shape=none style=filled]
+	C -> A [color=blue]
+	A [color=red shape=rectangle]
+	d
+	A -> d [color=red]
+	b
+	a [fillcolor=red shape=none style=filled]
+	b -> a [color=blue]
+	c
+	c_number
+	c -> c_number [color=black]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	cc_text -> string [color=cyan]
+	B
+	A [fillcolor=lightcoral shape=none style=filled]
+	B -> A [color=blue]
+	bb
+	aa [fillcolor=lightcoral shape=none style=filled]
+	bb -> aa [color=blue]
+	c
+	a [fillcolor=red shape=none style=filled]
+	c -> a [color=blue]
 	d
 	b
 	d -> b [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	f
-	c
-	f -> c [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	E
+	cc
+	cc_text
+	cc -> cc_text [color=black]
+	cc
+	aa [fillcolor=lightcoral shape=none style=filled]
+	cc -> aa [color=blue]
+	aa [color=red shape=rectangle]
 	B
-	E -> B [color=blue]
-	l
-	r
-	l -> r [color=blue]
+	aa -> B [color=red]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	C_number -> integer [color=darkorange]
 	A [color=red shape=rectangle]
 	f
 	A -> f [color=red]
-	l
-	r
-	l -> r [color=red]
-	gg
-	cc
-	gg -> cc [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	string [color=green shape=rectangle]
-	string
-	dd_id -> string [color=cyan]
-	l
-	r
-	l -> r [color=cyan]
-	F
-	C
-	F -> C [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	e
-	b
-	e -> b [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	B
-	A [color=red shape=rectangle]
-	B -> A [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	cc
-	aa [color=red shape=rectangle]
-	cc -> aa [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	ff
-	ff_number
-	ff -> ff_number [color=black]
-	l
-	r
-	l -> r [color=black]
-	ee
-	ee_number
-	ee -> ee_number [color=black]
-	l
-	r
-	l -> r [color=black]
-	b
-	a [color=red shape=rectangle]
-	b -> a [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	string [color=green shape=rectangle]
-	string
-	gg_id -> string [color=black]
-	l
-	r
-	l -> r [color=black]
-	aa [color=red shape=rectangle]
-	D
-	aa -> D [color=red]
-	l
-	r
-	l -> r [color=red]
-	G
-	C
-	G -> C [color=blue]
-	l
-	r
-	l -> r [color=blue]
-	A [color=red shape=rectangle]
-	g
-	A -> g [color=red]
-	l
-	r
-	l -> r [color=red]
-	dd
-	dd_id
-	dd -> dd_id [color=black]
-	l
-	r
-	l -> r [color=black]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	c_number -> integer [color=darkorange]
 }

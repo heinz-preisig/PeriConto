@@ -46,7 +46,7 @@ def copyRDFGraph(G_original):
   return G_copy
 
 
-def plot(graph, class_names=[]):
+def plot(graph, class_names=[""]):
   """
   Create Digraph plot
   color names : https://graphviz.org/doc/info/colors.html
@@ -79,6 +79,7 @@ def plot(graph, class_names=[]):
         dot.node(so_, color='green',  style='filled', fillcolor="gray", shape="none")
     else:
       dot.node(ss_)
+
 
     if so == class_names[0]:
       dot.node(so_, style="filled", fillcolor="red", shape="none")
@@ -179,10 +180,11 @@ def convertQuadsGraphIntoRDFGraph(quads):
 
 def extractSubTree(quads, root, extracts=[], stack=[]):
   for s, o, p, graphID in quads:
-    if o == root:
-      extracts.append((s, o, p, graphID))
-      stack.append(s)
-      extractSubTree(quads, s, extracts=extracts, stack=stack)
+    if s not in stack:
+      if o == root:
+        extracts.append((s, o, p, graphID))
+        stack.append(s)
+        extractSubTree(quads, s, extracts=extracts, stack=stack)
 
 
 def debuggPrintGraph(graph, debug, text=""):
@@ -857,7 +859,7 @@ class BackEnd:
       self.__shiftClass()
 
   def __addBranch(self):
-    debug = False
+    debug = True
     sub_graph, linked_classes = self.working_tree.extractSubgraph(getID(self.current_node),
                                                                   getID(self.current_class))
 
@@ -866,6 +868,10 @@ class BackEnd:
     print("debugging -- linked_classes", linked_classes)
 
     w_graph= self.working_tree.RDFConjunctiveGraph[self.current_class] + sub_graph
+
+    if debug:
+      dot = plot(w_graph)
+      dot.render(view=True)
 
     debuggPrintGraph(self.working_tree.RDFConjunctiveGraph[self.current_class], debug)
     debuggPrintGraph(w_graph, debug)

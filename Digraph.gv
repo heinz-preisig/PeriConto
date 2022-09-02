@@ -1,0 +1,35 @@
+digraph {
+	g
+	d
+	g -> d [color=blue]
+	A
+	f
+	A -> f [color=red]
+	c
+	b
+	c -> b [color=blue]
+	e
+	d
+	e -> d [color=blue]
+	A
+	c
+	A -> c [color=red]
+	d
+	b
+	d -> b [color=blue]
+	A
+	h
+	A -> h [color=red]
+	h
+	g
+	h -> g [color=blue]
+	A
+	e
+	A -> e [color=red]
+	f
+	d
+	f -> d [color=blue]
+	b
+	a [fillcolor=red shape=none style=filled]
+	b -> a [color=blue]
+}

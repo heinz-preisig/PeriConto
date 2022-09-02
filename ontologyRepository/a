@@ -1,65 +1,53 @@
 digraph {
-	f
-	a [fillcolor=red shape=none style=filled]
-	f -> a [color=blue]
-	bb
-	bb_number
-	bb -> bb_number [color=black]
-	integer [color=green fillcolor=gray shape=none style=filled]
-	integer
-	bb_number -> integer [color=darkorange]
-	C
-	C_number
-	C -> C_number [color=black]
 	A [color=red shape=rectangle]
 	e
 	A -> e [color=red]
-	e
-	a [fillcolor=red shape=none style=filled]
-	e -> a [color=blue]
+	g
+	d
+	g -> d [color=blue]
 	C
 	A [fillcolor=lightcoral shape=none style=filled]
 	C -> A [color=blue]
-	A [color=red shape=rectangle]
-	d
-	A -> d [color=red]
-	b
-	a [fillcolor=red shape=none style=filled]
-	b -> a [color=blue]
-	c
-	c_number
-	c -> c_number [color=black]
-	string [color=green fillcolor=gray shape=none style=filled]
-	string
-	cc_text -> string [color=cyan]
-	B
-	A [fillcolor=lightcoral shape=none style=filled]
-	B -> A [color=blue]
-	bb
-	aa [fillcolor=lightcoral shape=none style=filled]
-	bb -> aa [color=blue]
-	c
-	a [fillcolor=red shape=none style=filled]
-	c -> a [color=blue]
 	d
 	b
 	d -> b [color=blue]
-	cc
-	cc_text
-	cc -> cc_text [color=black]
-	cc
-	aa [fillcolor=lightcoral shape=none style=filled]
-	cc -> aa [color=blue]
-	aa [color=red shape=rectangle]
+	f
+	d
+	f -> d [color=blue]
+	h
+	g
+	h -> g [color=blue]
+	C
+	curl
+	C -> curl [color=black]
+	b
+	a [fillcolor=red shape=none style=filled]
+	b -> a [color=blue]
 	B
-	aa -> B [color=red]
-	integer [color=green fillcolor=gray shape=none style=filled]
-	integer
-	C_number -> integer [color=darkorange]
+	A [fillcolor=lightcoral shape=none style=filled]
+	B -> A [color=blue]
+	A [color=red shape=rectangle]
+	h
+	A -> h [color=red]
+	B
+	burl
+	B -> burl [color=black]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	burl -> string [color=cyan]
 	A [color=red shape=rectangle]
 	f
 	A -> f [color=red]
-	integer [color=green fillcolor=gray shape=none style=filled]
-	integer
-	c_number -> integer [color=darkorange]
+	c
+	b
+	c -> b [color=blue]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	curl -> string [color=cyan]
+	A [color=red shape=rectangle]
+	c
+	A -> c [color=red]
+	e
+	d
+	e -> d [color=blue]
 }

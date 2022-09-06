@@ -39,20 +39,39 @@ QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
 
 def makeTree(truples, origin=[], stack=[], items={}):
   for s, o, p, graph_ID in truples:
-    if (s, o) not in stack:
-      if s != origin:
-        if o in items:
+    if o == origin:
           # print("add %s <-- %s" % (o, s),p)
-          item = QTreeWidgetItem(items[o])
-          item.setForeground(0, QBRUSHES[p])
-          item.subject = s
-          item.object = o
-          item.predicate = p
-          item.graph_ID = graph_ID
-          stack.append((s, o))
-          item.setText(0, s)
-          items[s] = item
+        item = QTreeWidgetItem(items[o])
+        item.setForeground(0, QBRUSHES[p])
+        item.subject = s
+        item.object = o
+        item.predicate = p
+        item.graph_ID = graph_ID
+        # stack.append((s, o))
+        item.setText(0, s)
+        items[s] = item
+        if (s,o) not in stack:
           makeTree(truples, origin=s, stack=stack, items=items)
+  if o == origin:
+    stack.append((s,o))
+
+
+  # for s, o, p, graph_ID in truples:
+  #   if (s, o) not in stack:
+  #     if s != origin:
+  #       if o in items:
+  #         # print("add %s <-- %s" % (o, s),p)
+  #         item = QTreeWidgetItem(items[o])
+  #         item.setForeground(0, QBRUSHES[p])
+  #         item.subject = s
+  #         item.object = o
+  #         item.predicate = p
+  #         item.graph_ID = graph_ID
+  #         stack.append((s, o))
+  #         item.setText(0, s)
+  #         items[s] = item
+  #         makeTree(truples, origin=s, stack=stack, items=items)
+
 
 
 class PeriContoPyQtFrontEnd(QMainWindow):

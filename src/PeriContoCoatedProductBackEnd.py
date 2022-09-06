@@ -152,6 +152,16 @@ def LegendPlot():
   return dot
 
 
+def debuggPlotAndRender(graph, file_name, debugg):
+  """
+  @graph is an RDF graph
+  @file_name is to generate a file name
+  @debugg  is a convenience variable to help debugging
+  """
+  if debugg:
+    dot = plot(graph)
+    dot.render(file_name, view=True)
+
 def convertRDFintoInternalMultiGraph(graph, graph_ID):
   """
   The quads are not triples, but non-directed graph nodes augmented with predicate an node identifier
@@ -180,11 +190,26 @@ def convertQuadsGraphIntoRDFGraph(quads):
 
 def extractSubTree(quads, root, extracts=[], stack=[]):
   for s, o, p, graphID in quads:
-    if s not in stack:
-      if o == root:
-        extracts.append((s, o, p, graphID))
-        stack.append(s)
-        extractSubTree(quads, s, extracts=extracts, stack=stack)
+    if o == root:
+      extracts.append((s,o,p,graphID))
+      if o not in stack:
+        extractSubTree(quads, s, extracts, stack)
+
+  if o == root:
+    stack.append(o)
+
+    # if (s,o) not in stack:
+    #   if s != root:
+    #     if o in extracts:
+    #       extracts.append((s,o,p,graphID))
+    #       stack.append((s,o))
+    #       extractSubTree(quads, s, extracts=extracts, stack=stack)
+
+    # if s not in stack:
+    #   if o == root:
+    #     extracts.append((s, o, p, graphID))
+    #     stack.append(s)
+    #     extractSubTree(quads, s, extracts=extracts, stack=stack)
 
 
 def debuggPrintGraph(graph, debug, text=""):
@@ -476,20 +501,22 @@ class WorkingTree(SuperGraph):
       print("error >>>>>>>>  neither node can be instantiated", primitive, primitive_name, value_name)
       return
 
-    primitive_enum = self.container_graph.incrementPrimitiveEnumerator(primitive)
+    primitive_enum = self.container_graph.incrementPrimitiveEnumerator(getID(primitive))
     primitive_i = makeID(primitive, primitive_enum)
     instantiated[c_original][primitive] = primitive_i
 
-    primitive_name_enum = self.container_graph.incrementNodeEnumerator(c_original, primitive_name)
+    primitive_name_enum = self.container_graph.incrementNodeEnumerator(c_original, getID(primitive_name))
     primitive_name_i = makeID(primitive_name, primitive_name_enum)
     instantiated[c_original][primitive_name] = primitive_name_i
 
-    value_name_enum = self.container_graph.incrementNodeEnumerator(c_original, value_name)
+    value_name_enum =self.container_graph.incrementNodeEnumerator(c_original,  getID(value_name))
     value_name_i = makeID(value_name, value_name_enum)
     instantiated[c_original][value_name] = value_name_i
 
     from_graph.remove((Literal(primitive_name), RDFSTerms[primitive], Literal(primitive)))
     from_graph.add((Literal(primitive_name_i), RDFSTerms[primitive], Literal(primitive_i)))
+
+
     from_graph.remove((Literal(value_name), RDFSTerms["value"], Literal(primitive_name)))
     from_graph.add((Literal(value_name_i), RDFSTerms["value"], Literal(primitive_name_i)))
 
@@ -505,7 +532,7 @@ class WorkingTree(SuperGraph):
           stop = True
           debuggPrintGraph(from_graph, debug, text="stop 1")
           break
-        else: # todo: here is the problem
+        else:
           o_original = getID(str(o))
           o_enum = self.container_graph.incrementNodeEnumerator(c_original, o_original)
           o_i = makeID(o_original, o_enum)
@@ -525,7 +552,7 @@ class WorkingTree(SuperGraph):
 
     if c in instantiated[c_original]:
       c_store = instantiated[c_original][c]
-      del self.RDFConjunctiveGraph[c]
+      # del self.RDFConjunctiveGraph[c]  # todo: here it is deleted
       self.RDFConjunctiveGraph[c_store] = from_graph
       # print("debugging -- put the graph into to conjunctive graph")
       index = class_path.index(c)
@@ -580,7 +607,7 @@ class WorkingTree(SuperGraph):
           if n in instantiated[c_original]:
             n_i = instantiated[c_original][n]
           else:
-            n_enum = self.container_graph.incrementNodeEnumerator(c_original, n)
+            n_enum = self.container_graph.incrementNodeEnumerator(c_original, getID(n))
             n_i = makeID(n, n_enum)
           if isInstantiated((str(o))):  # hit an instantiated node
             from_graph.remove((s, p, o))
@@ -645,11 +672,7 @@ class WorkingTree(SuperGraph):
     return t
 
   def makeDotGraph(self):
-    graph_overall = Graph()
-    for cl in self.RDFConjunctiveGraph:
-      for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
-        s, p, o = t
-        graph_overall.add(t)
+    graph_overall = self.collectGraphs()
     class_names = list(self.RDFConjunctiveGraph.keys())
     dot = plot(graph_overall, class_names)
     graph_name = self.txt_root_class
@@ -660,22 +683,35 @@ class WorkingTree(SuperGraph):
       leg.render("legend", directory=ONTOLOGY_DIRECTORY, view=True)
     return dot
 
+  def collectGraphs(self):
+    graph_overall = Graph()
+    for cl in self.RDFConjunctiveGraph:
+      for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
+        s, p, o = t
+        graph_overall.add(t)
+    # class_names = list(self.RDFConjunctiveGraph.keys())
+    # dot = plot(graph_overall, class_names)
+    # graph_name = self.txt_root_class
+    return graph_overall
+
   def extractSubgraph(self, root, graph_ID):
     """
     extract an RDF-subgraph from an RDF-Graph given a root as a string, a label
     it is done via the quads generation that ignore the directionality
     """
     quads = convertRDFintoInternalMultiGraph(self.container_graph.RDFConjunctiveGraph[graph_ID], graph_ID)
-    extracts = []
+    extracts = []  #TODO: add button for legend
     extractSubTree(quads, root, extracts)  # as quads
     graph = convertQuadsGraphIntoRDFGraph(extracts)
     linked_classes = []
+    debuggPlotAndRender(graph,"adding", True)
     c_next = None
     for s,p,o in graph.triples((None, RDFSTerms["link_to_class"],None)):
       c_next = getID(str(s))
-    if c_next:
-      linked_classes.append(c_next)
-      self.getLinkedGraphs(c_next, linked_classes, stack=[])
+      if c_next:
+        linked_classes.append(c_next)
+        self.getLinkedGraphs(c_next, linked_classes, stack=[])
+
     return graph, linked_classes
 
   def getLinkedGraphs(self, c_current, linked_classes, stack=[]):
@@ -859,30 +895,44 @@ class BackEnd:
       self.__shiftClass()
 
   def __addBranch(self):
-    debug = True
-    sub_graph, linked_classes = self.working_tree.extractSubgraph(getID(self.current_node),
-                                                                  getID(self.current_class))
+    debug_plot = True
+    debug_print = False
+    root = getID(self.current_node)
+    c_original = getID(self.current_class)
+    sub_graph, linked_classes = self.working_tree.extractSubgraph(root, c_original)
 
-    debuggPrintGraph(sub_graph, debug)
+    debuggPrintGraph(sub_graph, debug_print)
+    debuggPlotAndRender(sub_graph, "wg_to_be_added", debug_plot)
 
-    print("debugging -- linked_classes", linked_classes)
+    root_enum = self.working_tree.container_graph.incrementNodeEnumerator(c_original, root )
+    # root_i = root #makeID(root, root_enum)
+    # for s,p,o in sub_graph.triples((None,None,None)):
+    #   print("gugus --", str(s), MYTerms[p], str(o))
+    #
+    # for s,p,o in sub_graph.triples((None, None, Literal(root))):
+    #   sub_graph.remove((s,p,o))
+    #   sub_graph.add((s,p,Literal(root_i)))
+
+    debuggPlotAndRender(sub_graph, "subgraph", debug_plot)
+
+    # print("debugging -- linked_classes", linked_classes)
 
     w_graph= self.working_tree.RDFConjunctiveGraph[self.current_class] + sub_graph
 
-    if debug:
-      dot = plot(w_graph)
-      dot.render(view=True)
+    debuggPlotAndRender(w_graph, "wg_extended", debug_plot)
 
-    debuggPrintGraph(self.working_tree.RDFConjunctiveGraph[self.current_class], debug)
-    debuggPrintGraph(w_graph, debug)
+    debuggPrintGraph(self.working_tree.RDFConjunctiveGraph[self.current_class], debug_print)
+    debuggPrintGraph(w_graph, debug_print)
 
     for s, p, o in w_graph.triples(
             (Literal(self.current_node), RDFSTerms["is_a_subclass_of"], None)):
       print("debugging -- obj:", str(o))
       to_connect = getID(self.current_node)
-      w_graph.add((Literal(to_connect), p, Literal(str(o))))
+      w_graph.add((Literal(root), p, Literal(str(o))))
 
     self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph
+
+    debuggPlotAndRender(w_graph, "wg_extended_linked", debug_plot)
 
     for c in linked_classes:
       self.working_tree.RDFConjunctiveGraph[c] = copy.copy(self.working_tree.container_graph.RDFConjunctiveGraph[c])
@@ -918,6 +968,8 @@ class BackEnd:
       self.path_at_transition.push(key, item)
     self.path_at_transition.reduce(self.class_path[:-1])
     # make global path
+    if not paths_in_classes:
+      print("debugging -- troubles paths_in_classes is empty")
     global_path, global_IDs = self.__extractGlobalNodesAndIDsFromPaths(paths_in_classes)
     return global_IDs, global_path
 
@@ -951,7 +1003,10 @@ class BackEnd:
       global_path_nodes.append(getID(n))
       global_node_IDs.append(getIDNo(n))
     global_path = DELIMITERS["path"].join(global_path_nodes)
-    global_IDs = DELIMITERS["instantiated"].join(global_node_IDs)
+    try:
+      global_IDs = DELIMITERS["instantiated"].join(global_node_IDs)
+    except:
+      print("debugging -- problems with global_path_nodes") #TODO: there is a none in the path the root node
     return global_path, global_IDs
 
   def __clearInteger(self):
@@ -1018,6 +1073,12 @@ class BackEnd:
       self.working_tree.makeAllListsForAllGraphs()
     self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
                                                   self.current_class)
+
+    gugus = convertQuadsGraphIntoRDFGraph(self.quads)
+    debuggPlotAndRender(gugus, "made_quads", True)
+    gugus = self.working_tree.collectGraphs()
+    debuggPlotAndRender(gugus, "complete graph", True)
+
     # print("debugging -- the quads", self.quads)
 
   def processEvent(self, state, Event, event_data):

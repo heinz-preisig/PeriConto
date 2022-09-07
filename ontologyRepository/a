@@ -1,53 +1,62 @@
 digraph {
-	A [color=red shape=rectangle]
 	e
-	A -> e [color=red]
-	g
 	d
-	g -> d [color=blue]
+	e -> d [color=blue]
+	D
+	A [fillcolor=lightcoral shape=none style=filled]
+	D -> A [color=blue]
 	C
 	A [fillcolor=lightcoral shape=none style=filled]
 	C -> A [color=blue]
-	d
-	b
-	d -> b [color=blue]
-	f
-	d
-	f -> d [color=blue]
-	h
-	g
-	h -> g [color=blue]
-	C
-	curl
-	C -> curl [color=black]
-	b
-	a [fillcolor=red shape=none style=filled]
-	b -> a [color=blue]
-	B
-	A [fillcolor=lightcoral shape=none style=filled]
-	B -> A [color=blue]
-	A [color=red shape=rectangle]
-	h
-	A -> h [color=red]
-	B
-	burl
-	B -> burl [color=black]
-	string [color=green fillcolor=gray shape=none style=filled]
-	string
-	burl -> string [color=cyan]
 	A [color=red shape=rectangle]
 	f
 	A -> f [color=red]
+	A [color=red shape=rectangle]
+	c
+	A -> c [color=red]
+	A [color=red shape=rectangle]
+	e
+	A -> e [color=red]
+	C
+	curl
+	C -> curl [color=black]
+	h
+	g
+	h -> g [color=blue]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	burl -> string [color=cyan]
+	d
+	b
+	d -> b [color=blue]
+	B
+	burl
+	B -> burl [color=black]
 	c
 	b
 	c -> b [color=blue]
 	string [color=green fillcolor=gray shape=none style=filled]
 	string
 	curl -> string [color=cyan]
+	B
+	A [fillcolor=lightcoral shape=none style=filled]
+	B -> A [color=blue]
 	A [color=red shape=rectangle]
-	c
-	A -> c [color=red]
-	e
+	h
+	A -> h [color=red]
+	D
+	D_num
+	D -> D_num [color=black]
+	b
+	a [fillcolor=red shape=none style=filled]
+	b -> a [color=blue]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	D_num -> integer [color=darkorange]
+	f
 	d
-	e -> d [color=blue]
+	f -> d [color=blue]
+	g
+	d
+	g -> d [color=blue]
 }

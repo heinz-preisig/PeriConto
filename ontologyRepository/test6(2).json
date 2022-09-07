@@ -3,7 +3,27 @@
   "graphs": {
     "a": [
       [
-        "e",
+        "A",
+        "link_to_class",
+        "e"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "f"
+      ],
+      [
+        "g",
+        "is_a_subclass_of",
+        "d"
+      ],
+      [
+        "d",
+        "is_a_subclass_of",
+        "b"
+      ],
+      [
+        "f",
         "is_a_subclass_of",
         "d"
       ],
@@ -13,14 +33,9 @@
         "g"
       ],
       [
-        "d",
+        "b",
         "is_a_subclass_of",
-        "b"
-      ],
-      [
-        "A",
-        "link_to_class",
-        "f"
+        "a"
       ],
       [
         "c",
@@ -38,47 +53,12 @@
         "h"
       ],
       [
-        "A",
-        "link_to_class",
-        "e"
-      ],
-      [
-        "b",
-        "is_a_subclass_of",
-        "a"
-      ],
-      [
-        "f",
-        "is_a_subclass_of",
-        "d"
-      ],
-      [
-        "g",
+        "e",
         "is_a_subclass_of",
         "d"
       ]
     ],
     "A": [
-      [
-        "D",
-        "is_a_subclass_of",
-        "A"
-      ],
-      [
-        "burl",
-        "string",
-        "string"
-      ],
-      [
-        "B",
-        "value",
-        "burl"
-      ],
-      [
-        "C",
-        "is_a_subclass_of",
-        "A"
-      ],
       [
         "curl",
         "string",
@@ -90,19 +70,24 @@
         "A"
       ],
       [
-        "D",
+        "C",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "B",
         "value",
-        "D_num"
+        "burl"
+      ],
+      [
+        "burl",
+        "string",
+        "string"
       ],
       [
         "C",
         "value",
         "curl"
-      ],
-      [
-        "D_num",
-        "integer",
-        "integer"
       ]
     ]
   },
@@ -118,7 +103,6 @@
     "a.A.B": null,
     "a.A.C": null,
     "a.g": null,
-    "a.h": null,
-    "a.A.D": null
+    "a.h": null
   }
 }

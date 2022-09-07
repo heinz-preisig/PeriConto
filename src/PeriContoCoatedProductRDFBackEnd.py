@@ -421,8 +421,8 @@ class Data(dict):
     path_enum = self.addPath(path)
     key = (path_enum, IDs)
     print("debugging -- string add key", key, string)
-    if key not in self.integers:
-      self.integers[key] = string
+    if key not in self.strings:
+      self.strings[key] = string
     else:
       print("adding string >>> error")
 
@@ -603,7 +603,7 @@ class WorkingTree(SuperGraph):
       node_list = reversed(nodes[0:-1])
       for n in node_list:
 
-        for s, p, o in from_graph.triples((Literal(getID(n)), RDFSTerms["is_a_subclass_of"], None)):
+        for s, p, o in from_graph.triples((n, RDFSTerms["is_a_subclass_of"], None)):
           if n in instantiated[c_original]:
             n_i = instantiated[c_original][n]
           else:
@@ -999,6 +999,7 @@ class BackEnd:
 
     global_path_nodes = []
     global_node_IDs = []
+    global_IDs = []
     for n in nodes:
       global_path_nodes.append(getID(n))
       global_node_IDs.append(getIDNo(n))

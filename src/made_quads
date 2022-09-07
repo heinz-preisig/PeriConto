@@ -1,20 +1,29 @@
 digraph {
-	B
+	D
 	A
-	B -> A [color=blue]
-	string [color=green fillcolor=gray shape=none style=filled]
-	string
-	burl -> string [color=cyan]
+	D -> A [color=blue]
 	C
 	A
 	C -> A [color=blue]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	D_num -> integer [color=darkorange]
+	B
+	burl
+	B -> burl [color=black]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	curl -> string [color=cyan]
+	B
+	A
+	B -> A [color=blue]
+	D
+	D_num
+	D -> D_num [color=black]
 	C
 	curl
 	C -> curl [color=black]
 	string [color=green fillcolor=gray shape=none style=filled]
 	string
-	curl -> string [color=cyan]
-	B
-	burl
-	B -> burl [color=black]
+	burl -> string [color=cyan]
 }

@@ -1,52 +1,52 @@
 digraph {
-	c
-	"b-0"
-	c -> "b-0" [color=blue]
+	g
+	d
+	g -> d [color=blue]
 	"A-0"
 	"h-0"
 	"A-0" -> "h-0" [color=red]
 	A
+	e
+	A -> e [color=red]
+	h
+	g
+	h -> g [color=blue]
+	e
+	d
+	e -> d [color=blue]
 	f
-	A -> f [color=red]
+	d
+	f -> d [color=blue]
+	"b-0"
+	"a-0"
+	"b-0" -> "a-0" [color=blue]
 	A
 	h
 	A -> h [color=red]
+	"g-0"
+	"d-0"
+	"g-0" -> "d-0" [color=blue]
 	A
-	e
-	A -> e [color=red]
+	c
+	A -> c [color=red]
+	c
+	"b-0"
+	c -> "b-0" [color=blue]
+	"h-0"
+	"g-0"
+	"h-0" -> "g-0" [color=blue]
+	A
+	f
+	A -> f [color=red]
+	f
+	"d-0"
+	f -> "d-0" [color=blue]
 	e
 	"d-0"
 	e -> "d-0" [color=blue]
 	d
 	"b-0"
 	d -> "b-0" [color=blue]
-	f
-	"d-0"
-	f -> "d-0" [color=blue]
-	A
-	c
-	A -> c [color=red]
-	"b-0"
-	"a-0"
-	"b-0" -> "a-0" [color=blue]
-	e
-	d
-	e -> d [color=blue]
-	"h-0"
-	"g-0"
-	"h-0" -> "g-0" [color=blue]
-	h
-	g
-	h -> g [color=blue]
-	f
-	d
-	f -> d [color=blue]
-	g
-	d
-	g -> d [color=blue]
-	"g-0"
-	"d-0"
-	"g-0" -> "d-0" [color=blue]
 	"d-0"
 	"b-0"
 	"d-0" -> "b-0" [color=blue]

@@ -17,6 +17,8 @@ DELIMITERS = {"instantiated": ":",
 from rdflib import Graph
 from rdflib import Literal
 
+from treeid import ObjectTree
+
 # from graphviz import Digraph
 import graphviz
 
@@ -195,8 +197,6 @@ def extractSubTree(quads, root, extracts=[], stack=[]):
       if o not in stack:
         extractSubTree(quads, s, extracts, stack)
 
-  if o == root:
-    stack.append(o)
 
     # if (s,o) not in stack:
     #   if s != root:
@@ -273,8 +273,48 @@ class SuperGraph():
       for s, p, o in graphs_internal[g]:
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
+    self.knowledge_tree = self.makeTreeRepresentation()
+
     self.makeAllListsForAllGraphs()
     return self.txt_root_class
+
+  def makeTreeRepresentation(self):
+    graph_overall = self.collectGraphs()
+    quads = convertRDFintoInternalMultiGraph(graph_overall, 'all')
+    tree = ObjectTree(self.txt_root_class)
+    self.recurseTree(tree, self.txt_root_class, quads)
+    print("debugging -- generating tree")
+
+
+    return tree
+
+  def recurseTree(self, tree, id, quads):
+
+    # nodes = []
+    stack = [id]
+    while stack:
+      # cur_node = stack[0]
+      id = stack[0]
+      stack = stack[1:]
+      # nodes.append(cur_node)
+      children = []
+      for s,o,p,g in quads:
+        if o == id:
+          children.append(str(s))
+      for child in reversed(children):  # .get_rev_children():
+        tree.addChildtoNode(child, id)
+        stack.insert(0, child)
+
+
+
+  def collectGraphs(self):
+    graph_overall = Graph()
+    for cl in self.RDFConjunctiveGraph:
+      for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
+        s, p, o = t
+        graph_overall.add(t)
+    return graph_overall
+
 
   def makeAllListsForAllGraphs(self):
     # print("debugging")
@@ -459,12 +499,14 @@ class WorkingTree(SuperGraph):
 
     self.data = Data()
 
+    self.tree = copy.deepcopy(container_graph.knowledge_tree)
+
     ### oops does not work!
     # self.RDFConjunctiveGraph = copy.deepcopy(container_graph.RDFConjunctiveGraph)
-    self.RDFConjunctiveGraph = {}
-    for c in container_graph.RDFConjunctiveGraph:
-      G_original = container_graph.RDFConjunctiveGraph[c]
-      self.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
+    # self.RDFConjunctiveGraph = {}
+    # for c in container_graph.RDFConjunctiveGraph:
+    #   G_original = container_graph.RDFConjunctiveGraph[c]
+    #   self.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
 
     # self.printMe("copied into the working tree")
 
@@ -1035,6 +1077,9 @@ class BackEnd:
     self.__makeWorkingTree()
     self.__shiftClass()
 
+  def __showTree(self):
+    self.FrontEnd.controls("selectors", "classTree", "populate", self.working_tree.tree)
+
   def __shiftClass(self):
     global current_event_data
 
@@ -1066,19 +1111,20 @@ class BackEnd:
     root_class = container_root_class + DELIMITERS["instantiated"] + str(data_ID)
     return root_class
 
-  def __makeWorkingTree(self):
-    global data_container
-    global is_container_class
+  # def __makeWorkingTree(self):
 
-    if (self.data_container_number == 0) or is_container_class:
-      self.working_tree.makeAllListsForAllGraphs()
-    self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
-                                                  self.current_class)
+    # global data_container
+    # global is_container_class
 
-    gugus = convertQuadsGraphIntoRDFGraph(self.quads)
-    debuggPlotAndRender(gugus, "made_quads", True)
-    gugus = self.working_tree.collectGraphs()
-    debuggPlotAndRender(gugus, "complete graph", True)
+    # if (self.data_container_number == 0) or is_container_class:
+    #   self.working_tree.makeAllListsForAllGraphs()
+    # self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
+    #                                               self.current_class)
+    #
+    # gugus = convertQuadsGraphIntoRDFGraph(self.quads)
+    # debuggPlotAndRender(gugus, "made_quads", True)
+    # gugus = self.working_tree.collectGraphs()
+    # debuggPlotAndRender(gugus, "complete graph", True)
 
     # print("debugging -- the quads", self.quads)
 
@@ -1135,8 +1181,9 @@ class BackEnd:
                                        },
             "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
                                                      "actions"   : [self.__loadOntology,
-                                                                    self.__makeWorkingTree,
-                                                                    self.__shiftClass,
+                                                                    self.__showTree,
+                                                                    # self.__makeWorkingTree,
+                                                                    # self.__shiftClass,
                                                                     ],
                                                      "gui_state" : "show_tree"},
                                        },

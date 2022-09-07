@@ -12,13 +12,11 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QTreeWidgetItem
 
-# from PeriContoCoatedProductRDFBackEnd import BackEnd
-# from PeriContoCoatedProductRDFBackEnd import DELIMITERS
-from PeriContoCoatedProductTreeBackEnd import BackEnd
-from PeriContoCoatedProductTreeBackEnd import DELIMITERS
-# from graphHAP import Graph
+from PeriContoCoatedProductBackEnd import BackEnd
+from PeriContoCoatedProductBackEnd import DELIMITERS
 
-from PeriContoCoatedProductTree_gui import Ui_MainWindow
+# from graphHAP import Graph
+from PeriContoCoatedProduct_gui import Ui_MainWindow
 from resources.pop_up_message_box import makeMessageBox
 from resources.resources_icons import roundButton
 from resources.ui_string_dialog_impl import UI_String
@@ -40,38 +38,23 @@ QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
             "string"          : QtGui.QBrush(COLOURS["string"]), }
 
 
-def makeTree(objTree, id, rootItem):
-
-  stack = [id]
-  items = {id: rootItem}
-  while stack:
-    id = stack[0]
-    stack = stack[1:]
-    no_id = objTree["IDs"][id]
-    children = objTree["tree"][no_id]["children"]
-    for child in reversed(children):
-      child_id = objTree["nodes"][child]
-      items[child_id] = QTreeWidgetItem(items[id])
-      items[child_id].setText(0,child_id)
-      stack.insert(0, child_id)
-
-  print("debugging -- finished")
-
-  #   if o == origin:
-  #         # print("add %s <-- %s" % (o, s),p)
-  #       item = QTreeWidgetItem(items[o])
-  #       item.setForeground(0, QBRUSHES[p])
-  #       item.subject = s
-  #       item.object = o
-  #       item.predicate = p
-  #       item.graph_ID = graph_ID
-  #       # stack.append((s, o))
-  #       item.setText(0, s)
-  #       items[s] = item
-  #       if (s,o) not in stack:
-  #         makeTree(truples, origin=s, stack=stack, items=items)
-  # if o == origin:
-  #   stack.append((s,o))
+def makeTree(truples, origin=[], stack=[], items={}):
+  for s, o, p, graph_ID in truples:
+    if o == origin:
+          # print("add %s <-- %s" % (o, s),p)
+        item = QTreeWidgetItem(items[o])
+        item.setForeground(0, QBRUSHES[p])
+        item.subject = s
+        item.object = o
+        item.predicate = p
+        item.graph_ID = graph_ID
+        # stack.append((s, o))
+        item.setText(0, s)
+        items[s] = item
+        if (s,o) not in stack:
+          makeTree(truples, origin=s, stack=stack, items=items)
+  if o == origin:
+    stack.append((s,o))
 
 
   # for s, o, p, graph_ID in truples:
@@ -212,27 +195,24 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
     # self.block = True  # Note: qt emits a signal if a widget is populated. Thus one has to block the event after populating
 
-  def __makeClassTree(self, objTree):
+  def __makeClassTree(self, truples, root):
     widget = self.ui.treeClass
     widget.clear()
-    root = objTree["nodes"][0]
 
     rootItem = QTreeWidgetItem(widget)
     widget.setColumnCount(1)
-    # rootItem.root = root
+    rootItem.root = root
     rootItem.setText(0, root)
-    # rootItem.setSelected(True)
-    # rootItem.subject = None
-    # rootItem.object = root
-    # rootItem.predicate = None
-    # rootItem.graph_ID = root
-    # widget.addTopLevelItem(rootItem)
-    # self.current_class = root
-
-
-    makeTree(objTree, root, rootItem) #, stack=[], items={root: rootItem})
+    rootItem.setSelected(True)
+    rootItem.subject = None
+    rootItem.object = root
+    rootItem.predicate = None
+    rootItem.graph_ID = root
+    widget.addTopLevelItem(rootItem)
+    self.current_class = root
+    makeTree(truples, origin=root, stack=[], items={root: rootItem})
     widget.show()
-    # widget.expandAll()
+    widget.expandAll()
     self.current_subclass = root
     pass
 

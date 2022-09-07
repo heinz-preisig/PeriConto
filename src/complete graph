@@ -1,62 +1,62 @@
 digraph {
 	A
-	f
-	A -> f [color=red]
-	A
-	e
-	A -> e [color=red]
-	D
-	A
-	D -> A [color=blue]
-	d
-	b
-	d -> b [color=blue]
-	g
-	d
-	g -> d [color=blue]
-	C
-	A
-	C -> A [color=blue]
-	string [color=green fillcolor=gray shape=none style=filled]
-	string
-	curl -> string [color=cyan]
-	D
-	D_num
-	D -> D_num [color=black]
-	C
-	curl
-	C -> curl [color=black]
-	string [color=green fillcolor=gray shape=none style=filled]
-	string
-	burl -> string [color=cyan]
+	h
+	A -> h [color=red]
 	h
 	g
 	h -> g [color=blue]
-	c
-	b
-	c -> b [color=blue]
-	integer [color=green fillcolor=gray shape=none style=filled]
-	integer
-	D_num -> integer [color=darkorange]
-	B
-	burl
-	B -> burl [color=black]
-	e
-	d
-	e -> d [color=blue]
-	A
-	c
-	A -> c [color=red]
-	A
-	h
-	A -> h [color=red]
 	B
 	A
 	B -> A [color=blue]
-	f
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	burl -> string [color=cyan]
+	D
+	A
+	D -> A [color=blue]
+	A
+	c
+	A -> c [color=red]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	D_num -> integer [color=darkorange]
+	e
 	d
-	f -> d [color=blue]
+	e -> d [color=blue]
+	d
+	b
+	d -> b [color=blue]
+	C
+	curl
+	C -> curl [color=black]
+	c
+	b
+	c -> b [color=blue]
+	D
+	D_num
+	D -> D_num [color=black]
 	b
 	a
 	b -> a [color=blue]
+	B
+	burl
+	B -> burl [color=black]
+	A
+	e
+	A -> e [color=red]
+	g
+	d
+	g -> d [color=blue]
+	f
+	d
+	f -> d [color=blue]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	curl -> string [color=cyan]
+	A
+	f
+	A -> f [color=red]
+	C
+	A
+	C -> A [color=blue]
 }

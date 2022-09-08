@@ -16,12 +16,12 @@ from PyQt5.QtWidgets import QTreeWidgetItem
 # from PeriContoCoatedProductRDFBackEnd import DELIMITERS
 from PeriContoCoatedProductTreeBackEnd import BackEnd
 from PeriContoCoatedProductTreeBackEnd import DELIMITERS
-# from graphHAP import Graph
-
 from PeriContoCoatedProductTree_gui import Ui_MainWindow
 from resources.pop_up_message_box import makeMessageBox
 from resources.resources_icons import roundButton
 from resources.ui_string_dialog_impl import UI_String
+
+# from graphHAP import Graph
 
 COLOURS = {
         "is_a_subclass_of": QtGui.QColor(0, 0, 0, 255),
@@ -40,19 +40,21 @@ QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
             "string"          : QtGui.QBrush(COLOURS["string"]), }
 
 
-def makeTree(objTree, id, rootItem):
-
-  stack = [id]
-  items = {id: rootItem}
+def makeTree(objTree, node_id, rootItem):
+  stack = [node_id]
+  items = {node_id: rootItem}
   while stack:
-    id = stack[0]
+    node_id = stack[0]
     stack = stack[1:]
-    no_id = objTree["IDs"][id]
-    children = objTree["tree"][no_id]["children"]
-    for child in reversed(children):
-      child_id = objTree["nodes"][child]
-      items[child_id] = QTreeWidgetItem(items[id])
-      items[child_id].setText(0,child_id)
+    # node_id = objTree["IDs"][node_id]
+    children_ids = objTree["tree"].getChildren(node_id)
+    for child_id in children_ids:
+      items[child_id] = QTreeWidgetItem(items[node_id])
+      child_tag = objTree["nodes"][child_id]
+      items[child_id].setText(0, child_tag)
+      items[child_id].reversed_path = objTree["tree"].getAncestors(child_id)
+      items[child_id].node_id = node_id
+      # print("building tree", child_id, objTree["tree"].getAncestors(child_id) )
       stack.insert(0, child_id)
 
   print("debugging -- finished")
@@ -73,7 +75,6 @@ def makeTree(objTree, id, rootItem):
   # if o == origin:
   #   stack.append((s,o))
 
-
   # for s, o, p, graph_ID in truples:
   #   if (s, o) not in stack:
   #     if s != origin:
@@ -89,7 +90,6 @@ def makeTree(objTree, id, rootItem):
   #         item.setText(0, s)
   #         items[s] = item
   #         makeTree(truples, origin=s, stack=stack, items=items)
-
 
 
 class PeriContoPyQtFrontEnd(QMainWindow):
@@ -215,12 +215,15 @@ class PeriContoPyQtFrontEnd(QMainWindow):
   def __makeClassTree(self, objTree):
     widget = self.ui.treeClass
     widget.clear()
-    root = objTree["nodes"][0]
+    root_id = 0
+    root_tag = objTree["nodes"][0]
 
     rootItem = QTreeWidgetItem(widget)
     widget.setColumnCount(1)
     # rootItem.root = root
-    rootItem.setText(0, root)
+    rootItem.setText(0, root_tag)
+    # no_id = objTree["IDs"][root]
+    rootItem.path = objTree["tree"].getAncestors(root_id)
     # rootItem.setSelected(True)
     # rootItem.subject = None
     # rootItem.object = root
@@ -229,11 +232,10 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     # widget.addTopLevelItem(rootItem)
     # self.current_class = root
 
-
-    makeTree(objTree, root, rootItem) #, stack=[], items={root: rootItem})
+    makeTree(objTree, root_id, rootItem)  # , stack=[], items={root: rootItem})
     widget.show()
-    # widget.expandAll()
-    self.current_subclass = root
+    widget.expandAll()
+    # self.current_subclass = root
     pass
 
   def __buttonShow(self, show):
@@ -382,13 +384,14 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     """
 
     self.current_tree_item = item
-    graph_ID, object, predicate, subject = self.__getItemInfo(item)
-    self.path = self.__makePath(item)  # used in instantiation
-    self.triple = (subject, predicate, object)
+    # graph_ID, object, predicate, subject = self.__getItemInfo(item)
+    # self.path = self.__makePath(item)  # used in instantiation
+    # self.triple = (subject, predicate, object)
     # print("FrontEnd -- debugging selected item:", subject, predicate, object)
-    message = {"class" : graph_ID,
-               "triple": (subject, predicate, object),
-               "path"  : self.path}
+    self.reversed_path = item.reversed_path
+    message = {"reversed_path": self.reversed_path,
+               "node_tag"         : item.text(0),
+               "node_ID" : item.node_id}
     self.backEnd.processEvent("show_tree", "selected", message)
 
   def __getItemInfo(self, item):
@@ -405,8 +408,10 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def on_pushAcceptInteger_pressed(self):
     number = self.ui.spinNumber.value()
-    message = {"triple" : self.triple,
-               "path"   : self.path,
+    item = self.ui.treeClass.currentItem()
+    message = {"reversed_path"   : self.reversed_path,
+               "node_tag" : item.text(0),
+               "node_ID"  : item.node_id,
                "integer": number}
     self.backEnd.processEvent("wait_for_ID", "got_integer", message)
     pass
@@ -417,7 +422,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
   def on_pushAcceptString_pressed(self):
     string = self.ui.editString.text()
     message = {"triple": self.triple,
-               "path"  : self.path,
+               "reversed_path"  : self.reversed_path,
                "string": string}
     self.backEnd.processEvent("wait_for_ID", "got_string", message)
     pass

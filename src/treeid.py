@@ -85,7 +85,92 @@ def invertDict(dictionary):
 #   return nodes
 
 
-class ObjectTree(dict):
+class ObjectTreeNonUniqueTags(dict):
+  """
+  requires unique tags
+  """
+
+  def __init__(self, root):
+    """
+    starts a tagged tree
+    :param root: name of the root -- string
+    """
+    super().__init__()
+    _nodeID = 0
+    self["tree"] = Tree(_nodeID)
+    self["nodes"] = {
+            _nodeID: root
+            }
+    self["IDs"] = {
+            root: _nodeID
+            }
+
+  def addChildtoNode(self, child, parent):
+    """
+    add a child tag to the tree
+    :param child: tag of child
+    :param parent: tag of parent
+    :return:
+    """
+    id_parent = self["IDs"][parent]
+    i = self["tree"].addChild(id_parent)
+    self["nodes"][i] = child
+    self["IDs"][child] = i
+
+  def getLeaves(self, node_ID_or_tag):
+    """
+
+    :param node_ID_or_tag: either node as ID (integer) or node as tag (string)
+    :return: leave_tags, leave_IDs  both tags and IDs
+    """
+    # TODO: incosistent change to node_tag
+    dummy = 'dummy'
+    if isinstance(node_ID_or_tag, dummy.__class__):
+      node_ID = self["IDs"](node_ID_or_tag)
+    else:
+      node_ID = node_ID_or_tag
+    leave_tags = []
+    leave_IDs = []
+    for i in self["tree"].walkDepthFirst(node_ID):
+
+      if self["tree"].isLeave(i):
+        leave_tags.append(self["nodes"][i])
+        leave_IDs.append(i)
+        # print(i, '  -  ', l)
+
+    return leave_tags, leave_IDs
+
+  def rename(self,ID, new_tag):
+
+    old_tag = self["nodes"][ID]
+    self["nodes"][ID] = new_tag
+    if old_tag in self["IDs"]:
+      del self["IDs"][old_tag]
+    self["IDs"][new_tag] = ID
+    # for id in self["nodes"]:
+    #   tag = self["nodes"][id]
+    #   if tag == new_tag:
+    #     print("found a tag", tag)
+    #     self["nodes"][id] = new_tag
+
+
+  def makeTaggedTree(self):
+    taggedTree = {}
+    for i in self["tree"].walkDepthFirst(0):
+      children = []
+      [children.append(self["nodes"][child]) for child in self["tree"][i]["children"]]
+      ancestors = []
+      [ancestors.append(self["nodes"][ancestor]) for ancestor in self["tree"][i]["ancestors"]]
+
+      taggedTree[self["nodes"][i]] = {}
+      taggedTree[self["nodes"][i]]["children"] = children
+      taggedTree[self["nodes"][i]]["ancestors"] = ancestors
+    return taggedTree
+
+
+
+
+class ObjectTreeUniqueTags(dict):
   """
   requires unique tags
   """
@@ -139,6 +224,14 @@ class ObjectTree(dict):
         # print(i, '  -  ', l)
 
     return leave_tags, leave_IDs
+
+  def getChildren(self, node_tag):
+    children_tags = []
+    id = self["IDs"][node_tag]
+    for child_id in self["tree"].getChildren(id):
+      child_tag = self["nodes"][child_id]
+      children_tags.append(child_tag)
+    return children_tags
 
   def getAncestors(self, node_tag):
     ancestor_tags = []
@@ -269,7 +362,7 @@ class Tree(dict):
       return None
 
   def getAncestors(self, id):
-    ''' these are the parents '''
+    """ these are the parents """
     a = self[id]['ancestors']
     return a
 

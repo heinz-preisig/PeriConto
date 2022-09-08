@@ -17,7 +17,7 @@ DELIMITERS = {"instantiated": ":",
 from rdflib import Graph
 from rdflib import Literal
 
-from treeid import ObjectTree
+from treeid import ObjectTreeNonUniqueTags
 
 # from graphviz import Digraph
 import graphviz
@@ -273,20 +273,29 @@ class SuperGraph():
       for s, p, o in graphs_internal[g]:
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
-    self.knowledge_tree = self.makeTreeRepresentation()
-
     self.makeAllListsForAllGraphs()
-    return self.txt_root_class
+
+    self.knowledge_tree, self.node_types = self.makeTreeRepresentation()
+
+    self.knowledge_tree["tree"].printMe()
+
+
 
   def makeTreeRepresentation(self):
     graph_overall = self.collectGraphs()
     quads = convertRDFintoInternalMultiGraph(graph_overall, 'all')
-    tree = ObjectTree(self.txt_root_class)
+    tree = ObjectTreeNonUniqueTags(self.txt_root_class)
     self.recurseTree(tree, self.txt_root_class, quads)
     print("debugging -- generating tree")
 
+    types = {}
+    for t in RDFSTerms:
+      types[t]= set()
+    for s,o,p,g in quads:
+      types[p].add(s)
 
-    return tree
+    # print("debugging")
+    return tree, types
 
   def recurseTree(self, tree, id, quads):
 
@@ -398,18 +407,21 @@ class ContainerGraph(SuperGraph):
 
   def __init__(self):
     SuperGraph.__init__(self)
-    self.enumerators = {"classes"         : {},
-                        "nodes_in_classes": {}}
+    self.enumerators = {}#{"classes"         : {},
+                        # "nodes_in_classes": {}}
     pass
 
   def load(self, JsonFile):
-    self.txt_root_class = super().load(JsonFile)
+    super().load(JsonFile)
     for class_ID in self.RDFConjunctiveGraph:
-      self.enumerators["classes"][class_ID] = -1
-      self.enumerators["nodes_in_classes"][class_ID] = {}
+
+      # self.enumerators["classes"][class_ID] = -1
+      # self.enumerators["nodes_in_classes"][class_ID] = {}
       for s, p, o in self.RDFConjunctiveGraph[class_ID]:
-        self.enumerators["nodes_in_classes"][class_ID][str(o)] = -1  # instantiate enumerators
-        self.enumerators["nodes_in_classes"][class_ID][str(s)] = -1  # instantiate enumerators
+        self.enumerators[str(s)] = -1
+        self.enumerators[str(o)] = -1
+      #   self.enumerators["nodes_in_classes"][class_ID][str(o)] = -1  # instantiate enumerators
+      #   self.enumerators["nodes_in_classes"][class_ID][str(s)] = -1  # instantiate enumerators
     for p in PRIMITIVES:
       self.enumerators[p] = -1
 
@@ -880,34 +892,40 @@ class BackEnd:
     #   """
     global current_event_data
     global automaton_next_state
-    global is_container_class
 
-    subject, predicate, obj = current_event_data["triple"]
-    graph_ID = current_event_data["class"]
-    path = current_event_data["path"]
+    reversed_path = current_event_data["reversed_path"]
+    node_tag = current_event_data["node_tag"]
+    node_original = getID(node_tag)
 
-    self.current_node = subject
+    # tags = []
+    # for id in reversed_path:
+    #   tag = self.working_tree.tree["nodes"][id]
+    #   tags.append(tag)
+    #
+    # print("debugging -- tags", tags)
 
-    is_data_class = self.working_tree.isClass(subject) or (not subject)
-    is_container_class = self.ContainerGraph.isClass(subject)
-    is_sub_class = self.working_tree.isSubClass(subject, graph_ID)
-    is_primitive = self.working_tree.isPrimitive(subject)
-    is_value = self.working_tree.isValue(predicate)
-    is_integer = self.working_tree.isInteger(predicate)
-    is_comment = self.working_tree.isComment(predicate)
-    is_string = self.working_tree.isString(predicate)
-    is_linked = (predicate == "link_to_class")
-    is_instantiated_object = isInstantiated(obj)
+    # self.current_node = subject
+
+    is_data_class = node_original in self.ContainerGraph.node_types["link_to_class"]
+    # is_container_class = node in self.node_types[]
+    is_sub_class = node_original in self.ContainerGraph.node_types["is_a_subclass_of"]
+    is_primitive = node_original in PRIMITIVES
+    is_value = node_original in self.ContainerGraph.node_types["value"]
+    is_comment = node_original in self.ContainerGraph.node_types["comment"]
+    is_integer = node_original in self.ContainerGraph.node_types["integer"]
+    is_string =  node_original in self.ContainerGraph.node_types["string"]
+    # is_linked = (predicate == "link_to_class")
+    is_instantiated_object = DELIMITERS["instantiated"] in node_tag
 
     debugging = True
     if debugging:
       txt = "selection has data: %s    " % current_event_data
       if is_data_class: txt += " & class"
-      if is_container_class: txt += " & container_class"
+      # if is_container_class: txt += " & container_class"
       if is_sub_class: txt += " & subclass"
       if is_primitive: txt += " & primitive"
       if is_value: txt += " & value"
-      if is_linked: txt += " & is_linked"
+      # if is_linked: txt += " & is_linked"
       if is_instantiated_object: txt += " & instantiated"
       if is_integer: txt += " & integer"
       if is_comment: txt += " & comment"
@@ -915,7 +933,7 @@ class BackEnd:
       print("selection : %s\n" % txt)
 
     if is_primitive:
-      if (not isInstantiated(subject)):
+      if not is_instantiated_object:
         if is_integer:
           self.ui_state("instantiate_integer")
         elif is_string:
@@ -924,17 +942,17 @@ class BackEnd:
           self.ui_state("show_tree")
         return
 
-    if is_sub_class and (not is_linked) and is_instantiated_object:
+    if is_sub_class and  is_instantiated_object:
       dialog = self.FrontEnd.dialogYesNo(message="add new ")
       if dialog == "YES":
         self.__addBranch()
       elif dialog == "NO":
         pass
 
-    if is_linked:
-      self.current_class = subject
-      self.__makeWorkingTree()
-      self.__shiftClass()
+    # if is_linked:
+    #   self.current_class = subject
+    #   self.__makeWorkingTree()
+    #   self.__shiftClass()
 
   def __addBranch(self):
     debug_plot = True
@@ -988,41 +1006,81 @@ class BackEnd:
     global automaton_next_state
 
     value = current_event_data["integer"]
-    path = current_event_data["path"]
+    reversed_path = current_event_data["reversed_path"]
+    node_tag = current_event_data["node_tag"]
+    node_ID = current_event_data["node_ID"]
 
-    global_IDs, global_path = self.__preparteInstantiation(path)
+    # global_IDs, global_path = self.__preparteInstantiation(path)
+    # global_IDs, global_path = self.__preparteInstantiation(path)
+    global_path_list = []
+    for ID in reversed_path:
+      tag = self.working_tree.tree["nodes"][ID]
+      if not isInstantiated(tag):
+        enum = self.ContainerGraph.incrementPrimitiveEnumerator(getID(tag))
+        tag_i = makeID(tag, enum)
+        self.working_tree.tree.rename(ID, tag_i)
+        global_path_list.append(tag_i)
+      else:
+        global_path_list.append(tag)
+
+    global_path_list.reverse()
+
+    enum = self.ContainerGraph.incrementPrimitiveEnumerator(node_tag)
+    tag_i =makeID(node_tag, enum)
+    self.working_tree.tree.rename(node_ID, tag_i)
+    global_path_list.append(tag_i)
+
+    global_IDs_list = []
+    for i in global_path_list:
+      id = getIDNo(i)
+      global_IDs_list.append(id)
+
+    global_path = DELIMITERS["path"].join(global_IDs_list)
+    global_IDs = DELIMITERS["instantiated"].join(global_IDs_list)
 
     self.working_tree.data.addInteger(global_path, global_IDs, value)
 
     self.ui_state("show_tree")
+    self.__showTree()
 
-    current_event_data = {"class": self.class_path[-1]}
-    self.__shiftToSelectedClass()
+    # current_event_data = {"class": self.class_path[-1]}
+    # self.__shiftToSelectedClass()
 
-  def __preparteInstantiation(self, path):
-    paths_in_classes = copy.copy(self.path_at_transition)  # Note: this was a hard one
-    paths_in_classes[self.current_class] = path
-    self.class_path, paths_in_classes = self.working_tree.instantiateAlongPath(paths_in_classes,
-                                                                               self.class_path,
-                                                                               )
-    for key in paths_in_classes:
-      item = paths_in_classes[key]
-      self.path_at_transition.push(key, item)
-    self.path_at_transition.reduce(self.class_path[:-1])
-    # make global path
-    if not paths_in_classes:
-      print("debugging -- troubles paths_in_classes is empty")
-    global_path, global_IDs = self.__extractGlobalNodesAndIDsFromPaths(paths_in_classes)
-    return global_IDs, global_path
+  def __preparteInstantiation(self, reversed_path):
+    for ID in reversed_path:
+      tag = self.working_tree.tree["nodes"][ID]
+      if not isInstantiated(ID):
+        enum = self.ContainerGraph.incrementPrimitiveEnumerator(getID(tag))
+        tag_i = makeID(tag, enum)
+        self.working_tree.tree.rename(ID, tag_i)
+
+    print("debugging")
+    # self.working_tree.tree.rename(0,"gugus")
+    # paths_in_classes = copy.copy(self.path_at_transition)  # Note: this was a hard one
+    # paths_in_classes[self.current_class] = path
+    # self.class_path, paths_in_classes = self.working_tree.instantiateAlongPath(paths_in_classes,
+    #                                                                            self.class_path,
+    #                                                                            )
+    # for key in paths_in_classes:
+    #   item = paths_in_classes[key]
+    #   self.path_at_transition.push(key, item)
+    # self.path_at_transition.reduce(self.class_path[:-1])
+    # # make global path
+    # if not paths_in_classes:
+    #   print("debugging -- troubles paths_in_classes is empty")
+    # global_path, global_IDs = self.__extractGlobalNodesAndIDsFromPaths(paths_in_classes)
+    # return global_IDs, global_path
 
   def __gotString(self):
     global current_event_data
     global automaton_next_state
 
     value = current_event_data["string"]
-    path = current_event_data["path"]
+    reversed_path = current_event_data["reversed_path"]
+    node_tag = current_event_data["node_tag"]
+    node_ID = current_event_data["node_ID"]
 
-    global_IDs, global_path = self.__preparteInstantiation(path)
+    global_IDs, global_path = self.__preparteInstantiation(reversed_path)
 
     self.working_tree.data.addString(global_path, global_IDs, value)
 
@@ -1072,7 +1130,7 @@ class BackEnd:
 
     # print("shifting event data :", current_event_data)
 
-    self.current_class = current_event_data["class"]
+    # self.current_class = current_event_data["class"]
 
     self.__makeWorkingTree()
     self.__shiftClass()

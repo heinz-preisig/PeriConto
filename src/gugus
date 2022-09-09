@@ -15,8 +15,8 @@ digraph {
 	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
 	integer [color=green fillcolor=green shape=box style=filled]
 	g [color=black fillcolor=white shape=ellipse style=filled]
-	f [color=black fillcolor=white shape=ellipse style=filled]
 	e [color=black fillcolor=white shape=ellipse style=filled]
+	f [color=black fillcolor=white shape=ellipse style=filled]
 	h [color=black fillcolor=white shape=ellipse style=filled]
 	A [color=red fillcolor=red shape=egg style=filled]
 	C [color=black fillcolor=white shape=ellipse style=filled]
@@ -48,24 +48,24 @@ digraph {
 	string [color=green fillcolor=green shape=box style=filled]
 	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
 	integer [color=green fillcolor=green shape=box style=filled]
-	A -> e
+	D_num -> D
+	integer -> D_num
+	curl -> C
+	A -> h
+	D -> A
 	d -> b
 	A -> c
-	burl -> B
 	c -> b
-	A -> h
-	integer -> D_num
-	f -> d
-	b -> a
-	A -> f
-	string -> curl
-	curl -> C
-	B -> A
-	e -> d
 	g -> d
 	h -> g
+	f -> d
+	A -> f
+	burl -> B
+	string -> curl
+	b -> a
+	A -> e
 	C -> A
-	D -> A
-	D_num -> D
 	string -> burl
+	e -> d
+	B -> A
 }

@@ -40,6 +40,45 @@ EDGE_COLOUR = {
         "string"          : "cyan",
         }
 
+NODE_COLOUR = {
+        "root": "red",
+        "sub_class": "white",
+        "linked_class": "red",
+        "primitive": "green",
+        "value": "lightblue",
+        "comment": "green",
+        "integer": "green",
+        "string": "green",
+        "instantiated": "yellow",
+        "default": "white",
+        }
+
+NODE_BOUNDARY = {
+        "root": "red",
+        "sub_class":"black",
+        "linked_class": "red",
+        "primitive": "green",
+        "value": "lightblue",
+        "comment": "green",
+        "integer": "green",
+        "string": "green",
+        "instantiated": "yellow",
+        "default": "white",
+        }
+
+NODE_SHAPE = {
+        "root": "ellipse",
+        "sub_class": "ellipse",
+        "linked_class": "egg",
+        "primitive": "ellipse",
+        "value": "box",
+        "comment": "ellipse",
+        "integer": "box",
+        "string": "box",
+        "instantiated": "box",
+        "default" : "box",
+        }
+
 
 def copyRDFGraph(G_original):
   G_copy = Graph()
@@ -47,8 +86,125 @@ def copyRDFGraph(G_original):
     G_copy.add(triple)
   return G_copy
 
+def nodeTypeMembership(node_types, node_tag):
+  node_original = getID(node_tag)
+  is_root = node_original in node_types["root"]
+  is_data_class = node_original in node_types["link_to_class"]
+  # is_container_class = node in self.node_types[]
+  is_sub_class = node_original in node_types["is_a_subclass_of"]
+  is_primitive = node_original in PRIMITIVES
+  is_value = node_original in node_types["value"]
+  is_comment = node_original in node_types["comment"]
+  is_integer = node_original in node_types["integer"]
+  is_string = node_original in node_types["string"]
+  # is_linked = node_original in node_types["(predicate == "link_to_class")
+  is_instantiated_object = DELIMITERS["instantiated"] in node_tag
+  return is_root,\
+         is_comment, \
+         is_data_class, \
+         is_instantiated_object, \
+         is_integer, \
+         is_primitive, \
+         is_string, \
+         is_sub_class, \
+         is_value
 
-def plot(graph, class_names=[""]):
+def nodeAttributes(node_types, node_tag):
+  attributes = {"color": "white",
+                "style": "filled",
+                "fillcolor": "white",
+                "shape": "none",
+                }
+  is_root, \
+  is_comment, \
+  is_data_class, \
+  is_instantiated_object, \
+  is_integer, \
+  is_primitive, \
+  is_string, \
+  is_sub_class, \
+  is_value = nodeTypeMembership(node_types, node_tag)
+  if is_root:
+    t="root"
+  elif is_data_class:
+    t = "linked_class"
+  elif is_sub_class:
+    t = "sub_class"
+  elif is_value:
+    t = "value"
+  elif is_comment:
+    t = "comment"
+  elif is_integer:
+    t="integer"
+  elif          is_string:
+    t="string"
+  elif is_instantiated_object:
+    t="instantiated"
+  else:
+    t="default"
+
+  attributes["fillcolor"] = NODE_COLOUR[t]
+  attributes["shape"] = NODE_SHAPE[t]
+  attributes["color"] = NODE_BOUNDARY[t]
+
+  return attributes
+
+
+
+
+
+def treePlot(objTree, root, node_types=[]):
+  """
+  attribute documentation
+  https://graphviz.org/doc/info/attrs.html
+  """
+  dot = graphviz.Digraph(edge_attr={"simplify":"true"})
+  # edge_attr = {}
+  # edge_attr["tailport"] = "e"
+  # edge_attr["headport"] = "w"
+  #
+  # dot.edge_attr = edge_attr
+
+  edges = set()
+  root_str = objTree["nodes"][root]
+  atr = nodeAttributes(node_types, root_str)
+  # print("debugging ", root_str, atr)
+  dot.node(root_str,
+           color=atr["color"],
+           fillcolor=atr["fillcolor"],
+           style=atr["style"],
+           shape=atr["shape"]
+           ) #str(root))
+  # dot.attr("node",**atr)
+  for node_ID in objTree["tree"].walkDepthFirst(root):
+    children = objTree["tree"].getChildren(node_ID)
+    node_str = objTree["nodes"][node_ID]
+    # if node_str == "A":
+    #   print("debugging -- check on A")
+    for child in children:
+      child_str = objTree["nodes"][child]
+      atr = nodeAttributes(node_types, child_str)
+      # print("debugging ", child_str, atr)
+      dot.node(child_str,
+               color=atr["color"],
+               fillcolor=atr["fillcolor"],
+               style=atr["style"],
+               shape=atr["shape"]) #str(child))
+      # dot.attr("node",**atr)
+      edges.add((child_str, node_str))
+      # dot.edge(child_str, node_str) #, arrowhead="none") #str(child), str(node_ID))
+    print("debugg -- children of node %s: %s"%(node_ID, children))
+  for (child_str, node_str) in edges:
+    dot.edge(child_str, node_str)
+
+  return dot
+
+
+
+
+
+
+def plotQuads(graph, class_names=[""]):
   """
   Create Digraph plot
   color names : https://graphviz.org/doc/info/colors.html
@@ -132,25 +288,7 @@ def LegendPlot():
     l.node("o", label="o")
     l.edge(s, "o", color=EDGE_COLOUR[i])
 
-  # l.edge("legend","o")
   dot.subgraph(l)
-
-  # Visualize the graph
-  # dot.node('tab', shape="none", label='''<<TABLE>
-  #  <TR>
-  #    <TD>"boarder="0" left</TD>
-  #    <TD>right</TD>
-  #  </TR>
-  # </TABLE>>''')
-  #
-
-  # l = graphviz.Digraph( node_attr=atr)
-  #
-  # l.node("class", label="Class")
-  # l.node("abstract", label = "Abstract")
-  # l.node("interface", label = "Interface")
-  # dot.subgraph(l)
-
   return dot
 
 
@@ -161,7 +299,7 @@ def debuggPlotAndRender(graph, file_name, debugg):
   @debugg  is a convenience variable to help debugging
   """
   if debugg:
-    dot = plot(graph)
+    dot = plotQuads(graph)
     dot.render(file_name, view=True)
 
 def convertRDFintoInternalMultiGraph(graph, graph_ID):
@@ -196,20 +334,6 @@ def extractSubTree(quads, root, extracts=[], stack=[]):
       extracts.append((s,o,p,graphID))
       if o not in stack:
         extractSubTree(quads, s, extracts, stack)
-
-
-    # if (s,o) not in stack:
-    #   if s != root:
-    #     if o in extracts:
-    #       extracts.append((s,o,p,graphID))
-    #       stack.append((s,o))
-    #       extractSubTree(quads, s, extracts=extracts, stack=stack)
-
-    # if s not in stack:
-    #   if o == root:
-    #     extracts.append((s, o, p, graphID))
-    #     stack.append(s)
-    #     extractSubTree(quads, s, extracts=extracts, stack=stack)
 
 
 def debuggPrintGraph(graph, debug, text=""):
@@ -273,7 +397,7 @@ class SuperGraph():
       for s, p, o in graphs_internal[g]:
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
-    self.makeAllListsForAllGraphs()
+    # self.makeAllListsForAllGraphs()
 
     self.knowledge_tree, self.node_types = self.makeTreeRepresentation()
 
@@ -288,13 +412,13 @@ class SuperGraph():
     self.recurseTree(tree, self.txt_root_class, quads)
     print("debugging -- generating tree")
 
-    types = {}
+    types = {"root" : self.txt_root_class}
     for t in RDFSTerms:
       types[t]= set()
     for s,o,p,g in quads:
       types[p].add(s)
 
-    # print("debugging")
+    print("debugging")
     return tree, types
 
   def recurseTree(self, tree, id, quads):
@@ -508,19 +632,11 @@ class WorkingTree(SuperGraph):
   def __init__(self, container_graph):
     SuperGraph.__init__(self)
     self.container_graph = container_graph
-
     self.data = Data()
-
     self.tree = copy.deepcopy(container_graph.knowledge_tree)
 
-    ### oops does not work!
-    # self.RDFConjunctiveGraph = copy.deepcopy(container_graph.RDFConjunctiveGraph)
-    # self.RDFConjunctiveGraph = {}
-    # for c in container_graph.RDFConjunctiveGraph:
-    #   G_original = container_graph.RDFConjunctiveGraph[c]
-    #   self.RDFConjunctiveGraph[c] = copyRDFGraph(G_original)
-
-    # self.printMe("copied into the working tree")
+    dot = treePlot(self.tree,0,node_types=self.container_graph.node_types)
+    dot.render("gugus", view=True)
 
   def instantiateAlongPath(self, paths_in_classes, class_path):
 
@@ -725,10 +841,10 @@ class WorkingTree(SuperGraph):
     t = DELIMITERS["path"].join(new_nodes)
     return t
 
-  def makeDotGraph(self):
+  def makeRDFDotGraph(self):
     graph_overall = self.collectGraphs()
     class_names = list(self.RDFConjunctiveGraph.keys())
-    dot = plot(graph_overall, class_names)
+    dot = plotQuads(graph_overall, class_names)
     graph_name = self.txt_root_class
     dot.render(graph_name, directory=ONTOLOGY_DIRECTORY, view=True)
     if not os.path.exists(os.path.join(ONTOLOGY_DIRECTORY, "legend.pdf")):
@@ -895,6 +1011,8 @@ class BackEnd:
 
     reversed_path = current_event_data["reversed_path"]
     node_tag = current_event_data["node_tag"]
+    node_ID = current_event_data["node_ID"]
+
     node_original = getID(node_tag)
 
     # tags = []
@@ -904,18 +1022,15 @@ class BackEnd:
     #
     # print("debugging -- tags", tags)
 
-    # self.current_node = subject
-
-    is_data_class = node_original in self.ContainerGraph.node_types["link_to_class"]
-    # is_container_class = node in self.node_types[]
-    is_sub_class = node_original in self.ContainerGraph.node_types["is_a_subclass_of"]
-    is_primitive = node_original in PRIMITIVES
-    is_value = node_original in self.ContainerGraph.node_types["value"]
-    is_comment = node_original in self.ContainerGraph.node_types["comment"]
-    is_integer = node_original in self.ContainerGraph.node_types["integer"]
-    is_string =  node_original in self.ContainerGraph.node_types["string"]
-    # is_linked = (predicate == "link_to_class")
-    is_instantiated_object = DELIMITERS["instantiated"] in node_tag
+    is_root, \
+    is_comment, \
+    is_data_class, \
+    is_instantiated_object, \
+    is_integer, \
+    is_primitive, \
+    is_string, \
+    is_sub_class, \
+    is_value= nodeTypeMembership(self.working_tree.container_graph.node_types, node_tag)
 
     debugging = True
     if debugging:
@@ -945,7 +1060,7 @@ class BackEnd:
     if is_sub_class and  is_instantiated_object:
       dialog = self.FrontEnd.dialogYesNo(message="add new ")
       if dialog == "YES":
-        self.__addBranch()
+        self.__addBranch(node_ID)
       elif dialog == "NO":
         pass
 
@@ -954,12 +1069,18 @@ class BackEnd:
     #   self.__makeWorkingTree()
     #   self.__shiftClass()
 
-  def __addBranch(self):
+
+  def __addBranch(self, node_ID):
     debug_plot = True
     debug_print = False
-    root = getID(self.current_node)
-    c_original = getID(self.current_class)
-    sub_graph, linked_classes = self.working_tree.extractSubgraph(root, c_original)
+
+    # root = getID(self.current_node)
+    self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID)
+
+
+    #
+    # c_original = getID(self.current_class)
+    # sub_graph, linked_classes = self.working_tree.extractSubgraph(root, c_original)
 
     debuggPrintGraph(sub_graph, debug_print)
     debuggPlotAndRender(sub_graph, "wg_to_be_added", debug_plot)
@@ -1006,12 +1127,19 @@ class BackEnd:
     global automaton_next_state
 
     value = current_event_data["integer"]
+    global_IDs, global_path = self.__addPrimitive()
+
+    self.working_tree.data.addInteger(global_path, global_IDs, value)
+
+    self.ui_state("show_tree")
+    self.__showTree()
+
+
+  def __addPrimitive(self):
+    global current_event_data
     reversed_path = current_event_data["reversed_path"]
     node_tag = current_event_data["node_tag"]
     node_ID = current_event_data["node_ID"]
-
-    # global_IDs, global_path = self.__preparteInstantiation(path)
-    # global_IDs, global_path = self.__preparteInstantiation(path)
     global_path_list = []
     for ID in reversed_path:
       tag = self.working_tree.tree["nodes"][ID]
@@ -1022,29 +1150,18 @@ class BackEnd:
         global_path_list.append(tag_i)
       else:
         global_path_list.append(tag)
-
     global_path_list.reverse()
-
     enum = self.ContainerGraph.incrementPrimitiveEnumerator(node_tag)
-    tag_i =makeID(node_tag, enum)
+    tag_i = makeID(node_tag, enum)
     self.working_tree.tree.rename(node_ID, tag_i)
     global_path_list.append(tag_i)
-
     global_IDs_list = []
     for i in global_path_list:
       id = getIDNo(i)
       global_IDs_list.append(id)
-
     global_path = DELIMITERS["path"].join(global_IDs_list)
     global_IDs = DELIMITERS["instantiated"].join(global_IDs_list)
-
-    self.working_tree.data.addInteger(global_path, global_IDs, value)
-
-    self.ui_state("show_tree")
-    self.__showTree()
-
-    # current_event_data = {"class": self.class_path[-1]}
-    # self.__shiftToSelectedClass()
+    return global_IDs, global_path
 
   def __preparteInstantiation(self, reversed_path):
     for ID in reversed_path:
@@ -1072,43 +1189,38 @@ class BackEnd:
     # return global_IDs, global_path
 
   def __gotString(self):
+
     global current_event_data
     global automaton_next_state
 
     value = current_event_data["string"]
-    reversed_path = current_event_data["reversed_path"]
-    node_tag = current_event_data["node_tag"]
-    node_ID = current_event_data["node_ID"]
+    global_IDs, global_path = self.__addPrimitive()
 
-    global_IDs, global_path = self.__preparteInstantiation(reversed_path)
-
-    self.working_tree.data.addString(global_path, global_IDs, value)
+    self.working_tree.data.addInteger(global_path, global_IDs, value)
 
     self.ui_state("show_tree")
+    self.__showTree()
 
-    current_event_data = {"class": self.class_path[-1]}
-    self.__shiftToSelectedClass()
-
-  def __extractGlobalNodesAndIDsFromPaths(self, paths_in_classes):
-    """
-    extracts the global path and the associated IDs
-    """
-    nodes = []
-    for c in self.class_path:
-      nodes.extend(paths_in_classes[c].rstrip(DELIMITERS["path"]).split(DELIMITERS["path"]))  # drop last delimiter
-
-    global_path_nodes = []
-    global_node_IDs = []
-    global_IDs = []
-    for n in nodes:
-      global_path_nodes.append(getID(n))
-      global_node_IDs.append(getIDNo(n))
-    global_path = DELIMITERS["path"].join(global_path_nodes)
-    try:
-      global_IDs = DELIMITERS["instantiated"].join(global_node_IDs)
-    except:
-      print("debugging -- problems with global_path_nodes") #TODO: there is a none in the path the root node
-    return global_path, global_IDs
+  # def __extractGlobalNodesAndIDsFromPaths(self, paths_in_classes):
+  #   """
+  #   extracts the global path and the associated IDs
+  #   """
+  #   nodes = []
+  #   for c in self.class_path:
+  #     nodes.extend(paths_in_classes[c].rstrip(DELIMITERS["path"]).split(DELIMITERS["path"]))  # drop last delimiter
+  #
+  #   global_path_nodes = []
+  #   global_node_IDs = []
+  #   global_IDs = []
+  #   for n in nodes:
+  #     global_path_nodes.append(getID(n))
+  #     global_node_IDs.append(getIDNo(n))
+  #   global_path = DELIMITERS["path"].join(global_path_nodes)
+  #   try:
+  #     global_IDs = DELIMITERS["instantiated"].join(global_node_IDs)
+  #   except:
+  #     print("debugging -- problems with global_path_nodes") #TODO: there is a none in the path the root node
+  #   return global_path, global_IDs
 
   def __clearInteger(self):
     self.FrontEnd.controls("selectors", "integer", "populate", {"value": 0})
@@ -1118,7 +1230,7 @@ class BackEnd:
 
   def __makeDotPlot(self):
     # global working_tree
-    self.working_tree.makeDotGraph()
+    self.working_tree.makeRDFDotGraph()
 
   def __updateTree(self):
     global current_event_data

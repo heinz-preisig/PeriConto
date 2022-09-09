@@ -1017,7 +1017,7 @@ class BackEnd:
 
   def __makeDotPlot(self):
     # global working_tree
-    self.working_tree.makeDotGraph()
+    self.working_tree.makeRDFDotGraph()
 
   def __updateTree(self):
     global current_event_data

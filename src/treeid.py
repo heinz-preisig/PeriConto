@@ -743,7 +743,7 @@ if __name__ == '__main__':
   tree.mapMe()
   tree.printMe()
 
-  g = ObjectTree('ontology')
+  g = ObjectTreeUniqueTags('ontology')
   g.addChildtoNode('physical', 'ontology')
   g.addChildtoNode('solid', 'physical')
   g.addChildtoNode('phasea', 'solid')

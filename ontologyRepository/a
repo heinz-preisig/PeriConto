@@ -1,62 +1,20 @@
 digraph {
-	e
-	d
-	e -> d [color=blue]
-	D
-	A [fillcolor=lightcoral shape=none style=filled]
-	D -> A [color=blue]
-	C
-	A [fillcolor=lightcoral shape=none style=filled]
-	C -> A [color=blue]
-	A [color=red shape=rectangle]
-	f
-	A -> f [color=red]
-	A [color=red shape=rectangle]
-	c
-	A -> c [color=red]
-	A [color=red shape=rectangle]
-	e
-	A -> e [color=red]
-	C
-	curl
-	C -> curl [color=black]
-	h
-	g
-	h -> g [color=blue]
-	string [color=green fillcolor=gray shape=none style=filled]
-	string
-	burl -> string [color=cyan]
-	d
-	b
-	d -> b [color=blue]
-	B
-	burl
-	B -> burl [color=black]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	number -> integer [color=darkorange]
 	c
 	b
 	c -> b [color=blue]
-	string [color=green fillcolor=gray shape=none style=filled]
-	string
-	curl -> string [color=cyan]
-	B
-	A [fillcolor=lightcoral shape=none style=filled]
-	B -> A [color=blue]
-	A [color=red shape=rectangle]
-	h
-	A -> h [color=red]
-	D
-	D_num
-	D -> D_num [color=black]
 	b
 	a [fillcolor=red shape=none style=filled]
 	b -> a [color=blue]
-	integer [color=green fillcolor=gray shape=none style=filled]
-	integer
-	D_num -> integer [color=darkorange]
-	f
-	d
-	f -> d [color=blue]
-	g
-	d
-	g -> d [color=blue]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	name -> string [color=cyan]
+	b
+	number
+	b -> number [color=black]
+	c
+	name
+	c -> name [color=black]
 }

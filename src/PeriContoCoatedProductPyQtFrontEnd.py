@@ -53,43 +53,11 @@ def makeTree(objTree, node_id, rootItem):
       child_tag = objTree["nodes"][child_id]
       items[child_id].setText(0, child_tag)
       items[child_id].reversed_path = objTree["tree"].getAncestors(child_id)
-      items[child_id].node_id = node_id
+      items[child_id].node_id = child_id
       # print("building tree", child_id, objTree["tree"].getAncestors(child_id) )
       stack.insert(0, child_id)
 
   print("debugging -- finished")
-
-  #   if o == origin:
-  #         # print("add %s <-- %s" % (o, s),p)
-  #       item = QTreeWidgetItem(items[o])
-  #       item.setForeground(0, QBRUSHES[p])
-  #       item.subject = s
-  #       item.object = o
-  #       item.predicate = p
-  #       item.graph_ID = graph_ID
-  #       # stack.append((s, o))
-  #       item.setText(0, s)
-  #       items[s] = item
-  #       if (s,o) not in stack:
-  #         makeTree(truples, origin=s, stack=stack, items=items)
-  # if o == origin:
-  #   stack.append((s,o))
-
-  # for s, o, p, graph_ID in truples:
-  #   if (s, o) not in stack:
-  #     if s != origin:
-  #       if o in items:
-  #         # print("add %s <-- %s" % (o, s),p)
-  #         item = QTreeWidgetItem(items[o])
-  #         item.setForeground(0, QBRUSHES[p])
-  #         item.subject = s
-  #         item.object = o
-  #         item.predicate = p
-  #         item.graph_ID = graph_ID
-  #         stack.append((s, o))
-  #         item.setText(0, s)
-  #         items[s] = item
-  #         makeTree(truples, origin=s, stack=stack, items=items)
 
 
 class PeriContoPyQtFrontEnd(QMainWindow):
@@ -384,10 +352,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     """
 
     self.current_tree_item = item
-    # graph_ID, object, predicate, subject = self.__getItemInfo(item)
-    # self.path = self.__makePath(item)  # used in instantiation
-    # self.triple = (subject, predicate, object)
-    # print("FrontEnd -- debugging selected item:", subject, predicate, object)
     self.reversed_path = item.reversed_path
     message = {"reversed_path": self.reversed_path,
                "node_tag"         : item.text(0),
@@ -421,8 +385,10 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def on_pushAcceptString_pressed(self):
     string = self.ui.editString.text()
-    message = {"triple": self.triple,
-               "reversed_path"  : self.reversed_path,
+    item = self.ui.treeClass.currentItem()
+    message = {"reversed_path"   : self.reversed_path,
+               "node_tag" : item.text(0),
+               "node_ID"  : item.node_id,
                "string": string}
     self.backEnd.processEvent("wait_for_ID", "got_string", message)
     pass

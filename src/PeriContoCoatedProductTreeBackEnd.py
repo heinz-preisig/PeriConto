@@ -153,7 +153,7 @@ def nodeAttributes(node_types, node_tag):
 
 
 
-def treePlot(objTree, root, node_types=[]):
+def treePlot(objTree, root, node_types):
   """
   attribute documentation
   https://graphviz.org/doc/info/attrs.html
@@ -301,6 +301,10 @@ def debuggPlotAndRender(graph, file_name, debugg):
   if debugg:
     dot = plotQuads(graph)
     dot.render(file_name, view=True)
+
+def debuggTreePlotAndRender(tree,  root, node_types, file_name):
+  dot = treePlot(tree,root,node_types)
+  dot.render(file_name, view=True)
 
 def convertRDFintoInternalMultiGraph(graph, graph_ID):
   """
@@ -635,8 +639,10 @@ class WorkingTree(SuperGraph):
     self.data = Data()
     self.tree = copy.deepcopy(container_graph.knowledge_tree)
 
-    dot = treePlot(self.tree,0,node_types=self.container_graph.node_types)
-    dot.render("gugus", view=True)
+    node_types =self.container_graph.node_types
+    debuggTreePlotAndRender(self.tree, 0, node_types, "base_ontology")
+    # dot = treePlot(self.tree,0,node_types)
+    # dot.render("gugus", view=True)
 
   def instantiateAlongPath(self, paths_in_classes, class_path):
 
@@ -1074,9 +1080,14 @@ class BackEnd:
     debug_plot = True
     debug_print = False
 
-    # root = getID(self.current_node)
-    self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID)
+    node_tag = current_event_data["node_tag"]
+    node_ID = current_event_data["node_ID"]
 
+    # root = getID(self.current_node)
+    sub_tree = self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID)
+
+    node_types =self.working_tree.container_graph.node_types
+    debuggTreePlotAndRender(sub_tree, getID(node_tag), node_types, "base_ontology")
 
     #
     # c_original = getID(self.current_class)

@@ -1080,21 +1080,45 @@ class BackEnd:
     debug_plot = True
     debug_print = False
 
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
     node_tag = current_event_data["node_tag"]
     node_ID = current_event_data["node_ID"]
 
     # root = getID(self.current_node)
-    sub_tree = self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID)
+
+    dot = self.working_tree.tree["tree"].plotMe(0)
+    dot.render("before", view=True)
+    map_before = self.working_tree.tree["tree"].mapMe()
+
+    sub_tree, map = self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID)
+
+    nodes = {}
+    for m in map:
+      nodes[map[m]] = self.working_tree.container_graph.knowledge_tree["nodes"][m]
+
+    parent_ID = self.working_tree.container_graph.knowledge_tree["tree"].getImmediateParent(node_ID)
+    self.working_tree.tree["tree"].addTree(sub_tree, parent_ID)
+    map_ = self.working_tree.tree["tree"].mapMe()
+
+    labels = {}
+    for m in map:
+      label = self.working_tree.container_graph.knowledge_tree["nodes"][m]
+      print(m, label)
+
+
 
     node_types =self.working_tree.container_graph.node_types
-    debuggTreePlotAndRender(sub_tree, getID(node_tag), node_types, "base_ontology")
+    dot = self.working_tree.tree["tree"].plotMe(0)
+    dot.render("after", view=True)
+    debuggTreePlotAndRender(self.working_tree.tree, getID(node_tag), node_types, "base_ontology")
 
     #
     # c_original = getID(self.current_class)
     # sub_graph, linked_classes = self.working_tree.extractSubgraph(root, c_original)
 
-    debuggPrintGraph(sub_graph, debug_print)
-    debuggPlotAndRender(sub_graph, "wg_to_be_added", debug_plot)
+    # debuggPrintGraph(sub_graph, debug_print)
+    # debuggPlotAndRender(sub_graph, "wg_to_be_added", debug_plot)
 
     root_enum = self.working_tree.container_graph.incrementNodeEnumerator(c_original, root )
     # root_i = root #makeID(root, root_enum)
@@ -1105,11 +1129,11 @@ class BackEnd:
     #   sub_graph.remove((s,p,o))
     #   sub_graph.add((s,p,Literal(root_i)))
 
-    debuggPlotAndRender(sub_graph, "subgraph", debug_plot)
+    # debuggPlotAndRender(sub_graph, "subgraph", debug_plot)
 
     # print("debugging -- linked_classes", linked_classes)
 
-    w_graph= self.working_tree.RDFConjunctiveGraph[self.current_class] + sub_graph
+    # w_graph= self.working_tree.RDFConjunctiveGraph[self.current_class] + sub_graph
 
     debuggPlotAndRender(w_graph, "wg_extended", debug_plot)
 

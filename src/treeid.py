@@ -35,6 +35,8 @@ __status__ = "beta"
 
 import copy
 
+import graphviz
+
 
 def invertDict(dictionary):
   return dict(zip(dictionary.values(), list(dictionary.keys())))
@@ -669,6 +671,25 @@ class Tree(dict):
     bare_tree = [self[i] for i in self]
     return bare_tree
 
+  def plotMe(self, root):
+    from graphviz import Digraph
+
+    dot = graphviz.Digraph(edge_attr={"simplify":"true"})
+    root_str = str(root)
+    dot.node(root_str)
+
+    edges = set()
+    for node_ID in self.walkDepthFirst(root):
+      children_IDs = self[node_ID]["children"]
+      node_str = str(node_ID)
+      for child_ID in children_IDs:
+        child_str = str(child_ID)
+        dot.node(child_str)
+        edges.add((child_str, node_str))
+    for (child_str, node_str) in edges:
+      dot.edge(child_str, node_str)
+
+    return dot
 
 # #testing
 #
@@ -718,11 +739,16 @@ if __name__ == '__main__':
   tree.moveID(3, 4)
   print(12)
   tree.printMe()
+  dot = tree.plotMe(0)
+  dot.render("12", view=True)
 
   print(13)
   c, map = tree.extractSubTreeAndMap(3)
   print('map: ', map)
   c.printMe()
+  dot = c.plotMe(0)
+  dot.render("13", view=True)
+
 
   print(14)
   tree.printMe()
@@ -735,6 +761,8 @@ if __name__ == '__main__':
   print(15)
   tree.mapMe()
   tree.printMe()
+  dot = tree.plotMe(0)
+  dot.render("15", view=True)
 
   map = tree.addTree(c, 0)
   print(16)
@@ -743,24 +771,27 @@ if __name__ == '__main__':
   tree.mapMe()
   tree.printMe()
 
-  g = ObjectTreeUniqueTags('ontology')
-  g.addChildtoNode('physical', 'ontology')
-  g.addChildtoNode('solid', 'physical')
-  g.addChildtoNode('phasea', 'solid')
-  g.addChildtoNode('phaseb', 'solid')
-  g.addChildtoNode('phasec', 'solid')
-  g.addChildtoNode('liquid', 'physical')
-  g.addChildtoNode('solid', 'physical')
-  g.addChildtoNode('solid', 'gas')
-  g.addChildtoNode('information', 'ontology')
-  g.addChildtoNode('discrete','information')
-  g.addChildtoNode('continuous','information')
+  dot = tree.plotMe(0)
+  dot.render("16", view=True)
 
-  g.tree.printMe()
-
-  tags, IDs = g.getLeaves(0)
-  print(tags)
-
-  for i in tags:
-    ancestor_tags = g.getAncestors(i)
-    print((i, ' - ', ancestor_tags))
+  # g = ObjectTreeUniqueTags('ontology')
+  # g.addChildtoNode('physical', 'ontology')
+  # g.addChildtoNode('solid', 'physical')
+  # g.addChildtoNode('phasea', 'solid')
+  # g.addChildtoNode('phaseb', 'solid')
+  # g.addChildtoNode('phasec', 'solid')
+  # g.addChildtoNode('liquid', 'physical')
+  # g.addChildtoNode('solid', 'physical')
+  # g.addChildtoNode('solid', 'gas')
+  # g.addChildtoNode('information', 'ontology')
+  # g.addChildtoNode('discrete','information')
+  # g.addChildtoNode('continuous','information')
+  #
+  # g.tree.printMe()
+  #
+  # tags, IDs = g.getLeaves(0)
+  # print(tags)
+  #
+  # for i in tags:
+  #   ancestor_tags = g.getAncestors(i)
+  #   print((i, ' - ', ancestor_tags))

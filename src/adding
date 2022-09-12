@@ -2,22 +2,22 @@ digraph {
 	A
 	f
 	A -> f [color=red]
-	g
-	d
-	g -> d [color=blue]
-	f
-	d
-	f -> d [color=blue]
 	A
 	e
 	A -> e [color=red]
 	h
 	g
 	h -> g [color=blue]
-	A
-	h
-	A -> h [color=red]
+	f
+	d
+	f -> d [color=blue]
+	g
+	d
+	g -> d [color=blue]
 	e
 	d
 	e -> d [color=blue]
+	A
+	h
+	A -> h [color=red]
 }

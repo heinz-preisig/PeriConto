@@ -3,69 +3,14 @@ digraph {
 	a [color=red fillcolor=red shape=ellipse style=filled]
 	b [color=black fillcolor=white shape=ellipse style=filled]
 	c [color=black fillcolor=white shape=ellipse style=filled]
-	d [color=black fillcolor=white shape=ellipse style=filled]
-	A [color=red fillcolor=red shape=egg style=filled]
-	B [color=black fillcolor=white shape=ellipse style=filled]
-	D [color=black fillcolor=white shape=ellipse style=filled]
-	C [color=black fillcolor=white shape=ellipse style=filled]
-	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	number [color=lightblue fillcolor=lightblue shape=box style=filled]
+	name [color=lightblue fillcolor=lightblue shape=box style=filled]
 	string [color=green fillcolor=green shape=box style=filled]
-	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
 	integer [color=green fillcolor=green shape=box style=filled]
-	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
-	string [color=green fillcolor=green shape=box style=filled]
-	g [color=black fillcolor=white shape=ellipse style=filled]
-	e [color=black fillcolor=white shape=ellipse style=filled]
-	f [color=black fillcolor=white shape=ellipse style=filled]
-	h [color=black fillcolor=white shape=ellipse style=filled]
-	A [color=red fillcolor=red shape=egg style=filled]
-	B [color=black fillcolor=white shape=ellipse style=filled]
-	D [color=black fillcolor=white shape=ellipse style=filled]
-	C [color=black fillcolor=white shape=ellipse style=filled]
-	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
-	string [color=green fillcolor=green shape=box style=filled]
-	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
-	integer [color=green fillcolor=green shape=box style=filled]
-	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
-	string [color=green fillcolor=green shape=box style=filled]
-	A [color=red fillcolor=red shape=egg style=filled]
-	B [color=black fillcolor=white shape=ellipse style=filled]
-	D [color=black fillcolor=white shape=ellipse style=filled]
-	C [color=black fillcolor=white shape=ellipse style=filled]
-	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
-	string [color=green fillcolor=green shape=box style=filled]
-	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
-	integer [color=green fillcolor=green shape=box style=filled]
-	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
-	string [color=green fillcolor=green shape=box style=filled]
-	A [color=red fillcolor=red shape=egg style=filled]
-	B [color=black fillcolor=white shape=ellipse style=filled]
-	D [color=black fillcolor=white shape=ellipse style=filled]
-	C [color=black fillcolor=white shape=ellipse style=filled]
-	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
-	string [color=green fillcolor=green shape=box style=filled]
-	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
-	integer [color=green fillcolor=green shape=box style=filled]
-	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
-	string [color=green fillcolor=green shape=box style=filled]
-	e -> d
-	d -> b
-	h -> g
-	f -> d
-	B -> A
-	burl -> B
-	string -> burl
-	g -> d
-	A -> f
-	integer -> D_num
-	D -> A
+	number -> b
+	integer -> number
 	b -> a
-	A -> e
-	A -> h
-	A -> c
-	D_num -> D
-	string -> curl
+	string -> name
+	name -> c
 	c -> b
-	C -> A
-	curl -> C
 }

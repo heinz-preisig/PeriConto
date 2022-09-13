@@ -17,7 +17,7 @@ DELIMITERS = {"instantiated": ":",
 from rdflib import Graph
 from rdflib import Literal
 
-from treeid import ObjectTreeNonUniqueTags
+from treeid import ObjectTreeNonUniqueTags, invertDict
 
 # from graphviz import Digraph
 import graphviz
@@ -166,8 +166,10 @@ def treePlot(objTree, root, node_types):
   # dot.edge_attr = edge_attr
 
   edges = set()
-  root_str = objTree["nodes"][root]
-  atr = nodeAttributes(node_types, root_str)
+  root_str = str(objTree["nodes"][root])
+  root_orig = getID(root_str)
+  root_str = root_str.replace(":", "-")
+  atr = nodeAttributes(node_types, root_orig)
   # print("debugging ", root_str, atr)
   dot.node(root_str,
            color=atr["color"],
@@ -178,12 +180,15 @@ def treePlot(objTree, root, node_types):
   # dot.attr("node",**atr)
   for node_ID in objTree["tree"].walkDepthFirst(root):
     children = objTree["tree"].getChildren(node_ID)
-    node_str = objTree["nodes"][node_ID]
+    node_str = str(objTree["nodes"][node_ID])
+    node_str = node_str.replace(":","-")
     # if node_str == "A":
     #   print("debugging -- check on A")
     for child in children:
-      child_str = objTree["nodes"][child]
-      atr = nodeAttributes(node_types, child_str)
+      child_str = str(objTree["nodes"][child])
+      child_orig = getID(child_str)
+      child_str = child_str.replace(":", "-")
+      atr = nodeAttributes(node_types, child_orig)
       # print("debugging ", child_str, atr)
       dot.node(child_str,
                color=atr["color"],
@@ -193,7 +198,7 @@ def treePlot(objTree, root, node_types):
       # dot.attr("node",**atr)
       edges.add((child_str, node_str))
       # dot.edge(child_str, node_str) #, arrowhead="none") #str(child), str(node_ID))
-    print("debugg -- children of node %s: %s"%(node_ID, children))
+    # print("debugg -- children of node %s: %s"%(node_ID, children))
   for (child_str, node_str) in edges:
     dot.edge(child_str, node_str)
 
@@ -414,7 +419,7 @@ class SuperGraph():
     quads = convertRDFintoInternalMultiGraph(graph_overall, 'all')
     tree = ObjectTreeNonUniqueTags(self.txt_root_class)
     self.recurseTree(tree, self.txt_root_class, quads)
-    print("debugging -- generating tree")
+    # print("debugging -- generating tree")
 
     types = {"root" : self.txt_root_class}
     for t in RDFSTerms:
@@ -422,7 +427,7 @@ class SuperGraph():
     for s,o,p,g in quads:
       types[p].add(s)
 
-    print("debugging")
+    # print("debugging")
     return tree, types
 
   def recurseTree(self, tree, id, quads):
@@ -591,7 +596,7 @@ class Data(dict):
   def addInteger(self, path, IDs, value):
     path_enum = self.addPath(path)
     key = (path_enum, IDs)
-    print("debugging -- integer add key", key, value)
+    # print("debugging -- integer add key", key, value)
     if key not in self.integers:
       self.integers[key] = value
     else:
@@ -600,7 +605,7 @@ class Data(dict):
   def addString(self, path, IDs, string):  # addString(global_path, global_IDs, value)
     path_enum = self.addPath(path)
     key = (path_enum, IDs)
-    print("debugging -- string add key", key, string)
+    # print("debugging -- string add key", key, string)
     if key not in self.strings:
       self.strings[key] = string
     else:
@@ -610,7 +615,7 @@ class Data(dict):
     for p in self.values():
       if p == path:
         enum = self.getEnumerator(path)
-        print("Data: path already exists", enum, p)
+        # print("Data: path already exists", enum, p)
         return enum
 
     self.enum += 1
@@ -649,7 +654,7 @@ class WorkingTree(SuperGraph):
     debug = False
 
 
-    print("debugging -- class path and paths in classes", class_path, paths_in_classes)
+    # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
 
     instantiated = {}
 
@@ -1051,7 +1056,7 @@ class BackEnd:
       if is_integer: txt += " & integer"
       if is_comment: txt += " & comment"
       if is_string: txt += " & string"
-      print("selection : %s\n" % txt)
+      # print("selection : %s\n" % txt)
 
     if is_primitive:
       if not is_instantiated_object:
@@ -1087,10 +1092,11 @@ class BackEnd:
 
     # root = getID(self.current_node)
 
-    dot = self.working_tree.tree["tree"].plotMe(0)
-    dot.render("before", view=True)
-    map_before = self.working_tree.tree["tree"].mapMe()
+    if debug_plot:
+      dot = self.working_tree.tree["tree"].plotMe(0)
+      dot.render("before", view=True)
 
+    map_before = self.working_tree.tree["tree"].mapMe()
     sub_tree, map = self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID)
 
     nodes = {}
@@ -1098,64 +1104,37 @@ class BackEnd:
       nodes[map[m]] = self.working_tree.container_graph.knowledge_tree["nodes"][m]
 
     parent_ID = self.working_tree.container_graph.knowledge_tree["tree"].getImmediateParent(node_ID)
-    self.working_tree.tree["tree"].addTree(sub_tree, parent_ID)
-    map_ = self.working_tree.tree["tree"].mapMe()
+    adding_map = self.working_tree.tree["tree"].addTree(sub_tree, parent_ID)
 
-    labels = {}
-    for m in map:
-      label = self.working_tree.container_graph.knowledge_tree["nodes"][m]
-      print(m, label)
+    extended_tree_map = self.working_tree.tree["tree"].mapMe()
+    # inv_extended_tree_map = invertDict(extended_tree_map)
+
+    inv_map_before = invertDict(map_before)
+    inv_adding_map = invertDict(adding_map)
+    # inv_adding_map.update(inv_map_before)
 
 
+    nodes_extended_tree = {}
+    for m in inv_adding_map:
+      n = extended_tree_map[m]
+      nodes_extended_tree[n] = nodes[inv_adding_map[m]]
+
+
+    for m in inv_map_before:
+      n = extended_tree_map[m]
+      nodes_extended_tree[n] = self.working_tree.tree["nodes"][inv_map_before[m]]
+
+    self.working_tree.tree["nodes"]=nodes_extended_tree
+    self.working_tree.tree["IDs"] = invertDict(nodes_extended_tree)
 
     node_types =self.working_tree.container_graph.node_types
-    dot = self.working_tree.tree["tree"].plotMe(0)
-    dot.render("after", view=True)
-    debuggTreePlotAndRender(self.working_tree.tree, getID(node_tag), node_types, "base_ontology")
+    if debug_plot:
+      dot = self.working_tree.tree["tree"].plotMe(0)
+      dot.render("after", view=True)
 
-    #
-    # c_original = getID(self.current_class)
-    # sub_graph, linked_classes = self.working_tree.extractSubgraph(root, c_original)
-
-    # debuggPrintGraph(sub_graph, debug_print)
-    # debuggPlotAndRender(sub_graph, "wg_to_be_added", debug_plot)
-
-    root_enum = self.working_tree.container_graph.incrementNodeEnumerator(c_original, root )
-    # root_i = root #makeID(root, root_enum)
-    # for s,p,o in sub_graph.triples((None,None,None)):
-    #   print("gugus --", str(s), MYTerms[p], str(o))
-    #
-    # for s,p,o in sub_graph.triples((None, None, Literal(root))):
-    #   sub_graph.remove((s,p,o))
-    #   sub_graph.add((s,p,Literal(root_i)))
-
-    # debuggPlotAndRender(sub_graph, "subgraph", debug_plot)
-
-    # print("debugging -- linked_classes", linked_classes)
-
-    # w_graph= self.working_tree.RDFConjunctiveGraph[self.current_class] + sub_graph
-
-    debuggPlotAndRender(w_graph, "wg_extended", debug_plot)
-
-    debuggPrintGraph(self.working_tree.RDFConjunctiveGraph[self.current_class], debug_print)
-    debuggPrintGraph(w_graph, debug_print)
-
-    for s, p, o in w_graph.triples(
-            (Literal(self.current_node), RDFSTerms["is_a_subclass_of"], None)):
-      print("debugging -- obj:", str(o))
-      to_connect = getID(self.current_node)
-      w_graph.add((Literal(root), p, Literal(str(o))))
-
-    self.working_tree.RDFConjunctiveGraph[self.current_class] = w_graph
-
-    debuggPlotAndRender(w_graph, "wg_extended_linked", debug_plot)
-
-    for c in linked_classes:
-      self.working_tree.RDFConjunctiveGraph[c] = copy.copy(self.working_tree.container_graph.RDFConjunctiveGraph[c])
-
-    self.__makeWorkingTree()
-    self.__shiftClass()
-
+      dot = treePlot(self.working_tree.tree,0,node_types)
+      dot.render("after all", view=True)
+    self.__showTree()
 
   def __gotInteger(self):
     global current_event_data
@@ -1198,15 +1177,15 @@ class BackEnd:
     global_IDs = DELIMITERS["instantiated"].join(global_IDs_list)
     return global_IDs, global_path
 
-  def __preparteInstantiation(self, reversed_path):
-    for ID in reversed_path:
-      tag = self.working_tree.tree["nodes"][ID]
-      if not isInstantiated(ID):
-        enum = self.ContainerGraph.incrementPrimitiveEnumerator(getID(tag))
-        tag_i = makeID(tag, enum)
-        self.working_tree.tree.rename(ID, tag_i)
-
-    print("debugging")
+  # def __preparteInstantiation(self, reversed_path):
+  #   for ID in reversed_path:
+  #     tag = self.working_tree.tree["nodes"][ID]
+  #     if not isInstantiated(ID):
+  #       enum = self.ContainerGraph.incrementPrimitiveEnumerator(getID(tag))
+  #       tag_i = makeID(tag, enum)
+  #       self.working_tree.tree.rename(ID, tag_i)
+  #
+  #   print("debugging")
     # self.working_tree.tree.rename(0,"gugus")
     # paths_in_classes = copy.copy(self.path_at_transition)  # Note: this was a hard one
     # paths_in_classes[self.current_class] = path
@@ -1236,26 +1215,6 @@ class BackEnd:
     self.ui_state("show_tree")
     self.__showTree()
 
-  # def __extractGlobalNodesAndIDsFromPaths(self, paths_in_classes):
-  #   """
-  #   extracts the global path and the associated IDs
-  #   """
-  #   nodes = []
-  #   for c in self.class_path:
-  #     nodes.extend(paths_in_classes[c].rstrip(DELIMITERS["path"]).split(DELIMITERS["path"]))  # drop last delimiter
-  #
-  #   global_path_nodes = []
-  #   global_node_IDs = []
-  #   global_IDs = []
-  #   for n in nodes:
-  #     global_path_nodes.append(getID(n))
-  #     global_node_IDs.append(getIDNo(n))
-  #   global_path = DELIMITERS["path"].join(global_path_nodes)
-  #   try:
-  #     global_IDs = DELIMITERS["instantiated"].join(global_node_IDs)
-  #   except:
-  #     print("debugging -- problems with global_path_nodes") #TODO: there is a none in the path the root node
-  #   return global_path, global_IDs
 
   def __clearInteger(self):
     self.FrontEnd.controls("selectors", "integer", "populate", {"value": 0})
@@ -1271,16 +1230,6 @@ class BackEnd:
     global current_event_data
     global automaton_next_state
     # print(">>>", current_event_data, automaton_next_state)
-
-  def __shiftToSelectedClass(self):
-    global current_event_data
-
-    # print("shifting event data :", current_event_data)
-
-    # self.current_class = current_event_data["class"]
-
-    self.__makeWorkingTree()
-    self.__shiftClass()
 
   def __showTree(self):
     self.FrontEnd.controls("selectors", "classTree", "populate", self.working_tree.tree)
@@ -1316,22 +1265,6 @@ class BackEnd:
     root_class = container_root_class + DELIMITERS["instantiated"] + str(data_ID)
     return root_class
 
-  # def __makeWorkingTree(self):
-
-    # global data_container
-    # global is_container_class
-
-    # if (self.data_container_number == 0) or is_container_class:
-    #   self.working_tree.makeAllListsForAllGraphs()
-    # self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
-    #                                               self.current_class)
-    #
-    # gugus = convertQuadsGraphIntoRDFGraph(self.quads)
-    # debuggPlotAndRender(gugus, "made_quads", True)
-    # gugus = self.working_tree.collectGraphs()
-    # debuggPlotAndRender(gugus, "complete graph", True)
-
-    # print("debugging -- the quads", self.quads)
 
   def processEvent(self, state, Event, event_data):
     # Note: cannot be called from within backend -- generates new name space
@@ -1387,8 +1320,6 @@ class BackEnd:
             "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
                                                      "actions"   : [self.__loadOntology,
                                                                     self.__showTree,
-                                                                    # self.__makeWorkingTree,
-                                                                    # self.__shiftClass,
                                                                     ],
                                                      "gui_state" : "show_tree"},
                                        },
@@ -1405,10 +1336,6 @@ class BackEnd:
                                        "got_string" : {"next_state": "show_tree",
                                                        "actions"   : [self.__gotString],
                                                        "gui_state" : "show_tree"},
-                                       },
-            "class_list_clicked"    : {"selected": {"next_state": "show_tree",
-                                                    "actions"   : [self.__shiftToSelectedClass],
-                                                    "gui_state" : "show_tree"}
                                        },
             "visualise"             : {"dot_plot": {"next_state": "show_tree",
                                                     "actions"   : [self.__makeDotPlot],

@@ -198,19 +198,6 @@ def extractSubTree(quads, root, extracts=[], stack=[]):
   if o == root:
     stack.append(o)
 
-    # if (s,o) not in stack:
-    #   if s != root:
-    #     if o in extracts:
-    #       extracts.append((s,o,p,graphID))
-    #       stack.append((s,o))
-    #       extractSubTree(quads, s, extracts=extracts, stack=stack)
-
-    # if s not in stack:
-    #   if o == root:
-    #     extracts.append((s, o, p, graphID))
-    #     stack.append(s)
-    #     extractSubTree(quads, s, extracts=extracts, stack=stack)
-
 
 def debuggPrintGraph(graph, debug, text=""):
   if debug:
@@ -273,23 +260,7 @@ class SuperGraph():
       for s, p, o in graphs_internal[g]:
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
-    self.makeAllListsForAllGraphs()
     return self.txt_root_class
-
-  def makeAllListsForAllGraphs(self):
-    # print("debugging")
-    for rdf_graph_ID in self.RDFConjunctiveGraph:
-      rdf_graph = self.RDFConjunctiveGraph[rdf_graph_ID]
-      self.makeAllListsForOneGraph(rdf_graph, rdf_graph_ID)
-    pass
-
-  def makeAllListsForOneGraph(self, rdf_graph, rdf_graph_ID):
-    self.txt_subclass_names[rdf_graph_ID] = makeListBasedOnPredicates(rdf_graph, "is_a_subclass_of")
-    self.txt_link_lists[rdf_graph_ID] = makeLinkListBasedOnPredicates(rdf_graph, rdf_graph_ID, "link_to_class")
-    self.txt_value_lists[rdf_graph_ID] = makeListBasedOnPredicates(rdf_graph, "value")
-    self.txt_integer_lists[rdf_graph_ID] = makeListBasedOnPredicates(rdf_graph, "integer")
-    self.txt_string_lists[rdf_graph_ID] = makeListBasedOnPredicates(rdf_graph, "string")
-    self.txt_comment_lists[rdf_graph_ID] = makeListBasedOnPredicates(rdf_graph, "comment")
 
   def addGraphGivenInInternalNotation(self, subject_internal, predicate_internal, object_internal, graph_ID):
     rdf_subject = makeRDFCompatible(subject_internal)
@@ -340,18 +311,18 @@ class SuperGraph():
             return True
 
 
-def makeListBasedOnPredicates(rdf_graph, rdf_predicate):
-  subclasslist = []
-  for s, p, o in rdf_graph.triples((None, RDFSTerms[rdf_predicate], None)):
-    subclasslist.append(str(s))  # (str(s), txt_class, str(o)))
-  return subclasslist
+# def makeListBasedOnPredicates(rdf_graph, rdf_predicate):
+#   subclasslist = []
+#   for s, p, o in rdf_graph.triples((None, RDFSTerms[rdf_predicate], None)):
+#     subclasslist.append(str(s))  # (str(s), txt_class, str(o)))
+#   return subclasslist
 
 
-def makeLinkListBasedOnPredicates(rdf_graph, txt_class, rdf_predicate):
-  subclasslist = []
-  for s, p, o in rdf_graph.triples((None, RDFSTerms[rdf_predicate], None)):
-    subclasslist.append((str(s), txt_class, str(o)))
-  return subclasslist
+# def makeLinkListBasedOnPredicates(rdf_graph, txt_class, rdf_predicate):
+#   subclasslist = []
+#   for s, p, o in rdf_graph.triples((None, RDFSTerms[rdf_predicate], None)):
+#     subclasslist.append((str(s), txt_class, str(o)))
+#   return subclasslist
 
 
 class ContainerGraph(SuperGraph):
@@ -904,15 +875,6 @@ class BackEnd:
     debuggPrintGraph(sub_graph, debug_print)
     debuggPlotAndRender(sub_graph, "wg_to_be_added", debug_plot)
 
-    root_enum = self.working_tree.container_graph.incrementNodeEnumerator(c_original, root )
-    # root_i = root #makeID(root, root_enum)
-    # for s,p,o in sub_graph.triples((None,None,None)):
-    #   print("gugus --", str(s), MYTerms[p], str(o))
-    #
-    # for s,p,o in sub_graph.triples((None, None, Literal(root))):
-    #   sub_graph.remove((s,p,o))
-    #   sub_graph.add((s,p,Literal(root_i)))
-
     debuggPlotAndRender(sub_graph, "subgraph", debug_plot)
 
     # print("debugging -- linked_classes", linked_classes)
@@ -938,7 +900,6 @@ class BackEnd:
       self.working_tree.RDFConjunctiveGraph[c] = copy.copy(self.working_tree.container_graph.RDFConjunctiveGraph[c])
 
     self.__makeWorkingTree()
-    self.__shiftClass()
 
 
   def __gotInteger(self):
@@ -949,13 +910,10 @@ class BackEnd:
     path = current_event_data["path"]
 
     global_IDs, global_path = self.__preparteInstantiation(path)
-
     self.working_tree.data.addInteger(global_path, global_IDs, value)
 
     self.ui_state("show_tree")
-
     current_event_data = {"class": self.class_path[-1]}
-    self.__shiftToSelectedClass()
 
   def __preparteInstantiation(self, path):
     paths_in_classes = copy.copy(self.path_at_transition)  # Note: this was a hard one
@@ -987,7 +945,7 @@ class BackEnd:
     self.ui_state("show_tree")
 
     current_event_data = {"class": self.class_path[-1]}
-    self.__shiftToSelectedClass()
+    # self.__shiftToSelectedClass()
 
   def __extractGlobalNodesAndIDsFromPaths(self, paths_in_classes):
     """
@@ -1019,47 +977,7 @@ class BackEnd:
     # global working_tree
     self.working_tree.makeRDFDotGraph()
 
-  def __updateTree(self):
-    global current_event_data
-    global automaton_next_state
-    # print(">>>", current_event_data, automaton_next_state)
-
-  def __shiftToSelectedClass(self):
-    global current_event_data
-
-    # print("shifting event data :", current_event_data)
-
-    self.current_class = current_event_data["class"]
-
-    self.__makeWorkingTree()
-    self.__shiftClass()
-
-  def __shiftClass(self):
-    global current_event_data
-
-    if "path" in current_event_data:
-      t = current_event_data["path"].split(DELIMITERS["path"])[:-1]
-      if len(t) > 0:
-        transition_path = "/".join(t) + DELIMITERS["path"]
-        previous_class = self.class_path[-1:][0]
-        self.path_at_transition.push(previous_class, transition_path)
-
-    class_ID = self.current_class
-    if class_ID not in self.class_path:
-      self.class_path.append(class_ID)
-    else:
-      i = self.class_path.index(class_ID)
-      self.class_path = self.class_path[:i + 1]
-    pass
-
-    self.path_at_transition.reduce(self.class_path[:-1])
-    # print("debugging -- transition -- ", self.path_at_transition)
-
-    self.FrontEnd.controls("selectors", "classTree", "populate", self.quads, self.current_class)
-    self.FrontEnd.controls("selectors", "classList", "populate", self.class_path)
-
-    # print(">>>", current_event_data, automaton_next_state)
-
+  #
   def __makeFirstDataRoot(self, container_root_class, data_ID):
 
     root_class = container_root_class + DELIMITERS["instantiated"] + str(data_ID)
@@ -1069,8 +987,6 @@ class BackEnd:
     global data_container
     global is_container_class
 
-    if (self.data_container_number == 0) or is_container_class:
-      self.working_tree.makeAllListsForAllGraphs()
     self.quads = convertRDFintoInternalMultiGraph(self.working_tree.RDFConjunctiveGraph[self.current_class],
                                                   self.current_class)
 
@@ -1135,7 +1051,6 @@ class BackEnd:
             "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
                                                      "actions"   : [self.__loadOntology,
                                                                     self.__makeWorkingTree,
-                                                                    self.__shiftClass,
                                                                     ],
                                                      "gui_state" : "show_tree"},
                                        },
@@ -1152,10 +1067,6 @@ class BackEnd:
                                        "got_string" : {"next_state": "show_tree",
                                                        "actions"   : [self.__gotString],
                                                        "gui_state" : "show_tree"},
-                                       },
-            "class_list_clicked"    : {"selected": {"next_state": "show_tree",
-                                                    "actions"   : [self.__shiftToSelectedClass],
-                                                    "gui_state" : "show_tree"}
                                        },
             "visualise"             : {"dot_plot": {"next_state": "show_tree",
                                                     "actions"   : [self.__makeDotPlot],

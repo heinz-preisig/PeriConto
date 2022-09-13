@@ -23,10 +23,10 @@
    <widget class="QGroupBox" name="groupBoxTree">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>100</x>
       <y>140</y>
-      <width>541</width>
-      <height>701</height>
+      <width>731</width>
+      <height>711</height>
      </rect>
     </property>
     <property name="title">
@@ -37,7 +37,7 @@
       <rect>
        <x>10</x>
        <y>31</y>
-       <width>521</width>
+       <width>711</width>
        <height>631</height>
       </rect>
      </property>
@@ -65,29 +65,6 @@
      </property>
      <property name="text">
       <string>instantiate</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBoxClassList">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>140</y>
-      <width>261</width>
-      <height>701</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>path</string>
-    </property>
-    <widget class="QListWidget" name="listClasses">
-     <property name="geometry">
-      <rect>
-       <x>5</x>
-       <y>30</y>
-       <width>251</width>
-       <height>551</height>
-      </rect>
      </property>
     </widget>
    </widget>

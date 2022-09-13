@@ -12,8 +12,6 @@ from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtWidgets import QTreeWidgetItem
 
-# from PeriContoCoatedProductRDFBackEnd import BackEnd
-# from PeriContoCoatedProductRDFBackEnd import DELIMITERS
 from PeriContoCoatedProductTreeBackEnd import BackEnd
 from PeriContoCoatedProductTreeBackEnd import DELIMITERS
 from PeriContoCoatedProductTree_gui import Ui_MainWindow
@@ -77,7 +75,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
             "ValueElucidation"        : self.ui.groupValueElucidation,
             "string"                  : self.ui.groupString,
             "integer"                 : self.ui.groupQuantityMeasure,
-            "classList"               : self.ui.groupBoxClassList,
             "classTree"               : self.ui.groupBoxTree,
             }
     self.gui_objects["buttons"] = {"load"               : self.ui.pushLoad,
@@ -91,8 +88,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                    "acceptInteger"      : self.ui.pushAcceptInteger,
                                    "acceptString"       : self.ui.pushAcceptString,
                                    }
-    self.gui_objects["selectors"] = {"classList": self.ui.listClasses,
-                                     "classTree": self.ui.treeClass,
+    self.gui_objects["selectors"] = {                                     "classTree": self.ui.treeClass,
                                      "integer"  : self.ui.spinNumber,
                                      "string"   : self.ui.editString,
                                      "textValue": self.ui.textValueElucidation,
@@ -122,10 +118,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                                             "show": self.ui.pushAcceptString.show},
                                     },
                                  "selectors": {
-                                         "classList": {"populate": self.__populateListClass,
-                                                       "clear"   : self.ui.listClasses.clear,
-                                                       "hide"    : self.__hideClassList,
-                                                       "show"    : self.__showClassList},
                                          "classTree": {"populate": self.__makeClassTree,
                                                        "clear"   : self.ui.treeClass.clear,
                                                        "hide"    : self.__hideClassTree,
@@ -159,8 +151,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                                                       "hide": self.ui.groupString.hide},
                                          "integer"                 : {"show": self.ui.groupQuantityMeasure.show,
                                                                       "hide": self.ui.groupQuantityMeasure.hide},
-                                         "classList"               : {"show": self.ui.groupBoxClassList.show,
-                                                                      "hide": self.ui.groupBoxClassList.hide},
                                          "classTree"               : {"show": self.ui.groupBoxTree.show,
                                                                       "hide": self.ui.groupBoxTree.hide},
                                          },
@@ -188,23 +178,13 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
     rootItem = QTreeWidgetItem(widget)
     widget.setColumnCount(1)
-    # rootItem.root = root
     rootItem.setText(0, root_tag)
-    # no_id = objTree["IDs"][root]
     rootItem.path = objTree["tree"].getAncestors(root_id)
-    # rootItem.setSelected(True)
-    # rootItem.subject = None
-    # rootItem.object = root
-    # rootItem.predicate = None
-    # rootItem.graph_ID = root
-    # widget.addTopLevelItem(rootItem)
-    # self.current_class = root
+    rootItem.node_id = 0
 
-    makeTree(objTree, root_id, rootItem)  # , stack=[], items={root: rootItem})
+    makeTree(objTree, root_id, rootItem)
     widget.show()
     widget.expandAll()
-    # self.current_subclass = root
-    pass
 
   def __buttonShow(self, show):
     for b in self.gui_objects["buttons"]:
@@ -213,13 +193,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
       self.gui_objects["buttons"][b].hide()
 
   #
-  def __showClassList(self):
-    self.gui_objects["selectors"]["classList"].show()
-    self.gui_objects["groups"]["classList"].show()
-
-  def __hideClassList(self):
-    self.gui_objects["selectors"]["classList"].hide()
-    self.gui_objects["groups"]["classList"].hide()
 
   def __showClassTree(self):
     self.gui_objects["selectors"]["classTree"].show()
@@ -228,12 +201,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
   def __hideClassTree(self):
     self.gui_objects["selectors"]["classTree"].hide()
     self.gui_objects["groups"]["classTree"].hide()
-
-  def __populateListClass(self, data):
-    self.gui_objects["selectors"]["classList"].clear()
-    self.gui_objects["selectors"]["classList"].addItems(data)
-    self.gui_objects["groups"]["classList"].show()
-    self.gui_objects["selectors"]["classList"].show()
 
   def __populateTextValueEdit(self, data):
     self.gui_objects["selectors"]["textValue"].blockSignals(True)
@@ -262,11 +229,9 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def __showInteger(self):
     self.gui_objects["selectors"]["integer"].show()
-    self.gui_objects["groups"]["classList"].show()
 
   def __hideInteger(self):
     self.gui_objects["selectors"]["integer"].hide()
-    self.gui_objects["groups"]["classList"].hide()
 
   def __makePath(self, item):
     texts = []
@@ -325,24 +290,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
   def on_pushLoad_pressed(self):
     self.backEnd.processEvent("load")
 
-  def on_listClasses_itemClicked(self, item):
-    """
-    generates a message
-    - class_ID
-    - path within class to chosen tree item
-    """
-    # if self.block:
-    #   self.block = False
-    #   return
-
-    class_ID = item.text()
-    # print("debugging -- ", class_ID)
-    listTree_item = self.ui.treeClass.currentItem()
-    path = self.__makePath(listTree_item)
-    message = {"class": class_ID,
-               "path" : path}
-    self.backEnd.processEvent("class_list_clicked", "selected", message)
-
   def on_treeClass_itemPressed(self, item, column):
     """
     generates a message
@@ -352,7 +299,10 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     """
 
     self.current_tree_item = item
-    self.reversed_path = item.reversed_path
+    if hasattr(item, "reversed_path" ):
+      self.reversed_path = item.reversed_path
+    else:
+      self.reversed_path = None
     message = {"reversed_path": self.reversed_path,
                "node_tag"         : item.text(0),
                "node_ID" : item.node_id}

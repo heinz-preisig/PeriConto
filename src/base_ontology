@@ -7,10 +7,10 @@ digraph {
 	name [color=lightblue fillcolor=lightblue shape=box style=filled]
 	string [color=green fillcolor=green shape=box style=filled]
 	integer [color=green fillcolor=green shape=box style=filled]
-	number -> b
-	integer -> number
+	name -> c
 	b -> a
 	string -> name
-	name -> c
+	number -> b
 	c -> b
+	integer -> number
 }

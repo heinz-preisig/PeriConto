@@ -1026,13 +1026,6 @@ class BackEnd:
 
     node_original = getID(node_tag)
 
-    # tags = []
-    # for id in reversed_path:
-    #   tag = self.working_tree.tree["nodes"][id]
-    #   tags.append(tag)
-    #
-    # print("debugging -- tags", tags)
-
     is_root, \
     is_comment, \
     is_data_class, \
@@ -1069,6 +1062,9 @@ class BackEnd:
         return
 
     if is_sub_class and  is_instantiated_object:
+      # print("debugging")
+      if node_original in self.working_tree.tree["nodes"].values():
+        return
       dialog = self.FrontEnd.dialogYesNo(message="add new ")
       if dialog == "YES":
         self.__addBranch(node_ID)
@@ -1082,28 +1078,33 @@ class BackEnd:
 
 
   def __addBranch(self, node_ID):
-    debug_plot = True
+    """
+    This is the difficult part.
+    Once an instantiated subtree is selected, the respective branch is copied and added to the same parent node.
+    """
+    debug_plot = False
     debug_print = False
 
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    # print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
     node_tag = current_event_data["node_tag"]
     node_ID = current_event_data["node_ID"]
-
-    # root = getID(self.current_node)
+    node_original = getID(node_tag)
+    node_ID_original = self.working_tree.container_graph.knowledge_tree["IDs"][node_original]
 
     if debug_plot:
       dot = self.working_tree.tree["tree"].plotMe(0)
       dot.render("before", view=True)
 
     map_before = self.working_tree.tree["tree"].mapMe()
-    sub_tree, map = self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID)
+    sub_tree, map = self.working_tree.container_graph.knowledge_tree["tree"].extractSubTreeAndMap(node_ID_original)
 
     nodes = {}
     for m in map:
       nodes[map[m]] = self.working_tree.container_graph.knowledge_tree["nodes"][m]
 
-    parent_ID = self.working_tree.container_graph.knowledge_tree["tree"].getImmediateParent(node_ID)
+    # parent_ID = self.working_tree.container_graph.knowledge_tree["tree"].getImmediateParent(node_ID)
+    parent_ID = self.working_tree.tree["tree"].getImmediateParent(node_ID)
     adding_map = self.working_tree.tree["tree"].addTree(sub_tree, parent_ID)
 
     extended_tree_map = self.working_tree.tree["tree"].mapMe()
@@ -1177,30 +1178,6 @@ class BackEnd:
     global_IDs = DELIMITERS["instantiated"].join(global_IDs_list)
     return global_IDs, global_path
 
-  # def __preparteInstantiation(self, reversed_path):
-  #   for ID in reversed_path:
-  #     tag = self.working_tree.tree["nodes"][ID]
-  #     if not isInstantiated(ID):
-  #       enum = self.ContainerGraph.incrementPrimitiveEnumerator(getID(tag))
-  #       tag_i = makeID(tag, enum)
-  #       self.working_tree.tree.rename(ID, tag_i)
-  #
-  #   print("debugging")
-    # self.working_tree.tree.rename(0,"gugus")
-    # paths_in_classes = copy.copy(self.path_at_transition)  # Note: this was a hard one
-    # paths_in_classes[self.current_class] = path
-    # self.class_path, paths_in_classes = self.working_tree.instantiateAlongPath(paths_in_classes,
-    #                                                                            self.class_path,
-    #                                                                            )
-    # for key in paths_in_classes:
-    #   item = paths_in_classes[key]
-    #   self.path_at_transition.push(key, item)
-    # self.path_at_transition.reduce(self.class_path[:-1])
-    # # make global path
-    # if not paths_in_classes:
-    #   print("debugging -- troubles paths_in_classes is empty")
-    # global_path, global_IDs = self.__extractGlobalNodesAndIDsFromPaths(paths_in_classes)
-    # return global_IDs, global_path
 
   def __gotString(self):
 
@@ -1224,7 +1201,14 @@ class BackEnd:
 
   def __makeDotPlot(self):
     # global working_tree
-    self.working_tree.makeRDFDotGraph()
+    # dot = self.working_tree.tree["tree"].plotMe(0)
+    # dot.render("instantiated", view=True)
+
+    node_types =self.working_tree.container_graph.node_types
+    dot= treePlot(self.working_tree.tree, 0, node_types)
+    dot.render("periconto_instantiated", view=True)
+
+
 
   def __updateTree(self):
     global current_event_data

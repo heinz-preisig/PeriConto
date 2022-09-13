@@ -1,0 +1,37 @@
+digraph {
+	edge [simplify=true]
+	"a-0" [color=red fillcolor=red shape=ellipse style=filled]
+	"b-0" [color=black fillcolor=white shape=ellipse style=filled]
+	"b-1" [color=black fillcolor=white shape=ellipse style=filled]
+	number [color=lightblue fillcolor=lightblue shape=box style=filled]
+	"c-0" [color=black fillcolor=white shape=ellipse style=filled]
+	b [color=black fillcolor=white shape=ellipse style=filled]
+	integer [color=green fillcolor=green shape=box style=filled]
+	"name-0" [color=lightblue fillcolor=lightblue shape=box style=filled]
+	"string-0" [color=green fillcolor=green shape=box style=filled]
+	number [color=lightblue fillcolor=lightblue shape=box style=filled]
+	c [color=black fillcolor=white shape=ellipse style=filled]
+	integer [color=green fillcolor=green shape=box style=filled]
+	name [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	"number-0" [color=lightblue fillcolor=lightblue shape=box style=filled]
+	c [color=black fillcolor=white shape=ellipse style=filled]
+	"integer-0" [color=green fillcolor=green shape=box style=filled]
+	name [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	string -> name
+	name -> c
+	"number-0" -> "b-1"
+	c -> "b-1"
+	"string-0" -> "name-0"
+	number -> "b-0"
+	integer -> number
+	"name-0" -> "c-0"
+	"c-0" -> "b-0"
+	number -> b
+	"integer-0" -> "number-0"
+	c -> b
+	b -> "b-0"
+	"b-1" -> "a-0"
+	"b-0" -> "a-0"
+}

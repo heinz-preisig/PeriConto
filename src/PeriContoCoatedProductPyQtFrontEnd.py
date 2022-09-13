@@ -55,7 +55,7 @@ def makeTree(objTree, node_id, rootItem):
       # print("building tree", child_id, objTree["tree"].getAncestors(child_id) )
       stack.insert(0, child_id)
 
-  print("debugging -- finished")
+  # print("debugging -- finished")
 
 
 class PeriContoPyQtFrontEnd(QMainWindow):

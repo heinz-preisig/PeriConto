@@ -406,11 +406,9 @@ class SuperGraph():
       for s, p, o in graphs_internal[g]:
         self.addGraphGivenInInternalNotation(s, p, o, g)
 
-    # self.makeAllListsForAllGraphs()
-
     self.knowledge_tree, self.node_types = self.makeTreeRepresentation()
 
-    self.knowledge_tree["tree"].printMe()
+    # self.knowledge_tree["tree"].printMe()
 
 
 
@@ -1006,7 +1004,7 @@ class BackEnd:
     event_data = current_event_data
     self.root_class_container = self.ContainerGraph.load(file_name)
 
-    self.ContainerGraph.printMe("loaded")
+    # self.ContainerGraph.printMe("loaded")
 
     self.working_tree = WorkingTree(self.ContainerGraph)
     self.txt_class_names = list(self.working_tree.container_graph.RDFConjunctiveGraph.keys())

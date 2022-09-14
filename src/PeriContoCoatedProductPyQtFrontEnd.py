@@ -28,6 +28,7 @@ COLOURS = {
         "comment"         : QtGui.QColor(155, 155, 255),
         "integer"         : QtGui.QColor(155, 155, 255),
         "string"          : QtGui.QColor(255, 200, 200, 255),
+        "instantiated" : QtGui.QColor(252,3,3,255)
         }
 
 QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
@@ -37,25 +38,39 @@ QBRUSHES = {"is_a_subclass_of": QtGui.QBrush(COLOURS["is_a_subclass_of"]),
             "integer"         : QtGui.QBrush(COLOURS["integer"]),
             "string"          : QtGui.QBrush(COLOURS["string"]), }
 
+def highlightNode(tag):
+  return DELIMITERS["instantiated"] in tag
 
-def makeTree(objTree, node_id, rootItem):
-  stack = [node_id]
-  items = {node_id: rootItem}
+def constructClassTree( objTree, widget):
+  widget.clear()
+  root_id = 0
+  root_tag = objTree["nodes"][0]
+
+  rootItem = QTreeWidgetItem(widget)
+  widget.setColumnCount(1)
+  rootItem.setText(0, root_tag)
+  if highlightNode(root_tag):
+    rootItem.setForeground(0,COLOURS["instantiated"])
+  rootItem.path = objTree["tree"].getAncestors(root_id)
+  rootItem.node_id = 0
+
+  stack = [root_id]
+  items = {root_id: rootItem}
   while stack:
-    node_id = stack[0]
+    root_id = stack[0]
     stack = stack[1:]
-    # node_id = objTree["IDs"][node_id]
-    children_ids = objTree["tree"].getChildren(node_id)
+    children_ids = objTree["tree"].getChildren(root_id)
     for child_id in children_ids:
-      items[child_id] = QTreeWidgetItem(items[node_id])
+      items[child_id] = QTreeWidgetItem(items[root_id])
       child_tag = objTree["nodes"][child_id]
+      if highlightNode(child_tag):
+        # items[child_id].setBackground(0, COLOURS["instantiated"])
+        items[child_id].setForeground(0, COLOURS["instantiated"])
       items[child_id].setText(0, child_tag)
       items[child_id].reversed_path = objTree["tree"].getAncestors(child_id)
       items[child_id].node_id = child_id
-      # print("building tree", child_id, objTree["tree"].getAncestors(child_id) )
       stack.insert(0, child_id)
 
-  # print("debugging -- finished")
 
 
 class PeriContoPyQtFrontEnd(QMainWindow):
@@ -84,7 +99,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                    "exit"               : self.ui.pushExit,
                                    # "addChanges"         : self.ui.pushAddValueElucidation,
                                    "addValueElucidation": self.ui.pushAcceptValueElucidation,
-                                   "instantiate"        : self.ui.pushInstantiate,
+                                   # "instantiate"        : self.ui.pushInstantiate,
                                    "acceptInteger"      : self.ui.pushAcceptInteger,
                                    "acceptString"       : self.ui.pushAcceptString,
                                    }
@@ -110,8 +125,8 @@ class PeriContoPyQtFrontEnd(QMainWindow):
                                     #                         "show": self.ui.pushAddValueElucidation.show, },
                                     "addValueElucidation": {"hide": self.ui.pushAcceptValueElucidation.hide,
                                                             "show": self.ui.pushAcceptValueElucidation.show, },
-                                    "instantiate"        : {"hide": self.ui.pushInstantiate.hide,
-                                                            "show": self.ui.pushInstantiate.show},
+                                    # "instantiate"        : {"hide": self.ui.pushInstantiate.hide,
+                                    #                         "show": self.ui.pushInstantiate.show},
                                     "acceptInteger"      : {"hide": self.ui.pushAcceptInteger.hide,
                                                             "show": self.ui.pushAcceptInteger.show},
                                     "acceptString"       : {"hide": self.ui.pushAcceptString.hide,
@@ -165,24 +180,14 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     roundButton(self.ui.pushAcceptInteger, "accept", tooltip="accept integer")
     roundButton(self.ui.pushAcceptString, "accept", tooltip="accept string")
     roundButton(self.ui.pushAcceptValueElucidation, "accept", tooltip="accept text")
+    roundButton(self.ui.pushCollapsTree, "collaps", tooltip="collaps tree")
+    roundButton(self.ui.pushExpandTree, "expand", tooltip="expand tree")
 
     self.backEnd = BackEnd(self)
 
-    # self.block = True  # Note: qt emits a signal if a widget is populated. Thus one has to block the event after populating
-
   def __makeClassTree(self, objTree):
     widget = self.ui.treeClass
-    widget.clear()
-    root_id = 0
-    root_tag = objTree["nodes"][0]
-
-    rootItem = QTreeWidgetItem(widget)
-    widget.setColumnCount(1)
-    rootItem.setText(0, root_tag)
-    rootItem.path = objTree["tree"].getAncestors(root_id)
-    rootItem.node_id = 0
-
-    makeTree(objTree, root_id, rootItem)
+    constructClassTree(objTree, widget)
     widget.show()
     widget.expandAll()
 
@@ -191,8 +196,6 @@ class PeriContoPyQtFrontEnd(QMainWindow):
       self.gui_objects["buttons"][b].hide()
     for b in show:
       self.gui_objects["buttons"][b].hide()
-
-  #
 
   def __showClassTree(self):
     self.gui_objects["selectors"]["classTree"].show()
@@ -343,15 +346,21 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.backEnd.processEvent("wait_for_ID", "got_string", message)
     pass
 
-  def on_pushInstantiate_pressed(self):
-    """
-    generates a message
-    - triple associated with the chosen tree item
-    - path within class to chosen tree item
-    """
-    message = {"triple": self.triple,
-               "path"  : self.path}
-    self.backEnd.processEvent("wait_for_ID", "add_new_ID", message)
+  def on_pushCollapsTree_pressed(self):
+    self.ui.treeClass.collapseAll()
+
+  def on_pushExpandTree_pressed(self):
+    self.ui.treeClass.expandAll()
+
+  # def on_pushInstantiate_pressed(self):
+  #   """
+  #   generates a message
+  #   - triple associated with the chosen tree item
+  #   - path within class to chosen tree item
+  #   """
+  #   message = {"triple": self.triple,
+  #              "path"  : self.path}
+  #   self.backEnd.processEvent("wait_for_ID", "add_new_ID", message)
 
   def on_pushVisualise_pressed(self):
     self.backEnd.processEvent("visualise", "dot_plot", {})

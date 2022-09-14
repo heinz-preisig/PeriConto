@@ -26,7 +26,7 @@
       <x>100</x>
       <y>140</y>
       <width>731</width>
-      <height>711</height>
+      <height>781</height>
      </rect>
     </property>
     <property name="title">
@@ -54,18 +54,77 @@
       <bool>false</bool>
      </attribute>
     </widget>
-    <widget class="QPushButton" name="pushInstantiate">
+    <widget class="QWidget" name="horizontalLayoutWidget_3">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>670</y>
-       <width>89</width>
-       <height>25</height>
+       <width>271</width>
+       <height>80</height>
       </rect>
      </property>
-     <property name="text">
-      <string>instantiate</string>
-     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QPushButton" name="pushVisualise">
+        <property name="text">
+         <string>visualise</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_8">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushExpandTree">
+        <property name="text">
+         <string>expand</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_9">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushCollapsTree">
+        <property name="text">
+         <string>collaps</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_10">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="horizontalLayoutWidget_2">
@@ -73,7 +132,7 @@
      <rect>
       <x>100</x>
       <y>20</y>
-      <width>495</width>
+      <width>361</width>
       <height>80</height>
      </rect>
     </property>
@@ -107,26 +166,6 @@
      </item>
      <item>
       <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushVisualise">
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_6">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>

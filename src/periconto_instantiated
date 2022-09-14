@@ -1,16 +1,71 @@
 digraph {
 	edge [simplify=true]
-	"a-0" [color=red fillcolor=red shape=ellipse style=filled]
-	"b-0" [color=black fillcolor=white shape=ellipse style=filled]
-	"c-0" [color=black fillcolor=white shape=ellipse style=filled]
-	"number-0" [color=lightblue fillcolor=lightblue shape=box style=filled]
-	"name-0" [color=lightblue fillcolor=lightblue shape=box style=filled]
-	"string-0" [color=green fillcolor=green shape=box style=filled]
-	"integer-0" [color=green fillcolor=green shape=box style=filled]
-	"integer-0" -> "number-0"
-	"b-0" -> "a-0"
-	"name-0" -> "c-0"
-	"c-0" -> "b-0"
-	"string-0" -> "name-0"
-	"number-0" -> "b-0"
+	a [color=red fillcolor=red shape=ellipse style=filled]
+	b [color=black fillcolor=white shape=ellipse style=filled]
+	d [color=black fillcolor=white shape=ellipse style=filled]
+	c [color=black fillcolor=white shape=ellipse style=filled]
+	g [color=black fillcolor=white shape=ellipse style=filled]
+	f [color=black fillcolor=white shape=ellipse style=filled]
+	e [color=black fillcolor=white shape=ellipse style=filled]
+	h [color=black fillcolor=white shape=ellipse style=filled]
+	A [color=red fillcolor=red shape=egg style=filled]
+	D [color=black fillcolor=white shape=ellipse style=filled]
+	C [color=black fillcolor=white shape=ellipse style=filled]
+	B [color=black fillcolor=white shape=ellipse style=filled]
+	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
+	integer [color=green fillcolor=green shape=box style=filled]
+	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	A [color=red fillcolor=red shape=egg style=filled]
+	D [color=black fillcolor=white shape=ellipse style=filled]
+	C [color=black fillcolor=white shape=ellipse style=filled]
+	B [color=black fillcolor=white shape=ellipse style=filled]
+	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
+	integer [color=green fillcolor=green shape=box style=filled]
+	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	A [color=red fillcolor=red shape=egg style=filled]
+	D [color=black fillcolor=white shape=ellipse style=filled]
+	C [color=black fillcolor=white shape=ellipse style=filled]
+	B [color=black fillcolor=white shape=ellipse style=filled]
+	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
+	integer [color=green fillcolor=green shape=box style=filled]
+	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	A [color=red fillcolor=red shape=egg style=filled]
+	D [color=black fillcolor=white shape=ellipse style=filled]
+	C [color=black fillcolor=white shape=ellipse style=filled]
+	B [color=black fillcolor=white shape=ellipse style=filled]
+	D_num [color=lightblue fillcolor=lightblue shape=box style=filled]
+	integer [color=green fillcolor=green shape=box style=filled]
+	curl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	burl [color=lightblue fillcolor=lightblue shape=box style=filled]
+	string [color=green fillcolor=green shape=box style=filled]
+	A -> e
+	B -> A
+	h -> g
+	D_num -> D
+	curl -> C
+	C -> A
+	burl -> B
+	A -> f
+	b -> a
+	A -> h
+	c -> b
+	string -> burl
+	d -> b
+	integer -> D_num
+	g -> d
+	D -> A
+	A -> c
+	f -> d
+	string -> curl
+	e -> d
 }

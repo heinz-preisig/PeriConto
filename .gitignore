@@ -2,7 +2,3 @@ venv
 .vscode
 **/__pycache__/
 .idea
-base_ontology.*
-coatedProduct.*
-periconto_instantiated.*
-

@@ -1062,8 +1062,17 @@ class BackEnd:
         return
 
     if is_sub_class and  is_instantiated_object:
-      # print("debugging")
-      if node_original in self.working_tree.tree["nodes"].values():
+
+      # exctract from the working tree to check if one can add a branch
+      parent_ID = self.working_tree.tree["tree"].getImmediateParent(node_ID)
+      sub_tree, map = self.working_tree.tree["tree"].extractSubTreeAndMap(parent_ID)
+      nodes = {}
+      for m in map:
+        nodes[map[m]] = self.working_tree.tree["nodes"][m]
+
+      print("debugging")
+      # if node_original in self.working_tree.tree["nodes"].values(): # too restrictive
+      if node_original in nodes.values(): # relaxed constraint
         return
       dialog = self.FrontEnd.dialogYesNo(message="add new ")
       if dialog == "YES":
@@ -1089,6 +1098,8 @@ class BackEnd:
 
     node_tag = current_event_data["node_tag"]
     node_ID = current_event_data["node_ID"]
+
+
     node_original = getID(node_tag)
     node_ID_original = self.working_tree.container_graph.knowledge_tree["IDs"][node_original]
 
@@ -1103,23 +1114,18 @@ class BackEnd:
     for m in map:
       nodes[map[m]] = self.working_tree.container_graph.knowledge_tree["nodes"][m]
 
-    # parent_ID = self.working_tree.container_graph.knowledge_tree["tree"].getImmediateParent(node_ID)
     parent_ID = self.working_tree.tree["tree"].getImmediateParent(node_ID)
     adding_map = self.working_tree.tree["tree"].addTree(sub_tree, parent_ID)
 
     extended_tree_map = self.working_tree.tree["tree"].mapMe()
-    # inv_extended_tree_map = invertDict(extended_tree_map)
 
     inv_map_before = invertDict(map_before)
     inv_adding_map = invertDict(adding_map)
-    # inv_adding_map.update(inv_map_before)
-
 
     nodes_extended_tree = {}
     for m in inv_adding_map:
       n = extended_tree_map[m]
       nodes_extended_tree[n] = nodes[inv_adding_map[m]]
-
 
     for m in inv_map_before:
       n = extended_tree_map[m]
@@ -1128,13 +1134,13 @@ class BackEnd:
     self.working_tree.tree["nodes"]=nodes_extended_tree
     self.working_tree.tree["IDs"] = invertDict(nodes_extended_tree)
 
-    node_types =self.working_tree.container_graph.node_types
     if debug_plot:
+      node_types =self.working_tree.container_graph.node_types
       dot = self.working_tree.tree["tree"].plotMe(0)
       dot.render("after", view=True)
-
       dot = treePlot(self.working_tree.tree,0,node_types)
       dot.render("after all", view=True)
+
     self.__showTree()
 
   def __gotInteger(self):

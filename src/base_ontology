@@ -2,15 +2,15 @@ digraph {
 	edge [simplify=true]
 	a [color=red fillcolor=red shape=ellipse style=filled]
 	b [color=black fillcolor=white shape=ellipse style=filled]
-	number [color=lightblue fillcolor=lightblue shape=box style=filled]
 	c [color=black fillcolor=white shape=ellipse style=filled]
-	integer [color=green fillcolor=green shape=box style=filled]
+	number [color=lightblue fillcolor=lightblue shape=box style=filled]
 	name [color=lightblue fillcolor=lightblue shape=box style=filled]
 	string [color=green fillcolor=green shape=box style=filled]
+	integer [color=green fillcolor=green shape=box style=filled]
+	c -> b
 	string -> name
 	b -> a
 	number -> b
-	c -> b
 	integer -> number
 	name -> c
 }

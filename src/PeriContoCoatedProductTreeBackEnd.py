@@ -638,14 +638,14 @@ class WorkingTree(SuperGraph):
 
   def __init__(self, container_graph):
     SuperGraph.__init__(self)
+    debugg = False
     self.container_graph = container_graph
     self.data = Data()
     self.tree = copy.deepcopy(container_graph.knowledge_tree)
 
     node_types =self.container_graph.node_types
-    debuggTreePlotAndRender(self.tree, 0, node_types, "base_ontology")
-    # dot = treePlot(self.tree,0,node_types)
-    # dot.render("gugus", view=True)
+    if debugg:
+      debuggTreePlotAndRender(self.tree, 0, node_types, "base_ontology")
 
   def instantiateAlongPath(self, paths_in_classes, class_path):
 
@@ -1160,25 +1160,31 @@ class BackEnd:
     node_tag = current_event_data["node_tag"]
     node_ID = current_event_data["node_ID"]
     global_path_list = []
+    global_IDs_list = []
     for ID in reversed_path:
       tag = self.working_tree.tree["nodes"][ID]
       if not isInstantiated(tag):
         enum = self.ContainerGraph.incrementPrimitiveEnumerator(getID(tag))
         tag_i = makeID(tag, enum)
+        global_IDs_list.append(str(enum))
         self.working_tree.tree.rename(ID, tag_i)
-        global_path_list.append(tag_i)
-      else:
         global_path_list.append(tag)
+      else:
+        global_path_list.append(getID(tag))
+        enum = getIDNo(tag)
+        global_IDs_list.append(enum)
     global_path_list.reverse()
+    global_IDs_list.reverse()
     enum = self.ContainerGraph.incrementPrimitiveEnumerator(node_tag)
     tag_i = makeID(node_tag, enum)
+    global_IDs_list.append(str(enum))
     self.working_tree.tree.rename(node_ID, tag_i)
-    global_path_list.append(tag_i)
-    global_IDs_list = []
-    for i in global_path_list:
-      id = getIDNo(i)
-      global_IDs_list.append(id)
-    global_path = DELIMITERS["path"].join(global_IDs_list)
+    global_path_list.append(node_tag)
+    # global_IDs_list = []
+    # for i in global_path_list:
+    #   id = getIDNo(i)
+    #   global_IDs_list.append(id)
+    global_path = DELIMITERS["path"].join(global_path_list)
     global_IDs = DELIMITERS["instantiated"].join(global_IDs_list)
     return global_IDs, global_path
 

@@ -2,3 +2,6 @@
 .vscode
 **/__pycache__/
 .idea
+../resources/base_ontology.*
+../ontologyRepository/coatedProduct.*
+../resources/periconto_instantiated.*

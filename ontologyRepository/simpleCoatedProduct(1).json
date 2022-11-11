@@ -1,0 +1,28 @@
+{
+  "root": "simpleCoatedProduct",
+  "graphs": {
+    "simpleCoatedProduct": [
+      [
+        "PreTreatmentLayer",
+        "is_a_subclass_of",
+        "Layers"
+      ],
+      [
+        "Layers",
+        "is_a_subclass_of",
+        "simpleCoatedProduct"
+      ],
+      [
+        "Substrate",
+        "is_a_subclass_of",
+        "simpleCoatedProduct"
+      ]
+    ]
+  },
+  "elucidations": {
+    "simpleCoatedProduct": "",
+    "simpleCoatedProduct.substrate": null,
+    "simpleCoatedProduct.layers": null,
+    "simpleCoatedProduct.preTreatedSurface": null
+  }
+}

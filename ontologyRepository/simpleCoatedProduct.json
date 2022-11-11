@@ -1,0 +1,90 @@
+{
+  "root": "simpleCoatedProduct",
+  "graphs": {
+    "simpleCoatedProduct": [
+      [
+        "ChemicalComponent",
+        "link_to_class",
+        "PreTreatmentLayer"
+      ],
+      [
+        "ChemicalComponent",
+        "link_to_class",
+        "Pigment"
+      ],
+      [
+        "ChemicalComponent",
+        "link_to_class",
+        "Substrate"
+      ],
+      [
+        "Layers",
+        "is_a_subclass_of",
+        "simpleCoatedProduct"
+      ],
+      [
+        "PreTreatmentLayer",
+        "is_a_subclass_of",
+        "Layers"
+      ],
+      [
+        "Binder",
+        "is_a_subclass_of",
+        "Coating"
+      ],
+      [
+        "ChemicalComponent",
+        "link_to_class",
+        "Binder"
+      ],
+      [
+        "Coating",
+        "is_a_subclass_of",
+        "Layers"
+      ],
+      [
+        "Pigment",
+        "is_a_subclass_of",
+        "Coating"
+      ],
+      [
+        "Substrate",
+        "is_a_subclass_of",
+        "simpleCoatedProduct"
+      ]
+    ],
+    "ChemicalComponent": [
+      [
+        "Volume",
+        "integer",
+        "integer"
+      ],
+      [
+        "ChemicalComponent",
+        "value",
+        "URL"
+      ],
+      [
+        "ChemicalComponent",
+        "value",
+        "Volume"
+      ],
+      [
+        "URL",
+        "string",
+        "string"
+      ]
+    ]
+  },
+  "elucidations": {
+    "simpleCoatedProduct": "",
+    "simpleCoatedProduct.Substrate": null,
+    "simpleCoatedProduct.Layers": null,
+    "simpleCoatedProduct.PreTreatmentLayer": null,
+    "simpleCoatedProduct.Coating": null,
+    "simpleCoatedProduct.Pigment": null,
+    "simpleCoatedProduct.Binder": null,
+    "ChemicalComponent": null,
+    "simpleCoatedProduct.ChemicalComponent": ""
+  }
+}

@@ -309,7 +309,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.backEnd.processEvent("load")
 
   def on_pushSave_pressed(self):
-    self.backEnd.processEvent("save_KnowledgeGraph", "save", None)
+    self.backEnd.processEvent("save_knowledgeGraph", "save", None)
 
   def on_treeClass_itemPressed(self, item, column):
     """

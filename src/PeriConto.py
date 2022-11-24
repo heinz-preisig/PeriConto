@@ -20,8 +20,8 @@ from PyQt5.QtWidgets import *
 from graphviz import Digraph
 from rdflib import Graph
 from rdflib import Literal
-from rdflib import RDF
-from rdflib import RDFS
+from rdflib import RDF, RDFS
+from rdflib.namespace import RDFS
 from rdflib import XSD
 
 # from graphHAP import Graph

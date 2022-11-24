@@ -14,9 +14,17 @@ import os.path
 
 DELIMITERS = {"instantiated": ":",
               "path"        : "/"}
+#A temperary URI for our coating ontology              
+COATING_ONTOLOGY_URI = 'http://example.org/'
 
-from rdflib import Graph
-from rdflib import Literal
+# from rdflib import Graph
+# from rdflib import Literal
+
+from rdflib import Namespace, Literal, URIRef
+from rdflib.graph import Graph, ConjunctiveGraph
+from rdflib.plugins.stores.memory import Memory
+from rdflib.namespace import RDF, XSD, RDFS
+
 
 from treeid import ObjectTreeNonUniqueTags, invertDict
 
@@ -28,7 +36,7 @@ from PeriConto import ONTOLOGY_DIRECTORY
 from PeriConto import PRIMITIVES
 from PeriConto import RDFSTerms
 from PeriConto import VALUE
-from PeriConto import getData
+from PeriConto import getData, saveWithBackup
 from PeriConto import makeRDFCompatible
 from PeriConto import DIRECTION
 
@@ -358,6 +366,7 @@ def debuggPrintGraph(graph, debug, text=""):
 class SuperGraph():
   def __init__(self):
     self.JsonFile = None
+    self.ttlFile = None
     self.txt_root_class = None
     self.txt_class_path = []
     self.txt_class_names = []
@@ -495,6 +504,45 @@ class SuperGraph():
       for s, p, o in self.RDFConjunctiveGraph[g].triples((None, None, None)):
         print("- ", str(s), MYTerms[p], str(o))
 
+  def to_rdflibConjunctiveGraph(self):
+
+    # Define a namespace for our coating knowledge graph and link the URI 
+    ckg = Namespace(COATING_ONTOLOGY_URI)
+    print("....debugging...", ckg)
+    kg_store = Memory()
+    kg = ConjunctiveGraph(store=kg_store)
+    kg.bind("ckg", ckg)
+    # kg.bind("RDFS", RDFS)
+
+    # print(".....debugging", type(ckg.coatedProduct))
+    # print(".....debugging", ckg.coatedProduct)
+    
+    # print("Contexts:")
+    # for kg in kg.contexts():
+    #     print(f"-- {kg.identifier} ")
+    # print("===================")
+
+      
+    for subgraph_key in list(self.RDFConjunctiveGraph.keys()):
+
+      # print("printing the subgraph identifier....", subgraph_key)
+      print(".....URI of subgraph", ckg[subgraph_key])
+      print("=================================")
+      subgraph = Graph(store=kg_store, identifier=subgraph_key)
+      for s, p, o in self.RDFConjunctiveGraph[subgraph_key].triples((None, None, None)):
+        subgraph.add((ckg[s], p, ckg[o]))
+        # print(p)
+        print(ckg[s], p, ckg[o])
+        # subgraph.add(ckg[s], RDFSTerms[p], ckg[o])
+
+    #print conjunctive graph contexts  
+    print("Graph Contexts:")
+    for c in kg.contexts():
+        print(f"-- {c.identifier} ")
+
+    return kg
+
+  
   def isClass(self, ID):
     return ID in self.txt_class_names
 
@@ -533,7 +581,7 @@ class SuperGraph():
 # No, this does not work!
 #It should be a rdflib's ConjunctiveGraph for serialization to work.
   def rdfSerializer(self, format):
-    print(self.RDFConjunctiveGraph.serialize(format))
+    return self.RDFConjunctiveGraph.serialize(format)
 
 
 def makeListBasedOnPredicates(rdf_graph, rdf_predicate):
@@ -1026,12 +1074,23 @@ class BackEnd:
 
   
   
-  def _saveKnowledgeGraph(self):
+  def __saveKnowledgeGraph(self):
     """Saving knowledge graph or the loaded ontology in the turtle format.
     It allows currently to save turtle serialized version  of the loaded ontology.
     #TODO: save the instantiated knowledge graph.  
     """
-    pass
+    # self.current_kg = self.ContainerGraph.to_rdflibConjunctiveGraph()
+    # self.current_kg_turtle = self.currentkg.rdfSerializer('turtle')
+
+    # write current_kg_turtle data to a file
+    # self.ttlFile = os.path.join(ONTOLOGY_DIRECTORY, fname)
+    current_kg = self.ContainerGraph.to_rdflibConjunctiveGraph()
+    
+    print("turtle serialised KG...", current_kg.serialize(format='turtle'))
+    # saveWithBackup(current_kg.serialize(format='turtle'), self.ttlFile)
+    
+
+
   def __askToQuit(self):
     pass
 
@@ -1044,7 +1103,7 @@ class BackEnd:
     self.root_class_container = self.ContainerGraph.load(file_name)
 
     self.ContainerGraph.printMe("loaded")
-    # self.ContainerGraph.rdfSerializer('turtle')
+    
     
 
     self.working_tree = WorkingTree(self.ContainerGraph)
@@ -1377,16 +1436,16 @@ class BackEnd:
                                                     "gui_state" : "show_tree"}
                                        },
            #Automaton state transition logic to save a loaded ontology or Knowledge Graph
-            "save_KnowledgeGraph"   : {"save": {"next_state": "saving_knowledge_graph",
+            "save_knowledgeGraph"   : {"save": {"next_state": "saving_knowledgeGraph",
                                                            "actions"   : [self.__askForFileNameSaving],
                                                            "gui_state" : "saving"}
                                      },
 
-            "saving_KnowledgeGraph"   : {"file_name": {"next_state": "save_and_quit",
+            "saving_knowledgeGraph"   : {"file_name": {"next_state": "save_and_quit",
                                                            "actions"   : [self.__saveKnowledgeGraph,
                                                                           self.__askToQuit],
                                                            "gui_state" : "quit"}
-            #                          },
+                                    },
 
             # "state"      : {"event": {"next_state": add next state,
             #                                                "actions"   : [list of actions],
@@ -1463,6 +1522,15 @@ class BackEnd:
                       "PrimitiveString",
                       ]
               }
+
+    elif state == "save_knowledgeGraph":
+      show = {"buttons": ["save",
+                          "exit",]
+              }
+    elif state == "quit":
+      show = {"buttons": ["exit",]
+              }
+
     else:
       show = []
       print("ooops -- no such gui state", state)

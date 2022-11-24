@@ -7,6 +7,7 @@ rule: notation
 an instantiated "node" is <<name>>:<<ID>>
 
 """
+import pprint
 
 import copy
 import os.path
@@ -324,6 +325,7 @@ def convertRDFintoInternalMultiGraph(graph, graph_ID):
       quads.append((s, o, p, graph_ID))
     else:
       quads.append((o, s, p, graph_ID))
+  print('debugging.....', quads)
   return quads
 
 
@@ -334,6 +336,7 @@ def convertQuadsGraphIntoRDFGraph(quads):
       graph.add((Literal(f), RDFSTerms[p], Literal(s)))
     else:
       graph.add((Literal(s), RDFSTerms[p], Literal(f)))
+  print('debugging...printed rdf graph:', graph)
   return graph
 
 
@@ -382,6 +385,7 @@ class SuperGraph():
     self.txt_link_lists[self.txt_root_class] = []
     self.class_definition_sequence.append(self.txt_root_class)
     self.txt_primitives[self.txt_root_class] = {self.txt_root_class: []}
+    # conj_graph = self.RDFConjunctiveGraph['self.txt_root_class']
 
   def load(self, JsonFile):
     """
@@ -389,6 +393,11 @@ class SuperGraph():
     """
     self.JsonFile = JsonFile
     data = getData(self.JsonFile)
+    
+    #print the locaded JSON data
+    pprint.pprint(data)
+
+
     self.txt_root_class = data["root"]
     self.txt_elucidations = data["elucidations"]
 
@@ -408,7 +417,7 @@ class SuperGraph():
 
     self.knowledge_tree, self.node_types = self.makeTreeRepresentation()
 
-    # self.knowledge_tree["tree"].printMe()
+    self.knowledge_tree["tree"].printMe()
 
 
 
@@ -450,7 +459,9 @@ class SuperGraph():
   def collectGraphs(self):
     graph_overall = Graph()
     for cl in self.RDFConjunctiveGraph:
+      # print('debugging.....', cl)
       for t in self.RDFConjunctiveGraph[cl].triples((None, None, None)):
+        # print('debugging...', t)
         s, p, o = t
         graph_overall.add(t)
     return graph_overall
@@ -518,6 +529,11 @@ class SuperGraph():
         if linked_to_class == graph_class:
           if linked_to_subclass == ID:
             return True
+
+# No, this does not work!
+#It should be a rdflib's ConjunctiveGraph for serialization to work.
+  def rdfSerializer(self, format):
+    print(self.RDFConjunctiveGraph.serialize(format))
 
 
 def makeListBasedOnPredicates(rdf_graph, rdf_predicate):
@@ -594,7 +610,7 @@ class Data(dict):
   def addInteger(self, path, IDs, value):
     path_enum = self.addPath(path)
     key = (path_enum, IDs)
-    # print("debugging -- integer add key", key, value)
+    print("debugging -- integer add key", key, value)
     if key not in self.integers:
       self.integers[key] = value
     else:
@@ -649,10 +665,10 @@ class WorkingTree(SuperGraph):
 
   def instantiateAlongPath(self, paths_in_classes, class_path):
 
-    debug = False
+    debug = True
 
 
-    # print("debugging -- class path and paths in classes", class_path, paths_in_classes)
+    print("debugging -- class path and paths in classes", class_path, paths_in_classes)
 
     instantiated = {}
 
@@ -984,17 +1000,40 @@ class BackEnd:
 
     self.automaton = self.automaton()
 
-  def __askForFileName(self):
+  def __askForFileNameOpening(self):
     global current_event_data
     global automaton_next_state
 
     state = automaton_next_state
 
-    self.FrontEnd.fileNameDialog(state, "file_name",
+    self.FrontEnd.fileNameDialogOpen(state, "file_name",
                                  "ontology",
                                  ONTOLOGY_DIRECTORY,
                                  "*.json",
                                  "exit")
+
+  def __askForFileNameSaving(self):
+    global current_event_data
+    global automaton_next_state
+
+    state = automaton_next_state
+
+    self.FrontEnd.fileNameDialogSave(state, "file_name",
+                                 "ontology",
+                                 ONTOLOGY_DIRECTORY,
+                                 "*.ttl",
+                                 "exit")
+
+  
+  
+  def _saveKnowledgeGraph(self):
+    """Saving knowledge graph or the loaded ontology in the turtle format.
+    It allows currently to save turtle serialized version  of the loaded ontology.
+    #TODO: save the instantiated knowledge graph.  
+    """
+    pass
+  def __askToQuit(self):
+    pass
 
   def __loadOntology(self):
     global current_event_data
@@ -1004,7 +1043,9 @@ class BackEnd:
     event_data = current_event_data
     self.root_class_container = self.ContainerGraph.load(file_name)
 
-    # self.ContainerGraph.printMe("loaded")
+    self.ContainerGraph.printMe("loaded")
+    # self.ContainerGraph.rdfSerializer('turtle')
+    
 
     self.working_tree = WorkingTree(self.ContainerGraph)
     self.txt_class_names = list(self.working_tree.container_graph.RDFConjunctiveGraph.keys())
@@ -1082,7 +1123,7 @@ class BackEnd:
     #   self.current_class = subject
     #   self.__makeWorkingTree()
     #   self.__shiftClass()
-
+  
 
   def __addBranch(self, node_ID):
     """
@@ -1308,7 +1349,7 @@ class BackEnd:
                                                       "gui_state" : "start"},
                                        },
             "initialised"           : {"create": {"next_state": "got_ontology_file_name",
-                                                  "actions"   : [self.__askForFileName],
+                                                  "actions"   : [self.__askForFileNameOpening],
                                                   "gui_state" : "initialise"},
                                        },
             "got_ontology_file_name": {"file_name": {"next_state": "show_tree",
@@ -1335,6 +1376,18 @@ class BackEnd:
                                                     "actions"   : [self.__makeDotPlot],
                                                     "gui_state" : "show_tree"}
                                        },
+           #Automaton state transition logic to save a loaded ontology or Knowledge Graph
+            "save_KnowledgeGraph"   : {"save": {"next_state": "saving_knowledge_graph",
+                                                           "actions"   : [self.__askForFileNameSaving],
+                                                           "gui_state" : "saving"}
+                                     },
+
+            "saving_KnowledgeGraph"   : {"file_name": {"next_state": "save_and_quit",
+                                                           "actions"   : [self.__saveKnowledgeGraph,
+                                                                          self.__askToQuit],
+                                                           "gui_state" : "quit"}
+            #                          },
+
             # "state"      : {"event": {"next_state": add next state,
             #                                                "actions"   : [list of actions],
             #                                                "gui_state" : specify gui shows (separate dictionary}

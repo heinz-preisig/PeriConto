@@ -262,8 +262,23 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     else:
       self.close()
 
-  def fileNameDialog(self, state, Event, prompt, directory, type, on_fail):
+  def fileNameDialogOpen(self, state, Event, prompt, directory, type, on_fail):
     name = QFileDialog.getOpenFileName(None,
+                                       prompt,
+                                       directory,
+                                       type,
+                                       )[0]
+
+    if name:
+      message = {"file_name": name}
+      self.backEnd.processEvent(state, Event, message)
+    elif on_fail != "close":
+      print(">>> I do not know what to do")
+    else:
+      self.close()
+
+  def fileNameDialogSave(self, state, Event, prompt, directory, type, on_fail):
+    name = QFileDialog.getSaveFileName(None,
                                        prompt,
                                        directory,
                                        type,
@@ -292,6 +307,9 @@ class PeriContoPyQtFrontEnd(QMainWindow):
 
   def on_pushLoad_pressed(self):
     self.backEnd.processEvent("load")
+
+  def on_pushSave_pressed(self):
+    self.backEnd.processEvent("save_KnowledgeGraph", "save", None)
 
   def on_treeClass_itemPressed(self, item, column):
     """

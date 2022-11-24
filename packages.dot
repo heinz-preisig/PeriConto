@@ -1,0 +1,50 @@
+digraph "packages" {
+charset="utf-8"
+rankdir=BT
+"0" [label="src", shape="box"];
+"1" [label="src.PeriConto", shape="box"];
+"2" [label="src.PeriContoCoatedProduct", shape="box"];
+"3" [label="src.PeriContoCoatedProductBackEnd", shape="box"];
+"4" [label="src.PeriContoCoatedProductPyQtFrontEnd", shape="box"];
+"5" [label="src.PeriContoCoatedProductPyQtRDFFrontEnd", shape="box"];
+"6" [label="src.PeriContoCoatedProductTreeBackEnd", shape="box"];
+"7" [label="src.PeriContoCoatedProductTree_gui", shape="box"];
+"8" [label="src.PeriContoCoatedProduct_gui", shape="box"];
+"9" [label="src.PeriConto_gui", shape="box"];
+"10" [label="src.ontovis", shape="box"];
+"11" [label="src.resources", shape="box"];
+"12" [label="src.resources.pop_up_message_box", shape="box"];
+"13" [label="src.resources.resources_icons", shape="box"];
+"14" [label="src.resources.single_list_selector", shape="box"];
+"15" [label="src.resources.single_list_selector_impl", shape="box"];
+"16" [label="src.resources.ui_string_dialog", shape="box"];
+"17" [label="src.resources.ui_string_dialog_impl", shape="box"];
+"18" [label="src.testCallBackA", shape="box"];
+"19" [label="src.testCallBackB", shape="box"];
+"20" [label="src.treeid", shape="box"];
+"1" -> "9" [arrowhead="open", arrowtail="none"];
+"1" -> "12" [arrowhead="open", arrowtail="none"];
+"1" -> "13" [arrowhead="open", arrowtail="none"];
+"1" -> "15" [arrowhead="open", arrowtail="none"];
+"1" -> "17" [arrowhead="open", arrowtail="none"];
+"2" -> "1" [arrowhead="open", arrowtail="none"];
+"2" -> "8" [arrowhead="open", arrowtail="none"];
+"2" -> "12" [arrowhead="open", arrowtail="none"];
+"2" -> "13" [arrowhead="open", arrowtail="none"];
+"2" -> "15" [arrowhead="open", arrowtail="none"];
+"2" -> "17" [arrowhead="open", arrowtail="none"];
+"3" -> "1" [arrowhead="open", arrowtail="none"];
+"4" -> "6" [arrowhead="open", arrowtail="none"];
+"4" -> "7" [arrowhead="open", arrowtail="none"];
+"4" -> "12" [arrowhead="open", arrowtail="none"];
+"4" -> "13" [arrowhead="open", arrowtail="none"];
+"4" -> "17" [arrowhead="open", arrowtail="none"];
+"5" -> "3" [arrowhead="open", arrowtail="none"];
+"5" -> "8" [arrowhead="open", arrowtail="none"];
+"5" -> "12" [arrowhead="open", arrowtail="none"];
+"5" -> "13" [arrowhead="open", arrowtail="none"];
+"5" -> "17" [arrowhead="open", arrowtail="none"];
+"6" -> "1" [arrowhead="open", arrowtail="none"];
+"6" -> "20" [arrowhead="open", arrowtail="none"];
+"19" -> "18" [arrowhead="open", arrowtail="none"];
+}

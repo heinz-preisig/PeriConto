@@ -1083,11 +1083,15 @@ class BackEnd:
     # self.current_kg_turtle = self.currentkg.rdfSerializer('turtle')
 
     # write current_kg_turtle data to a file
-    # self.ttlFile = os.path.join(ONTOLOGY_DIRECTORY, fname)
+    global current_event_data
+    filename_save = current_event_data["file_name"]
+
+    self.ttlFile = os.path.join(ONTOLOGY_DIRECTORY, filename_save)
+    print('printing filepath to save ttl..', self.ttlFile)
     current_kg = self.ContainerGraph.to_rdflibConjunctiveGraph()
     
     print("turtle serialised KG...", current_kg.serialize(format='turtle'))
-    # saveWithBackup(current_kg.serialize(format='turtle'), self.ttlFile)
+    saveWithBackup(current_kg.serialize(format='turtle'), self.ttlFile)
     
 
 

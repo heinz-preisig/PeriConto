@@ -1091,7 +1091,15 @@ class BackEnd:
     current_kg = self.ContainerGraph.to_rdflibConjunctiveGraph()
     
     print("turtle serialised KG...", current_kg.serialize(format='turtle'))
-    saveWithBackup(current_kg.serialize(format='turtle'), self.ttlFile)
+    # oops--- ttl format data written to the file is not in a newline format!
+    #saveWithBackup dumps only json data, so it won't work here. 
+    # TODO: change putData method in PeriConto.py to enable ttl format 
+
+    # saveWithBackup(current_kg.serialize(format='turtle'), self.ttlFile)
+
+    # a temporary fix
+    current_kg.serialize(format='turtle', destination=filename_save)
+
     
 
 
@@ -1442,7 +1450,7 @@ class BackEnd:
            #Automaton state transition logic to save a loaded ontology or Knowledge Graph
             "save_knowledgeGraph"   : {"save": {"next_state": "saving_knowledgeGraph",
                                                            "actions"   : [self.__askForFileNameSaving],
-                                                           "gui_state" : "saving"}
+                                                           "gui_state" : "saving_knowledgeGraph"}
                                      },
 
             "saving_knowledgeGraph"   : {"file_name": {"next_state": "save_and_quit",

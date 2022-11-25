@@ -150,7 +150,7 @@ def plot(graph, class_names=[]):
   # Visualize the graph
   return dot
 
-
+#TODO:  this is specific to json data, allow ttl as well!
 def putData(data, file_spec, indent="  "):
   print("writing to file: ", file_spec)
   dump = json.dumps(data, indent=indent)

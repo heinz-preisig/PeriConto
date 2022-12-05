@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+venv
+>>>>>>> 234e010dc281b9720eade67285d322d83a99fcac
 .venv
 .vscode
 **/__pycache__/

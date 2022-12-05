@@ -23,6 +23,7 @@ from rdflib import Literal
 from rdflib import RDF, RDFS
 from rdflib.namespace import RDFS
 from rdflib import XSD
+from rdflib import namespace
 
 # from graphHAP import Graph
 from PeriConto_gui import Ui_MainWindow
@@ -270,6 +271,17 @@ class OntobuilderUI(QMainWindow):
     self.root_class = None
     self.load_elucidation = True
 
+
+    self.CoatingOntology = Graph()
+    self.CoatingOntology.parse("coating_ontology.ttl", format="turtle")
+    for s,p,o in self.CoatingOntology.triples((None,None,None)):
+      # print(s,p,o)
+      print("- s: ",self.CoatingOntology.preferredLabel(s))
+      print("- p: ",self.CoatingOntology.preferredLabel(p))
+      print("- o: ",self.CoatingOntology.preferredLabel(o),"\n")
+        # print(self.CoatingOntology.qname(x) if isinstance(x,"URIRef") else x, end=" ")
+    print("debugging -- read coating ontology")
+
   def __ui_state(self, state):
     # what to show
     if state == "start":
@@ -387,6 +399,9 @@ class OntobuilderUI(QMainWindow):
       for n in self.subclass_names[g]:
         names.add(n)
     return names
+
+  def __extractLabelsFromCoatingOntology(self):
+    self.CoatingOntology.triples
 
 
 

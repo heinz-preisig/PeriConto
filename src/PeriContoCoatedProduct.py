@@ -33,7 +33,7 @@ from PeriConto import VALUE
 from PeriConto import getData
 from PeriConto import makeRDFCompatible
 from PeriConto import plot
-from PeriConto import saveWithBackup
+from PeriConto import saveWithBackup, COLOURS, EDGE_COLOUR, QBRUSHES
 # from graphHAP import Graph
 from PeriContoCoatedProduct_gui import Ui_MainWindow
 from resources.pop_up_message_box import makeMessageBox
@@ -104,7 +104,7 @@ class CoatedProduct(QMainWindow):
             "exit"                      : self.ui.pushExit,
             "ClassSubclassElucidation"  : self.ui.groupClassSubclassElucidation,
             "ValueElucidation"          : self.ui.groupValueElucidation,
-            "AddValueElucidation_button": self.ui.pushAddValueElucidation,
+            "AddValueElucidation_button": self.ui.pushAcceptValueElucidation,#pushAddValueElucidation,
             "PrimitiveString"           : self.ui.groupString,
             "integer"         : self.ui.groupQuantityMeasure,
             }
@@ -240,8 +240,9 @@ class CoatedProduct(QMainWindow):
             # print("add %s <-- %s" % (o, s),p)
             item = QTreeWidgetItem(items[o])
             # print("debugging -- color",p )
-            item.setBackground(0, COLOURS[p])
+            # item.setBackground(0, COLOURS[p])
             item.predicate = p
+            item.setForeground(0, QBRUSHES[p])
             stack.append((s, o, p))
             item.setText(0, s)
             items[s] = item
@@ -387,10 +388,10 @@ class CoatedProduct(QMainWindow):
     # print("debugging change text")
     if self.load_elucidation:
       self.load_elucidation = False
-      self.ui.pushAddValueElucidation.hide()
+      self.ui.pushAcceptValueElucidation.hide()
       return
 
-    self.ui.pushAddValueElucidation.show()
+    self.ui.pushAcceptValueElucidation.show()
 
   # def on_pushAddValueElucidation_pressed(self):
   #   self.load_elucidation = True
@@ -506,19 +507,19 @@ class CoatedProduct(QMainWindow):
   #     self.primitives[self.current_class][self.current_subclass] = []
   #   self.primitives[self.current_class][self.current_subclass].append(primitive_ID)
 
-  def __addItemToTree(self, internal_object, predicate, internal_subject, parent_item=None):
-    object = makeRDFCompatible(internal_object)
-    subject = makeRDFCompatible(internal_subject)
-    self.CLASSES[self.current_class].add((subject, RDFSTerms[predicate], object))
-    # generate GUI tree
-    if not parent_item:
-      parent_item = self.ui.treeClass.currentItem()
-    item = QTreeWidgetItem(parent_item)
-    item.setText(0, internal_object)
-    item.setBackground(0, PRIMITIVE_COLOUR)
-    self.ui.treeClass.expandAll()
-    self.changed = True
-    return item
+  # def __addItemToTree(self, internal_object, predicate, internal_subject, parent_item=None):
+  #   object = makeRDFCompatible(internal_object)
+  #   subject = makeRDFCompatible(internal_subject)
+  #   self.CLASSES[self.current_class].add((subject, RDFSTerms[predicate], object))
+  #   # generate GUI tree
+  #   if not parent_item:
+  #     parent_item = self.ui.treeClass.currentItem()
+  #   item = QTreeWidgetItem(parent_item)
+  #   item.setText(0, internal_object)
+  #   item.setBackground(0, PRIMITIVE_COLOUR)
+  #   self.ui.treeClass.expandAll()
+  #   self.changed = True
+  #   return item
 
   # def on_pushAddNewClass_pressed(self):
   #   # print("debugging -- add class")

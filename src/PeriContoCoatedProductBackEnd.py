@@ -229,7 +229,7 @@ class SuperGraph():
 
   def create(self, root_class):
     self.txt_root_class = root_class
-    self.RDFConjunctiveGraph = {self.txt_root_class: Graph('Memory', identifier=root_class)}
+    self.RDFConjunctiveGraph = {self.txt_root_class: Graph(identifier=root_class)}
     self.txt_subclass_names[self.txt_root_class] = [self.txt_root_class]
     self.txt_class_names.append(self.txt_root_class)
     self.txt_class_path = [self.txt_root_class]

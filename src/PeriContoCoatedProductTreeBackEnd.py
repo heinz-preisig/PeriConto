@@ -22,7 +22,7 @@ COATING_ONTOLOGY_URI = 'http://example.org/'
 
 from rdflib import Namespace, Literal, URIRef
 from rdflib.graph import Graph, ConjunctiveGraph
-from rdflib.plugins.stores.memory import Memory
+# from rdflib.plugins.stores.memory import Memory
 from rdflib.namespace import RDF, XSD, RDFS
 
 
@@ -509,8 +509,8 @@ class SuperGraph():
     # Define a namespace for our coating knowledge graph and link the URI 
     ckg = Namespace(COATING_ONTOLOGY_URI)
     print("....debugging...", ckg)
-    kg_store = Memory()
-    kg = ConjunctiveGraph(store=kg_store)
+    # kg_store = Memory()
+    kg = ConjunctiveGraph()#store="Memory") #kg_store)
     kg.bind("ckg", ckg)
     # kg.bind("RDFS", RDFS)
 
@@ -528,7 +528,7 @@ class SuperGraph():
       # print("printing the subgraph identifier....", subgraph_key)
       print(".....URI of subgraph", ckg[subgraph_key])
       print("=================================")
-      subgraph = Graph(store=kg_store, identifier=subgraph_key)
+      subgraph = Graph(identifier=subgraph_key) #store=kg_store, identifier=subgraph_key)
       for s, p, o in self.RDFConjunctiveGraph[subgraph_key].triples((None, None, None)):
         subgraph.add((ckg[s], p, ckg[o]))
         # print(p)

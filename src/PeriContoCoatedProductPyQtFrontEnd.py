@@ -306,7 +306,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.backEnd.processEvent("initialised", "create", None)
 
   def on_pushLoad_pressed(self):
-    self.backEnd.processEvent("load")
+    self.backEnd.processEvent("load",None)
 
   def on_pushSave_pressed(self):
     self.backEnd.processEvent("save_knowledgeGraph", "save", None)

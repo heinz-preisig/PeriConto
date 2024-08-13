@@ -1,0 +1,22 @@
+{
+  "root": "Product",
+  "graphs": {
+    "Product": [
+      [
+        "Components",
+        "is_a_subclass_of",
+        "Product"
+      ],
+      [
+        "Material",
+        "is_a_subclass_of",
+        "Product"
+      ]
+    ]
+  },
+  "elucidations": {
+    "Product": "",
+    "Product.Components": null,
+    "Product.Material": null
+  }
+}

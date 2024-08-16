@@ -1,0 +1,30 @@
+{
+  "root": "simple",
+  "graphs": {
+    "simple": [
+      [
+        "simple",
+        "value",
+        "b"
+      ],
+      [
+        "b",
+        "integer",
+        "integer"
+      ],
+      [
+        "a",
+        "string",
+        "string"
+      ],
+      [
+        "simple",
+        "value",
+        "a"
+      ]
+    ]
+  },
+  "elucidations": {
+    "simple": ""
+  }
+}

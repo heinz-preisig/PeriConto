@@ -1,110 +1,110 @@
 digraph {
-	material
-	substrate
-	material -> substrate [color=red]
-	material
-	dye
-	material -> dye [color=red]
-	layers
-	coatedProduct
-	layers -> coatedProduct [color=blue]
-	material
-	extender
-	material -> extender [color=red]
-	catalyst
 	additive
-	catalyst -> additive [color=blue]
+	coatingLayer
+	additive -> coatingLayer [color=blue]
+	material
+	dryingAgent
+	material -> dryingAgent [color=red]
 	material
 	preservative
 	material -> preservative [color=red]
 	material
-	surfaceActiveAgent
-	material -> surfaceActiveAgent [color=red]
+	dye
+	material -> dye [color=red]
+	substrate
+	coatedProduct
+	substrate -> coatedProduct [color=blue]
+	material
+	filler
+	material -> filler [color=red]
+	lightStabiliser
+	additive
+	lightStabiliser -> additive [color=blue]
+	material
+	colourPigment
+	material -> colourPigment [color=red]
+	filler
+	pigment
+	filler -> pigment [color=blue]
+	material
+	inhibitorPigment
+	material -> inhibitorPigment [color=red]
+	material
+	binder
+	material -> binder [color=red]
+	pigment
+	coatingLayer
+	pigment -> coatingLayer [color=blue]
+	material
+	rheologyAgent
+	material -> rheologyAgent [color=red]
+	material
+	substrate
+	material -> substrate [color=red]
+	material
+	wettingAgent
+	material -> wettingAgent [color=red]
+	extender
+	coatingLayer
+	extender -> coatingLayer [color=blue]
+	material
+	catalyst
+	material -> catalyst [color=red]
+	colourPigment
+	pigment
+	colourPigment -> pigment [color=blue]
+	inhibitorPigment
+	pigment
+	inhibitorPigment -> pigment [color=blue]
+	material
+	preTreatedSurface
+	material -> preTreatedSurface [color=red]
+	catalyst
+	additive
+	catalyst -> additive [color=blue]
+	material
+	defoamerAgent
+	material -> defoamerAgent [color=red]
+	dye
+	additive
+	dye -> additive [color=blue]
 	preservative
 	additive
 	preservative -> additive [color=blue]
 	preTreatedSurface
 	layers
 	preTreatedSurface -> layers [color=blue]
-	material
-	defoamerAgent
-	material -> defoamerAgent [color=red]
-	dryingAgent
-	additive
-	dryingAgent -> additive [color=blue]
-	filler
-	pigment
-	filler -> pigment [color=blue]
-	additive
-	coatingLayer
-	additive -> coatingLayer [color=blue]
-	material
-	wettingAgent
-	material -> wettingAgent [color=red]
-	material
-	lightStabiliser
-	material -> lightStabiliser [color=red]
-	wettingAgent
-	additive
-	wettingAgent -> additive [color=blue]
-	lightStabiliser
-	additive
-	lightStabiliser -> additive [color=blue]
-	colourPigment
-	pigment
-	colourPigment -> pigment [color=blue]
-	surfaceActiveAgent
-	additive
-	surfaceActiveAgent -> additive [color=blue]
-	material
-	colourPigment
-	material -> colourPigment [color=red]
-	defoamerAgent
-	additive
-	defoamerAgent -> additive [color=blue]
-	dye
-	additive
-	dye -> additive [color=blue]
 	rheologyAgent
 	additive
 	rheologyAgent -> additive [color=blue]
+	defoamerAgent
+	additive
+	defoamerAgent -> additive [color=blue]
 	material
-	catalyst
-	material -> catalyst [color=red]
-	material
-	binder
-	material -> binder [color=red]
-	inhibitorPigment
-	pigment
-	inhibitorPigment -> pigment [color=blue]
-	material
-	dryingAgent
-	material -> dryingAgent [color=red]
-	material
-	inhibitorPigment
-	material -> inhibitorPigment [color=red]
+	extender
+	material -> extender [color=red]
+	surfaceActiveAgent
+	additive
+	surfaceActiveAgent -> additive [color=blue]
 	coatingLayer
 	layers
 	coatingLayer -> layers [color=blue]
-	extender
-	coatingLayer
-	extender -> coatingLayer [color=blue]
-	material
-	filler
-	material -> filler [color=red]
-	pigment
-	coatingLayer
-	pigment -> coatingLayer [color=blue]
-	substrate
+	layers
 	coatedProduct
-	substrate -> coatedProduct [color=blue]
+	layers -> coatedProduct [color=blue]
 	binder
 	coatingLayer
 	binder -> coatingLayer [color=blue]
 	material
-	rheologyAgent
-	material -> rheologyAgent [color=red]
+	lightStabiliser
+	material -> lightStabiliser [color=red]
 	material
-	preTreatedSurface
-	material -> preTreatedSurface [color=red]
+	surfaceActiveAgent
+	material -> surfaceActiveAgent [color=red]
+	wettingAgent
+	additive
+	wettingAgent -> additive [color=blue]
+	dryingAgent
+	additive
+	dryingAgent -> additive [color=blue]
 }

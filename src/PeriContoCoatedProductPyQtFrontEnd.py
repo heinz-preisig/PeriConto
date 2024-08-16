@@ -1,5 +1,10 @@
+#!/usr/bin/python
+# encoding: utf-8
+
 """
 this is the front end
+
+refs:  https://github.com/RDFLib/rdflib/blob/main/examples/conjunctive_graphs.py
 """
 
 import os
@@ -306,7 +311,7 @@ class PeriContoPyQtFrontEnd(QMainWindow):
     self.backEnd.processEvent("initialised", "create", None)
 
   def on_pushLoad_pressed(self):
-    self.backEnd.processEvent("load",None)
+    self.backEnd.processEvent("load","load", None)
 
   def on_pushSave_pressed(self):
     self.backEnd.processEvent("save_knowledgeGraph", "save", None)

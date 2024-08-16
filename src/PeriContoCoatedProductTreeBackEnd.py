@@ -11,6 +11,7 @@ import pprint
 
 import copy
 import os.path
+from rdflib.plugins.stores.memory import Memory
 
 DELIMITERS = {"instantiated": ":",
               "path"        : "/"}
@@ -509,8 +510,8 @@ class SuperGraph():
     # Define a namespace for our coating knowledge graph and link the URI 
     ckg = Namespace(COATING_ONTOLOGY_URI)
     print("....debugging...", ckg)
-    # kg_store = Memory()
-    kg = ConjunctiveGraph()#store="Memory") #kg_store)
+    kg_store = Memory()
+    kg = ConjunctiveGraph(store=kg_store) #kg_store)
     kg.bind("ckg", ckg)
     # kg.bind("RDFS", RDFS)
 
@@ -528,7 +529,7 @@ class SuperGraph():
       # print("printing the subgraph identifier....", subgraph_key)
       print(".....URI of subgraph", ckg[subgraph_key])
       print("=================================")
-      subgraph = Graph(identifier=subgraph_key) #store=kg_store, identifier=subgraph_key)
+      subgraph = Graph(identifier=subgraph_key, store=kg_store) #store=kg_store, identifier=subgraph_key)
       for s, p, o in self.RDFConjunctiveGraph[subgraph_key].triples((None, None, None)):
         subgraph.add((ckg[s], p, ckg[o]))
         # print(p)
@@ -1060,6 +1061,18 @@ class BackEnd:
                                  "*.json",
                                  "exit")
 
+  def __askForFileNameKnowledgeGraphLoading(self):
+    global current_event_data
+    global automaton_next_state
+
+    state = automaton_next_state
+
+    self.FrontEnd.fileNameDialogOpen(state, "file_name",
+                                 "instantiate knowledge graph",
+                                 ONTOLOGY_DIRECTORY,
+                                 "*.ttl",
+                                 "exit")
+
   def __askForFileNameSaving(self):
     global current_event_data
     global automaton_next_state
@@ -1114,6 +1127,7 @@ class BackEnd:
     event_data = current_event_data
     self.root_class_container = self.ContainerGraph.load(file_name)
 
+
     self.ContainerGraph.printMe("loaded")
     
     
@@ -1122,6 +1136,30 @@ class BackEnd:
     self.txt_class_names = list(self.working_tree.container_graph.RDFConjunctiveGraph.keys())
 
     self.current_class = self.root_class_container
+
+  def __loadKnowledgeGraph(self):
+    global current_event_data
+    global automaton_next_state
+
+    file_name = current_event_data["file_name"]# "new.ttl"
+    data = open(file_name)
+    g = ConjunctiveGraph()
+    g.parse(data, format="turtle")
+
+    self.__askForFileNameOpening()
+    self.__loadOntology()
+
+    kg = self.ContainerGraph
+
+    g_kg = g + kg
+    pass
+    # self.ContainerGraph = g
+    # self.working_tree = WorkingTree(self.ContainerGraph)
+    # self.txt_class_names = list(self.working_tree.container_graph.RDFConjunctiveGraph.keys())
+    #
+    # self.current_class = self.root_class_container
+
+    print("debugging __loadKnowledgeGraph")
 
   def __processSelectedItem(self):
     #   """
@@ -1419,6 +1457,12 @@ class BackEnd:
                                                       "actions"   : [None],
                                                       "gui_state" : "start"},
                                        },
+            "load"                  : {"load": {"next_state": "show_tree",
+                                                "actions": [self.__askForFileNameKnowledgeGraphLoading,
+                                                            self.__loadKnowledgeGraph,
+                                                            self.__showTree,],
+                                                "gui_state" : "show_tree"}},
+
             "initialised"           : {"create": {"next_state": "got_ontology_file_name",
                                                   "actions"   : [self.__askForFileNameOpening],
                                                   "gui_state" : "initialise"},
@@ -1449,15 +1493,17 @@ class BackEnd:
                                        },
            #Automaton state transition logic to save a loaded ontology or Knowledge Graph
             "save_knowledgeGraph"   : {"save": {"next_state": "saving_knowledgeGraph",
-                                                           "actions"   : [self.__askForFileNameSaving],
-                                                           "gui_state" : "saving_knowledgeGraph"}
+                                                           "actions"   : [self.__askForFileNameSaving,
+                                                                          self.__saveKnowledgeGraph],
+                                                           "gui_state" : "show_tree"}
                                      },
 
-            "saving_knowledgeGraph"   : {"file_name": {"next_state": "save_and_quit",
-                                                           "actions"   : [self.__saveKnowledgeGraph,
-                                                                          self.__askToQuit],
-                                                           "gui_state" : "quit"}
-                                    },
+            # "save_knowledgeGraph"   : {"file_name": {"next_state": "save",
+            #                                                "actions"   : [self.__askForFileNameSaving,
+            #                                                               self.__saveKnowledgeGraph,
+            #                                                               self.__askToQuit],
+            #                                                "gui_state" : "quit"}
+            #                         },
 
             # "state"      : {"event": {"next_state": add next state,
             #                                                "actions"   : [list of actions],

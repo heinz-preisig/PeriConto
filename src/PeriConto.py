@@ -18,6 +18,7 @@ import os
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from graphviz import Digraph
+from rdflib import ConjunctiveGraph
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import RDF, RDFS
@@ -274,11 +275,11 @@ class OntobuilderUI(QMainWindow):
 
     self.CoatingOntology = Graph()
     self.CoatingOntology.parse("coating_ontology.ttl", format="turtle")
-    for s,p,o in self.CoatingOntology.triples((None,None,None)):
+    # for s,p,o in self.CoatingOntology.triples((None,None,None)):
       # print(s,p,o)
-      print("- s: ",self.CoatingOntology.preferredLabel(s))
-      print("- p: ",self.CoatingOntology.preferredLabel(p))
-      print("- o: ",self.CoatingOntology.preferredLabel(o),"\n")
+      # print("- s: ",self.CoatingOntology.preferredLabel(s))
+      # print("- p: ",self.CoatingOntology.preferredLabel(p))
+      # print("- o: ",self.CoatingOntology.preferredLabel(o),"\n")
         # print(self.CoatingOntology.qname(x) if isinstance(x,"URIRef") else x, end=" ")
     print("debugging -- read coating ontology")
 
@@ -807,21 +808,21 @@ class OntobuilderUI(QMainWindow):
     # NOTE: this does work fine, but one cannot read it afterwards. Issue is the parser. It assumes that the subject and
     # NOTE: object are in the namespace.
 
-    # conjunctiveGraph = ConjunctiveGraph('Memory')
-    # for cl in self.class_definition_sequence:
-    #   uri = Literal(cl)
-    #   for s,p,o in self.CLASSES[cl].triples((None,None,None)):
-    #     print(s,p,o)
-    #     conjunctiveGraph.get_context(uri).add([s,p,o])
-    #
-    # print("debugging")
-    #
-    # f = self.JsonFile.split(".")[0] + ".nqd"
-    # inf = open(f,'w')
-    # inf.write(conjunctiveGraph.serialize(format="nquads"))
-    # inf.close()
-    #
-    # print("written to file ", f)
+    conjunctiveGraph = ConjunctiveGraph()
+    for cl in self.class_definition_sequence:
+      uri = Literal(cl)
+      for s,p,o in self.CLASSES[cl].triples((None,None,None)):
+        print(s,p,o)
+        conjunctiveGraph.get_context(uri).add((s,p,o))
+
+    print("debugging")
+
+    f = self.JsonFile.split(".")[0] + ".nqd"
+    inf = open(f,'w')
+    inf.write(conjunctiveGraph.serialize(format="nquads"))
+    inf.close()
+
+    print("written to file ", f)
 
     # Note: saving it with the RDF syntax did not work for loading. Needs more reading...?
 
@@ -939,6 +940,10 @@ class OntobuilderUI(QMainWindow):
     dot = plot(graph_overall, self.class_names)
     # print("debugging -- dot")
     graph_name = self.root_class
+    file_name = graph_name + ".pdf"
+    file_path = os.path.join(ONTOLOGY_DIRECTORY,file_name)
+    if os.path.exists(file_path):
+      saveBackupFile(file_path)
     dot.render(graph_name, directory=ONTOLOGY_DIRECTORY)
     return dot
 

@@ -1,0 +1,26 @@
+{
+  "root": "simple",
+  "graphs": {
+    "simple": [
+      [
+        "a",
+        "value",
+        "l"
+      ],
+      [
+        "l",
+        "string",
+        "string"
+      ],
+      [
+        "a",
+        "is_a_subclass_of",
+        "simple"
+      ]
+    ]
+  },
+  "elucidations": {
+    "simple": "",
+    "simple.a": null
+  }
+}

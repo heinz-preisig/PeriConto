@@ -1,0 +1,158 @@
+{
+  "root": "PassPort",
+  "graphs": {
+    "PassPort": [
+      [
+        "rawProduct_01",
+        "is_a_subclass_of",
+        "PassPort"
+      ],
+      [
+        "ProductSpecifications",
+        "link_to_class",
+        "rawProduct_02"
+      ],
+      [
+        "ProductSpecifications",
+        "link_to_class",
+        "rawProduct_01"
+      ],
+      [
+        "ProductSpecifications",
+        "link_to_class",
+        "Product"
+      ],
+      [
+        "Product",
+        "is_a_subclass_of",
+        "PassPort"
+      ],
+      [
+        "ProductSpecifications",
+        "link_to_class",
+        "rawProduct_03"
+      ],
+      [
+        "rawProduct_02",
+        "is_a_subclass_of",
+        "PassPort"
+      ],
+      [
+        "rawProduct_03",
+        "is_a_subclass_of",
+        "PassPort"
+      ]
+    ],
+    "ProductSpecifications": [
+      [
+        "Producer",
+        "is_a_subclass_of",
+        "ProductSpecifications"
+      ],
+      [
+        "ProducerSpecifications",
+        "link_to_class",
+        "Producer"
+      ]
+    ],
+    "ProducerSpecifications": [
+      [
+        "AddressSpecifications",
+        "link_to_class",
+        "Address"
+      ],
+      [
+        "Address",
+        "is_a_subclass_of",
+        "ProducerSpecifications"
+      ],
+      [
+        "ProducerSpecifications",
+        "value",
+        "OranisationName"
+      ],
+      [
+        "OranisationNumber",
+        "integer",
+        "integer"
+      ],
+      [
+        "ProducerSpecifications",
+        "value",
+        "OranisationNumber"
+      ],
+      [
+        "OranisationName",
+        "string",
+        "string"
+      ]
+    ],
+    "AddressSpecifications": [
+      [
+        "AddressLine_01",
+        "string",
+        "string"
+      ],
+      [
+        "City",
+        "string",
+        "string"
+      ],
+      [
+        "AddressLine_02",
+        "string",
+        "string"
+      ],
+      [
+        "ZIP",
+        "integer",
+        "integer"
+      ],
+      [
+        "AddressSpecifications",
+        "value",
+        "ZIP"
+      ],
+      [
+        "AddressSpecifications",
+        "value",
+        "Country"
+      ],
+      [
+        "AddressSpecifications",
+        "value",
+        "City"
+      ],
+      [
+        "AddressSpecifications",
+        "value",
+        "AddressLine_02"
+      ],
+      [
+        "AddressSpecifications",
+        "value",
+        "AddressLine_01"
+      ],
+      [
+        "Country",
+        "string",
+        "string"
+      ]
+    ]
+  },
+  "elucidations": {
+    "PassPort": "",
+    "PassPort.Product": null,
+    "PassPort.rawProduct_01": null,
+    "PassPort.rawProduct_02": null,
+    "PassPort.rawProduct_03": null,
+    "ProductSpecifications": null,
+    "PassPort.ProductSpecifications": "",
+    "PassPort.ProductSpecifications.Producer": null,
+    "ProducerSpecifications": null,
+    "PassPort.ProductSpecifications.ProducerSpecifications": "",
+    "PassPort.ProductSpecifications.ProducerSpecifications.Address": null,
+    "AddressSpecifications": null,
+    "PassPort.ProductSpecifications.ProducerSpecifications.AddressSpecifications": ""
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "root": "a",
+  "graphs": {
+    "a": [
+      [
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "curl",
+        "string",
+        "string"
+      ],
+      [
+        "burl",
+        "string",
+        "string"
+      ],
+      [
+        "b",
+        "value",
+        "burl"
+      ],
+      [
+        "c",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "c",
+        "value",
+        "curl"
+      ]
+    ]
+  },
+  "elucidations": {
+    "a": "",
+    "a.b": null,
+    "a.c": null
+  }
+}

@@ -128,25 +128,25 @@ class UI_String(QtWidgets.QDialog):
 
 
 # ============================ testing ======================
-
-
-def changing(txt):
-  print("changing:", txt)
-
-
-if __name__ == '__main__':
-
-  from resource.resource_initialisation import DIRECTORIES
-  import os
-
-  JOIN = os.path.join
-
-  DIRECTORIES["packages"] = JOIN(os.path.abspath(".."))
-  DIRECTORIES["common"] = JOIN(DIRECTORIES["packages"], "Common")
-  DIRECTORIES["icon_location"] = JOIN(DIRECTORIES["common"], "icons")
-  a = QtWidgets.QApplication([])
-
-  w = UI_String("give name", "name")
-  w.show()
-  w.accepted.connect(changing)
-  a.exec_()
+#
+#
+# def changing(txt):
+#   print("changing:", txt)
+#
+#
+# if __name__ == '__main__':
+#
+#   from resource.resource_initialisation import DIRECTORIES
+#   import os
+#
+#   JOIN = os.path.join
+#
+#   DIRECTORIES["packages"] = JOIN(os.path.abspath(".."))
+#   DIRECTORIES["common"] = JOIN(DIRECTORIES["packages"], "Common")
+#   DIRECTORIES["icon_location"] = JOIN(DIRECTORIES["common"], "icons")
+#   a = QtWidgets.QApplication([])
+#
+#   w = UI_String("give name", "name")
+#   w.show()
+#   w.accepted.connect(changing)
+#   a.exec_()

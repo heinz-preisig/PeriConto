@@ -1,0 +1,44 @@
+digraph {
+	ChemicalComponent [color=red shape=rectangle]
+	PreTreatmentLayer
+	ChemicalComponent -> PreTreatmentLayer [color=red]
+	ChemicalComponent [color=red shape=rectangle]
+	Substrate
+	ChemicalComponent -> Substrate [color=red]
+	Layers
+	simpleCoatedProduct [fillcolor=red shape=none style=filled]
+	Layers -> simpleCoatedProduct [color=blue]
+	PreTreatmentLayer
+	Layers
+	PreTreatmentLayer -> Layers [color=blue]
+	Binder
+	Coating
+	Binder -> Coating [color=blue]
+	Substrate
+	simpleCoatedProduct [fillcolor=red shape=none style=filled]
+	Substrate -> simpleCoatedProduct [color=blue]
+	ChemicalComponent [color=red shape=rectangle]
+	Binder
+	ChemicalComponent -> Binder [color=red]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	Volume -> integer [color=darkorange]
+	Coating
+	Layers
+	Coating -> Layers [color=blue]
+	Pigment
+	Coating
+	Pigment -> Coating [color=blue]
+	ChemicalComponent [color=red shape=rectangle]
+	Volume
+	ChemicalComponent -> Volume [color=black]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	URL -> string [color=cyan]
+	ChemicalComponent [color=red shape=rectangle]
+	URL
+	ChemicalComponent -> URL [color=black]
+	ChemicalComponent [color=red shape=rectangle]
+	Pigment
+	ChemicalComponent -> Pigment [color=red]
+}

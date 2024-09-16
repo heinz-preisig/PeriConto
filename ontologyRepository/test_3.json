@@ -1,0 +1,163 @@
+{
+  "root": "a",
+  "graphs": {
+    "a": [
+      [
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "d",
+        "is_a_subclass_of",
+        "b"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "f"
+      ],
+      [
+        "e",
+        "is_a_subclass_of",
+        "d"
+      ],
+      [
+        "k",
+        "is_a_subclass_of",
+        "h"
+      ],
+      [
+        "h",
+        "is_a_subclass_of",
+        "d"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "j"
+      ],
+      [
+        "i",
+        "is_a_subclass_of",
+        "h"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "e"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "i"
+      ],
+      [
+        "f",
+        "is_a_subclass_of",
+        "d"
+      ],
+      [
+        "j",
+        "is_a_subclass_of",
+        "h"
+      ],
+      [
+        "g",
+        "is_a_subclass_of",
+        "d"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "k"
+      ],
+      [
+        "c",
+        "is_a_subclass_of",
+        "b"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "g"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "c"
+      ]
+    ],
+    "A": [
+      [
+        "C#",
+        "integer",
+        "integer"
+      ],
+      [
+        "BURL",
+        "value",
+        "string"
+      ],
+      [
+        "B",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "C",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "C",
+        "value",
+        "C#"
+      ],
+      [
+        "B",
+        "value",
+        "B#"
+      ],
+      [
+        "B",
+        "value",
+        "BURL"
+      ],
+      [
+        "C",
+        "value",
+        "CURL"
+      ],
+      [
+        "B#",
+        "integer",
+        "integer"
+      ],
+      [
+        "CURL",
+        "string",
+        "string"
+      ]
+    ]
+  },
+  "elucidations": {
+    "a": "",
+    "a.b": null,
+    "a.c": null,
+    "a.d": null,
+    "a.f": null,
+    "a.e": null,
+    "a.g": null,
+    "a.h": null,
+    "a.i": null,
+    "a.j": null,
+    "a.k": null,
+    "A": null,
+    "a.A": "",
+    "a.A.B": null,
+    "a.A.C": null,
+    "a.A.C#": "",
+    "a.A.URL": ""
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "root": "coated_product",
+  "graphs": {
+    "coated_product": [
+      [
+        "a",
+        "is_a_subclass_of",
+        "coated_product"
+      ],
+      [
+        "b",
+        "link_to_class",
+        "a"
+      ]
+    ],
+    "b": [
+      [
+        "c",
+        "link_to_class",
+        "b1"
+      ],
+      [
+        "b1",
+        "is_a_subclass_of",
+        "b"
+      ]
+    ],
+    "c": [
+      [
+        "c1",
+        "value",
+        "text"
+      ],
+      [
+        "text",
+        "comment",
+        "comment"
+      ],
+      [
+        "c1",
+        "is_a_subclass_of",
+        "c"
+      ]
+    ]
+  },
+  "elucidations": {
+    "coated_product": null,
+    "b": null,
+    "coated_product.b": "",
+    "coated_product.b.b1": null,
+    "c": null,
+    "coated_product.b.c": "",
+    "coated_product.b.c.c1": null,
+    "coated_product.b.c.text": ""
+  }
+}

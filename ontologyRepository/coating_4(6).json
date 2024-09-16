@@ -1,0 +1,344 @@
+{
+  "root": "coatedProduct",
+  "graphs": {
+    "coatedProduct": [
+      [
+        "defoamerAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "extender"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "binder"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "defoamerAgent"
+      ],
+      [
+        "rheologyAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "wettingAgent"
+      ],
+      [
+        "wettingAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "extender",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "coatingLayer",
+        "value",
+        "ID"
+      ],
+      [
+        "inhibitorPigment",
+        "is_a_subclass_of",
+        "pigment"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "dye"
+      ],
+      [
+        "filler",
+        "is_a_subclass_of",
+        "pigment"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "preTreatedSurface"
+      ],
+      [
+        "lightStabiliser",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "dryingAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "layers",
+        "is_a_subclass_of",
+        "coatedProduct"
+      ],
+      [
+        "pigment",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "preTreatedSurface",
+        "is_a_subclass_of",
+        "layers"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "preservative"
+      ],
+      [
+        "coatedProduct",
+        "value",
+        "ID"
+      ],
+      [
+        "surfaceActiveAgent",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "preservative",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "lightStabiliser"
+      ],
+      [
+        "coatingLayer",
+        "is_a_subclass_of",
+        "layers"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "substrate"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "surfaceActiveAgent"
+      ],
+      [
+        "additive",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "rheologyAgent"
+      ],
+      [
+        "catalyst",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "dryingAgent"
+      ],
+      [
+        "dye",
+        "is_a_subclass_of",
+        "additive"
+      ],
+      [
+        "substrate",
+        "is_a_subclass_of",
+        "coatedProduct"
+      ],
+      [
+        "material",
+        "link_to_class",
+        "catalyst"
+      ],
+      [
+        "colourPigment",
+        "is_a_subclass_of",
+        "pigment"
+      ],
+      [
+        "binder",
+        "is_a_subclass_of",
+        "coatingLayer"
+      ]
+    ],
+    "productionProcess": [
+      [
+        "washing",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "polymerisationProcess",
+        "is_a_subclass_of",
+        "productionProcess"
+      ],
+      [
+        "surfaceTreatmentProcess",
+        "is_a_subclass_of",
+        "productionProcess"
+      ],
+      [
+        "pickling",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "solGelCoating",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "andozing",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ],
+      [
+        "reaction",
+        "link_to_class",
+        "polymerisationProcess"
+      ],
+      [
+        "etching",
+        "is_a_subclass_of",
+        "surfaceTreatmentProcess"
+      ]
+    ],
+    "material": [
+      [
+        "chemicalComponent",
+        "link_to_class",
+        "offTheShelf"
+      ],
+      [
+        "processProduct",
+        "is_a_subclass_of",
+        "material"
+      ],
+      [
+        "offTheShelf",
+        "is_a_subclass_of",
+        "material"
+      ],
+      [
+        "productionProcess",
+        "link_to_class",
+        "processProduct"
+      ]
+    ],
+    "chemicalComponent": [
+      [
+        "chemicalComponent",
+        "value",
+        "quantityMeasure"
+      ],
+      [
+        "URL",
+        "string",
+        "string"
+      ],
+      [
+        "quantityMeasure",
+        "integer",
+        "integer"
+      ],
+      [
+        "chemicalComponent",
+        "value",
+        "URL"
+      ]
+    ],
+    "reaction": [
+      [
+        "solvent",
+        "is_a_subclass_of",
+        "nonreactive"
+      ],
+      [
+        "biological",
+        "is_a_subclass_of",
+        "reaction"
+      ],
+      [
+        "nonreactive",
+        "is_a_subclass_of",
+        "chemical"
+      ],
+      [
+        "product",
+        "is_a_subclass_of",
+        "chemical"
+      ],
+      [
+        "reactant",
+        "is_a_subclass_of",
+        "chemical"
+      ],
+      [
+        "chemical",
+        "is_a_subclass_of",
+        "reaction"
+      ]
+    ]
+  },
+  "elucidations": {
+    "coatedProduct.catalyst": "catalyses the binder's reaction",
+    "coatedProduct.rheologyAgent": "affects the rheological behaviour, mainly the viscosity",
+    "coatedProduct.lightStabiliser": "protects from high-energy (solar) radiation\n",
+    "coatedProduct.substrate": "substrate on which the coating is applied",
+    "coatedProduct.dryingAgent": "affects the drying process\n",
+    "coatedProduct.wettingAgent": "helps in wetting the application surface",
+    "coatedProduct.coatingLayer": "the coating layer's binder - often a polymer\n",
+    "coatedProduct": "root of the ontology",
+    "coatedProduct.preTreatedSurface": "the result of a pre-treatment",
+    "coatedProduct.surfaceActiveAgent": "affects the behaviour towards the layer's surface",
+    "coatedProduct.dye": "gives the layer a colour in the homogenious phase",
+    "coatedProduct.defoamerAgent": "prevents foaming",
+    "coatedProduct.sequencePosition": "indicates the position of the layer in the stratum",
+    "coatedProduct.additive": "chemical components that disolve in the binder, thus form a homogenious phase",
+    "coatedProduct.preservative": "preservative",
+    "coatedProduct.productionProcess": "the applied pre-treatment process",
+    "coatedProduct.extender": "catalyses binder polymerisation",
+    "coatedProduct.binder": "matrix material -- usually a polymer",
+    "material": null,
+    "coatedProduct.material": "",
+    "coatedProduct.material.processProduct": null,
+    "coatedProduct.material.offTheShelf": null,
+    "chemicalComponent": null,
+    "coatedProduct.material.chemicalComponent": "",
+    "coatedProduct.material.productionProcess": "",
+    "coatedProduct.material.productionProcess.surfaceTreatmentProcess": null,
+    "coatedProduct.material.productionProcess.solGelCoating": "",
+    "coatedProduct.material.productionProcess.andozing": "",
+    "coatedProduct.coatingLayerIdenfier": "",
+    "coatedProduct.layers": null,
+    "coatedProduct.pigment": null,
+    "coatedProduct.colourPigment": null,
+    "coatedProduct.inhibitor": null,
+    "coatedProduct.material.productionProcess.polymerisationProcess": null,
+    "reaction": null,
+    "coatedProduct.material.productionProcess.reaction": null,
+    "coatedProduct.material.productionProcess.reaction.chemical": null,
+    "coatedProduct.material.productionProcess.reaction.biological": null,
+    "coatedProduct.filler": null,
+    "coatedProduct.material.productionProcess.reaction.reactant": null,
+    "coatedProduct.material.productionProcess.reaction.nonreactive": null,
+    "coatedProduct.material.productionProcess.reaction.solvent": null
+  }
+}

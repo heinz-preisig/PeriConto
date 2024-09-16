@@ -1,0 +1,89 @@
+{
+  "root": "a",
+  "graphs": {
+    "a": [
+      [
+        "c",
+        "value",
+        "curl"
+      ],
+      [
+        "burl",
+        "string",
+        "string"
+      ],
+      [
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "d"
+      ],
+      [
+        "c",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "curl",
+        "string",
+        "string"
+      ],
+      [
+        "b",
+        "value",
+        "burl"
+      ],
+      [
+        "d",
+        "is_a_subclass_of",
+        "a"
+      ]
+    ],
+    "A": [
+      [
+        "sC",
+        "string",
+        "string"
+      ],
+      [
+        "sD",
+        "string",
+        "string"
+      ],
+      [
+        "C",
+        "value",
+        "sC"
+      ],
+      [
+        "D",
+        "value",
+        "sD"
+      ],
+      [
+        "C",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "D",
+        "is_a_subclass_of",
+        "A"
+      ]
+    ]
+  },
+  "elucidations": {
+    "a": "",
+    "a.b": null,
+    "a.c": null,
+    "a.d": null,
+    "A": null,
+    "a.A": "",
+    "a.A.C": null,
+    "a.A.D": null
+  }
+}

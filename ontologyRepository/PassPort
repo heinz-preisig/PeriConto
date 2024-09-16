@@ -1,0 +1,80 @@
+digraph {
+	rawProduct_01
+	PassPort [fillcolor=red shape=none style=filled]
+	rawProduct_01 -> PassPort [color=blue]
+	ProducerSpecifications [color=red shape=rectangle]
+	OranisationNumber
+	ProducerSpecifications -> OranisationNumber [color=black]
+	Producer
+	ProductSpecifications [fillcolor=lightcoral shape=none style=filled]
+	Producer -> ProductSpecifications [color=blue]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	ZIP -> integer [color=darkorange]
+	ProductSpecifications [color=red shape=rectangle]
+	rawProduct_01
+	ProductSpecifications -> rawProduct_01 [color=red]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	OranisationNumber -> integer [color=darkorange]
+	ProductSpecifications [color=red shape=rectangle]
+	Product
+	ProductSpecifications -> Product [color=red]
+	rawProduct_03
+	PassPort [fillcolor=red shape=none style=filled]
+	rawProduct_03 -> PassPort [color=blue]
+	AddressSpecifications [color=red shape=rectangle]
+	Country
+	AddressSpecifications -> Country [color=black]
+	Product
+	PassPort [fillcolor=red shape=none style=filled]
+	Product -> PassPort [color=blue]
+	Address
+	ProducerSpecifications [fillcolor=lightcoral shape=none style=filled]
+	Address -> ProducerSpecifications [color=blue]
+	ProducerSpecifications [color=red shape=rectangle]
+	Producer
+	ProducerSpecifications -> Producer [color=red]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	AddressLine_01 -> string [color=cyan]
+	AddressSpecifications [color=red shape=rectangle]
+	City
+	AddressSpecifications -> City [color=black]
+	AddressSpecifications [color=red shape=rectangle]
+	AddressLine_02
+	AddressSpecifications -> AddressLine_02 [color=black]
+	ProductSpecifications [color=red shape=rectangle]
+	rawProduct_03
+	ProductSpecifications -> rawProduct_03 [color=red]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	OranisationName -> string [color=cyan]
+	ProducerSpecifications [color=red shape=rectangle]
+	OranisationName
+	ProducerSpecifications -> OranisationName [color=black]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	AddressLine_02 -> string [color=cyan]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	Country -> string [color=cyan]
+	AddressSpecifications [color=red shape=rectangle]
+	ZIP
+	AddressSpecifications -> ZIP [color=black]
+	rawProduct_02
+	PassPort [fillcolor=red shape=none style=filled]
+	rawProduct_02 -> PassPort [color=blue]
+	AddressSpecifications [color=red shape=rectangle]
+	Address
+	AddressSpecifications -> Address [color=red]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	City -> string [color=cyan]
+	ProductSpecifications [color=red shape=rectangle]
+	rawProduct_02
+	ProductSpecifications -> rawProduct_02 [color=red]
+	AddressSpecifications [color=red shape=rectangle]
+	AddressLine_01
+	AddressSpecifications -> AddressLine_01 [color=black]
+}

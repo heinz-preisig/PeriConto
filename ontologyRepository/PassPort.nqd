@@ -1,0 +1,27 @@
+"rawProduct_01" <http://www.w3.org/2000/01/rdf-schema#subClassOf> "PassPort" <PassPort> .
+"ProductSpecifications" <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> "rawProduct_02" <PassPort> .
+"ProductSpecifications" <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> "rawProduct_01" <PassPort> .
+"ProductSpecifications" <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> "Product" <PassPort> .
+"rawProduct_03" <http://www.w3.org/2000/01/rdf-schema#subClassOf> "PassPort" <PassPort> .
+"rawProduct_02" <http://www.w3.org/2000/01/rdf-schema#subClassOf> "PassPort" <PassPort> .
+"Product" <http://www.w3.org/2000/01/rdf-schema#subClassOf> "PassPort" <PassPort> .
+"ProductSpecifications" <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> "rawProduct_03" <PassPort> .
+"AddressLine_02" <http://www.w3.org/2001/XMLSchema#string> "string" <AddressSpecifications> .
+"Country" <http://www.w3.org/2001/XMLSchema#string> "string" <AddressSpecifications> .
+"ZIP" <http://www.w3.org/2001/XMLSchema#integer> "integer" <AddressSpecifications> .
+"AddressSpecifications" <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "ZIP" <AddressSpecifications> .
+"AddressSpecifications" <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "Country" <AddressSpecifications> .
+"AddressLine_01" <http://www.w3.org/2001/XMLSchema#string> "string" <AddressSpecifications> .
+"City" <http://www.w3.org/2001/XMLSchema#string> "string" <AddressSpecifications> .
+"AddressSpecifications" <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "City" <AddressSpecifications> .
+"AddressSpecifications" <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "AddressLine_02" <AddressSpecifications> .
+"AddressSpecifications" <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "AddressLine_01" <AddressSpecifications> .
+"ProducerSpecifications" <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> "Producer" <ProductSpecifications> .
+"Producer" <http://www.w3.org/2000/01/rdf-schema#subClassOf> "ProductSpecifications" <ProductSpecifications> .
+"AddressSpecifications" <http://www.w3.org/2000/01/rdf-schema#isDefinedBy> "Address" <ProducerSpecifications> .
+"ProducerSpecifications" <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "OranisationNumber" <ProducerSpecifications> .
+"ProducerSpecifications" <http://www.w3.org/1999/02/22-rdf-syntax-ns#value> "OranisationName" <ProducerSpecifications> .
+"OranisationNumber" <http://www.w3.org/2001/XMLSchema#integer> "integer" <ProducerSpecifications> .
+"OranisationName" <http://www.w3.org/2001/XMLSchema#string> "string" <ProducerSpecifications> .
+"Address" <http://www.w3.org/2000/01/rdf-schema#subClassOf> "ProducerSpecifications" <ProducerSpecifications> .
+

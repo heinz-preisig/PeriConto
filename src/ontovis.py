@@ -1,7 +1,8 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QMenu
-from PyQt5.QtWidgets import QApplication, QMenuBar, QGridLayout, QAction, qApp, QMessageBox
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt6.QtWidgets import QWidget, QApplication, QVBoxLayout, QMenu
+from PyQt6.QtWidgets import QApplication, QMenuBar, QGridLayout #, QAction, qApp, QMessageBox
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+# from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import Qt
 
 
@@ -94,4 +95,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = Ontovis()
     ex.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())

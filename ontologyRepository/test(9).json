@@ -1,0 +1,207 @@
+{
+  "root": "a",
+  "graphs": {
+    "a": [
+      [
+        "A",
+        "link_to_class",
+        "e"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "g"
+      ],
+      [
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "g",
+        "is_a_subclass_of",
+        "c"
+      ],
+      [
+        "c",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "f"
+      ],
+      [
+        "A",
+        "link_to_class",
+        "d"
+      ],
+      [
+        "f",
+        "is_a_subclass_of",
+        "c"
+      ],
+      [
+        "d",
+        "is_a_subclass_of",
+        "b"
+      ],
+      [
+        "e",
+        "is_a_subclass_of",
+        "b"
+      ]
+    ],
+    "A": [
+      [
+        "G",
+        "is_a_subclass_of",
+        "C"
+      ],
+      [
+        "aa",
+        "link_to_class",
+        "D"
+      ],
+      [
+        "aa",
+        "link_to_class",
+        "G"
+      ],
+      [
+        "F",
+        "is_a_subclass_of",
+        "C"
+      ],
+      [
+        "C",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "B",
+        "is_a_subclass_of",
+        "A"
+      ],
+      [
+        "aa",
+        "link_to_class",
+        "F"
+      ],
+      [
+        "D",
+        "is_a_subclass_of",
+        "B"
+      ],
+      [
+        "E",
+        "is_a_subclass_of",
+        "B"
+      ],
+      [
+        "aa",
+        "link_to_class",
+        "E"
+      ]
+    ],
+    "aa": [
+      [
+        "ff_ID",
+        "string",
+        "string"
+      ],
+      [
+        "ff",
+        "is_a_subclass_of",
+        "cc"
+      ],
+      [
+        "dd",
+        "is_a_subclass_of",
+        "bb"
+      ],
+      [
+        "dd_ID",
+        "value",
+        "string"
+      ],
+      [
+        "gg",
+        "is_a_subclass_of",
+        "cc"
+      ],
+      [
+        "ee",
+        "is_a_subclass_of",
+        "bb"
+      ],
+      [
+        "gg",
+        "value",
+        "gg_ID"
+      ],
+      [
+        "dd",
+        "value",
+        "dd_ID"
+      ],
+      [
+        "ee_ID",
+        "string",
+        "string"
+      ],
+      [
+        "bb",
+        "is_a_subclass_of",
+        "aa"
+      ],
+      [
+        "ff",
+        "value",
+        "ff_ID"
+      ],
+      [
+        "ee",
+        "value",
+        "ee_ID"
+      ],
+      [
+        "gg_ID",
+        "string",
+        "string"
+      ],
+      [
+        "cc",
+        "is_a_subclass_of",
+        "aa"
+      ]
+    ]
+  },
+  "elucidations": {
+    "a": "",
+    "a.b": null,
+    "a.c": null,
+    "a.d": null,
+    "a.e": null,
+    "a.f": null,
+    "a.g": null,
+    "A": null,
+    "a.A": "",
+    "a.A.B": null,
+    "a.A.C": null,
+    "a.A.D": null,
+    "a.A.E": null,
+    "a.A.F": null,
+    "a.A.G": null,
+    "aa": null,
+    "a.A.aa": "",
+    "a.A.aa.bb": null,
+    "a.A.aa.cc": null,
+    "a.A.aa.dd": null,
+    "a.A.aa.ff": null,
+    "a.A.aa.gg": null,
+    "a.A.aa.ee": "",
+    "a.A.aa.identifier": ""
+  }
+}

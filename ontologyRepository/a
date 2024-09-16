@@ -1,0 +1,104 @@
+digraph {
+	d
+	b
+	d -> b [color=blue]
+	aa [color=red shape=rectangle]
+	E
+	aa -> E [color=red]
+	ff
+	cc
+	ff -> cc [color=blue]
+	G
+	C
+	G -> C [color=blue]
+	A [color=red shape=rectangle]
+	f
+	A -> f [color=red]
+	ff
+	ff_number
+	ff -> ff_number [color=black]
+	bb
+	aa [fillcolor=lightcoral shape=none style=filled]
+	bb -> aa [color=blue]
+	D
+	B
+	D -> B [color=blue]
+	gg
+	cc
+	gg -> cc [color=blue]
+	ee
+	bb
+	ee -> bb [color=blue]
+	C
+	A [fillcolor=lightcoral shape=none style=filled]
+	C -> A [color=blue]
+	cc
+	aa [fillcolor=lightcoral shape=none style=filled]
+	cc -> aa [color=blue]
+	E
+	B
+	E -> B [color=blue]
+	aa [color=red shape=rectangle]
+	D
+	aa -> D [color=red]
+	A [color=red shape=rectangle]
+	g
+	A -> g [color=red]
+	e
+	b
+	e -> b [color=blue]
+	A [color=red shape=rectangle]
+	e
+	A -> e [color=red]
+	B
+	A [fillcolor=lightcoral shape=none style=filled]
+	B -> A [color=blue]
+	dd
+	bb
+	dd -> bb [color=blue]
+	gg
+	gg_id
+	gg -> gg_id [color=black]
+	aa [color=red shape=rectangle]
+	G
+	aa -> G [color=red]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	gg_id -> string [color=black]
+	b
+	a [fillcolor=red shape=none style=filled]
+	b -> a [color=blue]
+	ee
+	ee_number
+	ee -> ee_number [color=black]
+	c
+	a [fillcolor=red shape=none style=filled]
+	c -> a [color=blue]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	ee_number -> integer [color=darkorange]
+	aa [color=red shape=rectangle]
+	F
+	aa -> F [color=red]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	dd_id -> string [color=cyan]
+	dd
+	dd_id
+	dd -> dd_id [color=black]
+	integer [color=green fillcolor=gray shape=none style=filled]
+	integer
+	ff_number -> integer [color=darkorange]
+	g
+	c
+	g -> c [color=blue]
+	f
+	c
+	f -> c [color=blue]
+	F
+	C
+	F -> C [color=blue]
+	A [color=red shape=rectangle]
+	d
+	A -> d [color=red]
+}

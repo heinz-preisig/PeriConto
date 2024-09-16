@@ -1,0 +1,23 @@
+digraph {
+	b1
+	b [fillcolor=lightcoral shape=none style=filled]
+	b1 -> b [color=blue]
+	b [color=red shape=rectangle]
+	a
+	b -> a [color=red]
+	c [color=red shape=rectangle]
+	b1
+	c -> b1 [color=red]
+	c1
+	text
+	c1 -> text [color=black]
+	a
+	coated_product [fillcolor=red shape=none style=filled]
+	a -> coated_product [color=blue]
+	comment [color=green fillcolor=gray shape=none style=filled]
+	comment
+	text -> comment [color=green]
+	c1
+	c [fillcolor=lightcoral shape=none style=filled]
+	c1 -> c [color=blue]
+}

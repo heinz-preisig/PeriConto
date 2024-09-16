@@ -3,7 +3,6 @@ import os
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 
-
 # ===========================================  icons ==============================
 ICONS = {}
 ICONS["+"] = "plus-icon.png"
@@ -28,6 +27,8 @@ ICONS["save_as"] = "save_as_button_hap.svg"
 ICONS["plus"] = "plus_button_hap.svg"
 ICONS["update"] = "update_button_hap.svg"
 ICONS["next"] = "next_button_hap.svg"
+ICONS["expand"] ="expand_tree_button_hap.svg"
+ICONS["collaps"] = "collaps_tree_button_hap.svg"
 
 size = 52
 BUTTON_ICON_SIZE = QtCore.QSize(size, size)
@@ -62,8 +63,7 @@ def getIcon(what):
     print("assertation error %s is not in the icon dictionary" % what)
     os.exit()
 
-
-  f_name = os.path.join( os.path.curdir, "resources","icons", ICONS[what])
+  f_name = os.path.join(os.getcwd(), 'resources', "icons", ICONS[what])
   # print("debugging .....", f_name)
   if os.path.exists(f_name):
     pm = QtGui.QPixmap(f_name)

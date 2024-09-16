@@ -1,0 +1,11 @@
+digraph {
+	a
+	simple [fillcolor=red shape=none style=filled]
+	a -> simple [color=blue]
+	string [color=green fillcolor=gray shape=none style=filled]
+	string
+	l -> string [color=cyan]
+	a
+	l
+	a -> l [color=black]
+}

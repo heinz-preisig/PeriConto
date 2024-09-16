@@ -1,0 +1,26 @@
+{
+  "root": "a",
+  "graphs": {
+    "a": [
+      [
+        "b",
+        "value",
+        "number"
+      ],
+      [
+        "b",
+        "is_a_subclass_of",
+        "a"
+      ],
+      [
+        "number",
+        "integer",
+        "integer"
+      ]
+    ]
+  },
+  "elucidations": {
+    "a": "",
+    "a.b": null
+  }
+}

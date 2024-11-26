@@ -266,6 +266,7 @@ class SuperGraph():
     rdf_subject = makeRDFCompatible(subject_internal)
     rdf_object = makeRDFCompatible(object_internal)
     rdf_predicate = RDFSTerms[predicate_internal]
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     self.RDFConjunctiveGraph[graph_ID].add((rdf_subject, rdf_predicate, rdf_object))
 
   def printMe(self, text):
@@ -785,7 +786,7 @@ class BackEnd:
     self.FrontEnd.fileNameDialog(state, "file_name",
                                  "ontology",
                                  ONTOLOGY_DIRECTORY,
-                                 "*.json",
+                                 "*",
                                  "exit")
 
   def __loadOntology(self):
@@ -975,6 +976,7 @@ class BackEnd:
 
   def __makeDotPlot(self):
     # global working_tree
+    return
     self.working_tree.makeRDFDotGraph()
 
   #
